@@ -1,0 +1,9 @@
+server:
+  port: 7900
+
+spring:
+  security:
+    enabled: true
+    cas:
+      enabled: true 
+      renew: false
