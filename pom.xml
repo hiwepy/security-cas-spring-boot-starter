@@ -364,7 +364,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<cas-client.version>3.5.0</cas-client.version>
+		<cas-client.version>3.5.1</cas-client.version>
 		<commons-io.version>2.5</commons-io.version>
 		<maven.version>3.0</maven.version>
        	<maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
