@@ -1,5 +1,7 @@
 package org.springframework.security.boot;
 
+import javax.servlet.http.HttpSessionEvent;
+
 import org.jasig.cas.client.session.SingleSignOutFilter;
 import org.jasig.cas.client.session.SingleSignOutHttpSessionListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
 import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
 import org.springframework.security.cas.web.CasAuthenticationFilter;
@@ -59,7 +62,13 @@ public class SecurityCasWebAutoConfiguration extends WebSecurityConfigurerAdapte
                 .antMatchers("/api/**").permitAll()  // 不拦截对外API
                     .anyRequest().authenticated();  // 所有资源都需要登陆后才可以访问。
 
-        http.logout().permitAll();  // 不拦截注销
+        http.logout()
+        	.invalidateHttpSession(true)
+        	//.addLogoutHandler(logoutHandler)
+        	//.logoutSuccessHandler(logoutSuccessHandler)
+        	//.logoutSuccessUrl(logoutSuccessUrl)
+        	//.logoutUrl(logoutUrl)
+        	.permitAll();  // 不拦截注销
 
         http.exceptionHandling().authenticationEntryPoint(casAuthenticationEntryPoint);
         // 单点注销的过滤器，必须配置在SpringSecurity的过滤器链中，如果直接配置在Web容器中，貌似是不起作用的。我自己的是不起作用的。
@@ -79,7 +88,7 @@ public class SecurityCasWebAutoConfiguration extends WebSecurityConfigurerAdapte
     }
 
     /**
-	 * 单点登录Session监听器
+	 * 单点注销Session监听器
 	 */
     @Bean
     public ServletListenerRegistrationBean<SingleSignOutHttpSessionListener> singleSignOutHttpSessionListener(){

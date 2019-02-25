@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.1.1.RELEASE</version>
+		<version>2.1.2.RELEASE</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	
@@ -373,6 +373,7 @@
         <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
         <maven-surefire-plugin.vertsion>2.21.0</maven-surefire-plugin.vertsion>
 		<maven-nexus-staging-plugin.version>1.6.8</maven-nexus-staging-plugin.version>
+		<redisson.version>3.10.2</redisson.version>
 		<security-biz.version>1.0.0-SNAPSHOT</security-biz.version>
 		<woodstox-asl.version>4.4.1</woodstox-asl.version>
 	</properties>
@@ -428,6 +429,20 @@
 			<artifactId>spring-boot-autoconfigure</artifactId>
 		</dependency>
 		
+		<!-- https://mvnrepository.com/artifact/org.redisson/redisson-spring-boot-starter -->
+		<dependency>
+		    <groupId>org.redisson</groupId>
+		    <artifactId>redisson-spring-boot-starter</artifactId>
+		    <version>${redisson.version}</version>
+		    <scope>provided</scope>
+		    <exclusions>
+		    	<exclusion>
+		    		<groupId>org.springframework.boot</groupId>
+		    		<artifactId>spring-boot-starter-web</artifactId>
+		    	</exclusion>
+		    </exclusions>
+		</dependency>
+						
 		<!-- Commons项目中用来处理Java基本对象方法的工具类包， 可以简化很多平时经常要用到的写法， 例如判断字符串是否为空等等 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
