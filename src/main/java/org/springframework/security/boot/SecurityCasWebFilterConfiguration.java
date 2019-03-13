@@ -3,6 +3,8 @@ package org.springframework.security.boot;
 import javax.servlet.http.HttpServletRequest;
 
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
+import org.jasig.cas.client.validation.Cas30ServiceTicketValidator;
+import org.jasig.cas.client.validation.TicketValidator;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -39,8 +41,8 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 
 @Configuration
 @AutoConfigureBefore(name = { 
@@ -60,122 +62,7 @@ public class SecurityCasWebFilterConfiguration implements ApplicationContextAwar
 	private SecurityBizProperties bizProperties;
 	@Autowired
 	private ServerProperties serverProperties;
-
-	/**
-	 * 登录监听：实现该接口可监听账号登录失败和成功的状态，从而做业务系统自己的事情，比如记录日志
-	 * 
-	 * @Bean("loginListeners")
-	 * 
-	 * @ConditionalOnMissingBean(name = "loginListeners") public List<LoginListener>
-	 *                                loginListeners() {
-	 * 
-	 *                                List<LoginListener> loginListeners = new
-	 *                                ArrayList<LoginListener>();
-	 * 
-	 *                                Map<String, LoginListener> beansOfType =
-	 *                                getApplicationContext().getBeansOfType(LoginListener.class);
-	 *                                if (!ObjectUtils.isEmpty(beansOfType)) {
-	 *                                Iterator<Entry<String, LoginListener>> ite =
-	 *                                beansOfType.entrySet().iterator(); while
-	 *                                (ite.hasNext()) {
-	 *                                loginListeners.add(ite.next().getValue()); } }
-	 * 
-	 *                                return loginListeners; }
-	 */
-
-	/**
-	 * Realm 执行监听：实现该接口可监听认证失败和成功的状态，从而做业务系统自己的事情，比如记录日志
-	 * 
-	 * @Bean("realmListeners")
-	 * 
-	 * @ConditionalOnMissingBean(name = "realmListeners") public
-	 *                                List<PrincipalRealmListener> realmListeners()
-	 *                                {
-	 * 
-	 *                                List<PrincipalRealmListener> realmListeners =
-	 *                                new ArrayList<PrincipalRealmListener>();
-	 * 
-	 *                                Map<String, PrincipalRealmListener>
-	 *                                beansOfType =
-	 *                                getApplicationContext().getBeansOfType(PrincipalRealmListener.class);
-	 *                                if (!ObjectUtils.isEmpty(beansOfType)) {
-	 *                                Iterator<Entry<String,
-	 *                                PrincipalRealmListener>> ite =
-	 *                                beansOfType.entrySet().iterator(); while
-	 *                                (ite.hasNext()) {
-	 *                                realmListeners.add(ite.next().getValue()); } }
-	 * 
-	 *                                return realmListeners; }
-	 */
-
-	/**
-	 * 注销监听：实现该接口可监听账号注销失败和成功的状态，从而做业务系统自己的事情，比如记录日志
-	 * 
-	 * @Bean("logoutListeners")
-	 * 
-	 * @ConditionalOnMissingBean(name = "logoutListeners") public
-	 *                                List<LogoutListener> logoutListeners() {
-	 * 
-	 *                                List<LogoutListener> logoutListeners = new
-	 *                                ArrayList<LogoutListener>();
-	 * 
-	 *                                Map<String, LogoutListener> beansOfType =
-	 *                                getApplicationContext().getBeansOfType(LogoutListener.class);
-	 *                                if (!ObjectUtils.isEmpty(beansOfType)) {
-	 *                                Iterator<Entry<String, LogoutListener>> ite =
-	 *                                beansOfType.entrySet().iterator(); while
-	 *                                (ite.hasNext()) {
-	 *                                logoutListeners.add(ite.next().getValue()); }
-	 *                                }
-	 * 
-	 *                                return logoutListeners; }
-	 */
-
-	/**
-	 * 系统登录注销过滤器；默认：org.apache.shiro.spring.boot.cas.filter.CasLogoutFilter
-	 * 
-	 * @Bean("logout")
-	 * 
-	 * @ConditionalOnMissingBean(name = "logout") public
-	 *                                FilterRegistrationBean<BizLogoutFilter>
-	 *                                logoutFilter(List<LogoutListener>
-	 *                                logoutListeners){
-	 * 
-	 *                                FilterRegistrationBean<BizLogoutFilter>
-	 *                                registration = new
-	 *                                FilterRegistrationBean<BizLogoutFilter>();
-	 *                                BizLogoutFilter logoutFilter = new
-	 *                                BizLogoutFilter();
-	 * 
-	 *                                //登录注销后的重定向地址：直接进入登录页面
-	 *                                logoutFilter.setRedirectUrl(bizProperties.getRedirectUrl());
-	 *                                registration.setFilter(logoutFilter);
-	 *                                //注销监听：实现该接口可监听账号注销失败和成功的状态，从而做业务系统自己的事情，比如记录日志
-	 *                                logoutFilter.setLogoutListeners(logoutListeners);
-	 * 
-	 *                                registration.setEnabled(false); return
-	 *                                registration; }
-	 */
-
-	/**
-	 * 默认的Session过期过滤器 ：解决Ajax请求期间会话过期异常处理
-	 * 
-	 * @Bean("sessionExpired")
-	 * 
-	 * @ConditionalOnMissingBean(name = "sessionExpired") public
-	 *                                FilterRegistrationBean<HttpServletSessionExpiredFilter>
-	 *                                sessionExpiredFilter(){
-	 * 
-	 *                                FilterRegistrationBean<HttpServletSessionExpiredFilter>
-	 *                                registration = new
-	 *                                FilterRegistrationBean<HttpServletSessionExpiredFilter>();
-	 *                                registration.setFilter(new
-	 *                                HttpServletSessionExpiredFilter());
-	 * 
-	 *                                registration.setEnabled(false); return
-	 *                                registration; }
-	 */
-
+	
 	@Bean
 	@ConditionalOnMissingBean
 	public ServiceProperties serviceProperties() {
@@ -212,7 +99,7 @@ public class SecurityCasWebFilterConfiguration implements ApplicationContextAwar
 	@Bean
 	@ConditionalOnMissingBean
 	public SessionAuthenticationStrategy sessionStrategy() {
-		return new NullAuthenticatedSessionStrategy();
+		return new SessionFixationProtectionStrategy();
 	}
 
 	@Bean
@@ -263,8 +150,9 @@ public class SecurityCasWebFilterConfiguration implements ApplicationContextAwar
 	}
 
 	@Bean
-	public Cas20ServiceTicketValidator cas20ServiceTicketValidator() {
-		return new Cas20ServiceTicketValidator(casProperties.getCasServerUrlPrefix());
+	@ConditionalOnMissingBean
+	public TicketValidator ticketValidator() {
+		return new Cas30ServiceTicketValidator(casProperties.getCasServerUrlPrefix());
 	}
 
 	@Bean
