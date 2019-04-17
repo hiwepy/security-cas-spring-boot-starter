@@ -15,41 +15,35 @@
  */
 package org.springframework.security.boot.cas.session;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.servlet.http.HttpSession;
 
 import org.jasig.cas.client.session.SessionMappingStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.RedisTemplate;
+
+import net.rubyeye.xmemcached.XMemcachedClient;
 
 /**
- * For Session Storage With Redis
- * https://www.cnblogs.com/huangbin/p/3282643.html
+ * For Session Storage With Memcached
+ * @author ： <a href="https://github.com/vindell">vindell</a>
  */
-public final class RedisBackedSessionMappingStorage implements SessionMappingStorage {
+public final class MemcachedBackedSessionMappingStorage implements SessionMappingStorage {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private static final int TIMEOUT = 60 * 60 * 24;
 	private static final String MANAGED_SESSIONS = "MANAGED_SESSIONS.";
 	private static final String ID_TO_SESSION_KEY_MAPPING = "ID_TO_SESSION_KEY_MAPPING.";
-	private RedisTemplate<String, Object> redisTemplate;
+	private XMemcachedClient client;
 
-	public RedisBackedSessionMappingStorage(RedisTemplate<String, Object> redisTemplate) {
-		this.redisTemplate = redisTemplate;
+	public MemcachedBackedSessionMappingStorage(XMemcachedClient client) {
+		this.client = client;
 	}
 
 	@Override
 	public synchronized void addSessionById(String mappingId, HttpSession session) {
 		try {
-
-			redisTemplate.opsForValue().set(ID_TO_SESSION_KEY_MAPPING + session.getId(), mappingId);
-			redisTemplate.expire(ID_TO_SESSION_KEY_MAPPING + session.getId(), TIMEOUT, TimeUnit.SECONDS);
-
-			redisTemplate.opsForValue().set(MANAGED_SESSIONS + mappingId, session);
-			redisTemplate.expire(MANAGED_SESSIONS + mappingId, TIMEOUT, TimeUnit.SECONDS);
-
+			client.set(ID_TO_SESSION_KEY_MAPPING + session.getId(), TIMEOUT, mappingId);
+			client.set(MANAGED_SESSIONS + mappingId, TIMEOUT, session);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -63,9 +57,7 @@ public final class RedisBackedSessionMappingStorage implements SessionMappingSto
 		}
 
 		try {
-
-			final Object mappingId = redisTemplate.opsForValue().get(ID_TO_SESSION_KEY_MAPPING + sessionId);
-
+			final String mappingId = client.get(ID_TO_SESSION_KEY_MAPPING + sessionId);
 			if (log.isDebugEnabled()) {
 				if (mappingId != null) {
 					log.debug("Found mapping for session.  Session Removed.");
@@ -73,10 +65,8 @@ public final class RedisBackedSessionMappingStorage implements SessionMappingSto
 					log.debug("No mapping for session found.  Ignoring.");
 				}
 			}
-			if (mappingId != null) {
-				redisTemplate.delete(MANAGED_SESSIONS + mappingId.toString());
-			}
-			redisTemplate.delete(ID_TO_SESSION_KEY_MAPPING + sessionId);
+			client.delete(MANAGED_SESSIONS + mappingId);
+			client.delete(ID_TO_SESSION_KEY_MAPPING + sessionId);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -87,15 +77,10 @@ public final class RedisBackedSessionMappingStorage implements SessionMappingSto
 		HttpSession session = null;
 		try {
 
-			Object session2 = redisTemplate.opsForValue().get(MANAGED_SESSIONS + mappingId);
-			if (log.isDebugEnabled()) {
-				if (session2 != null) {
-					log.debug("Found mapping for session.  Session Removed.");
-				} else {
-					log.debug("No mapping for session found.  Ignoring.");
-				}
+			Object session2 = client.get(MANAGED_SESSIONS + mappingId);
+			if (session2 != null) {
+				session = (HttpSession) session2;
 			}
-			session = (HttpSession) session2;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

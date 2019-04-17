@@ -1,102 +1,107 @@
 package org.springframework.security.boot;
 
-import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpServletRequest;
 
-import org.jasig.cas.client.session.SingleSignOutFilter;
-import org.jasig.cas.client.session.SingleSignOutHttpSessionListener;
+import org.jasig.cas.client.validation.Cas30ServiceTicketValidator;
+import org.jasig.cas.client.validation.TicketValidator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.EventListener;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.boot.cas.userdetails.CasAuthenticationUserDetailsService;
+import org.springframework.security.boot.utils.CasUrlUtils;
+import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
 import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
-import org.springframework.security.cas.web.CasAuthenticationFilter;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.web.cors.CorsUtils;
+import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.NullRememberMeServices;
+import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 
 @Configuration
-@AutoConfigureBefore( name = {
-	"org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration",
-	"org.springframework.security.boot.SecurityBizWebAutoConfiguration"  // spring-boot-starter-security-biz
-})
-@ConditionalOnWebApplication(type = Type.SERVLET)
+@AutoConfigureAfter(SecurityBizAutoConfiguration.class)
 @ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
-@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class })
-public class SecurityCasWebAutoConfiguration extends WebSecurityConfigurerAdapter {
+@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class, ServerProperties.class })
+public class SecurityCasWebAutoConfiguration {
 
 	@Autowired
 	private SecurityCasProperties casProperties;
+	// @Autowired
+	// private SecurityBizProperties bizProperties;
 	@Autowired
-	private SecurityBizProperties bizProperties;
-	
-	@Autowired
-    private CasAuthenticationEntryPoint casAuthenticationEntryPoint;
+	private ServerProperties serverProperties;
 
-    @Autowired
-    private CasAuthenticationProvider casAuthenticationProvider;
+	@Bean
+	public SessionAuthenticationStrategy sessionStrategy() {
+		return new SessionFixationProtectionStrategy();
+	}
 
-    @Autowired
-    private CasAuthenticationFilter casAuthenticationFilter;
+	@Bean
+	public RememberMeServices rememberMeServices() {
+		return new NullRememberMeServices();
+	}
 
-    @Autowired
-    private LogoutFilter logoutFilter;
+	@Bean
+	@ConditionalOnMissingBean
+	public ServiceProperties serviceProperties() {
+		ServiceProperties serviceProperties = new ServiceProperties();
+		serviceProperties.setArtifactParameter(casProperties.getArtifactParameterName());
+		// serviceProperties.setAuthenticateAllArtifacts(authenticateAllArtifacts);
+		serviceProperties.setSendRenew(casProperties.isRenew());
+		serviceProperties.setService(casProperties.getService());
+		serviceProperties.setServiceParameter(casProperties.getServiceParameterName());
+		return serviceProperties;
+	}
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.headers().frameOptions().disable();
+	@Bean
+	@ConditionalOnMissingBean
+	public AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource(
+			ServiceProperties serviceProperties) {
+		return new ServiceAuthenticationDetailsSource(serviceProperties);
+	}
 
-        http.csrf().disable();
+	@Bean
+	@ConditionalOnMissingBean
+	public AuthenticationEntryPoint authenticationEntryPoint(ServiceProperties serviceProperties) {
 
-        http.authorizeRequests()
-                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                .antMatchers("/static/**").permitAll() // 不拦截静态资源
-                .antMatchers("/api/**").permitAll()  // 不拦截对外API
-                    .anyRequest().authenticated();  // 所有资源都需要登陆后才可以访问。
+		CasAuthenticationEntryPoint entryPoint = new CasAuthenticationEntryPoint();
 
-        http.logout()
-        	.invalidateHttpSession(true)
-        	//.addLogoutHandler(logoutHandler)
-        	//.logoutSuccessHandler(logoutSuccessHandler)
-        	//.logoutSuccessUrl(logoutSuccessUrl)
-        	//.logoutUrl(logoutUrl)
-        	.permitAll();  // 不拦截注销
+		entryPoint.setEncodeServiceUrlWithSessionId(false);
+		entryPoint.setLoginUrl(CasUrlUtils.constructLoginRedirectUrl(casProperties,
+				serverProperties.getServlet().getContextPath(), casProperties.getServerCallbackUrl()));
+		entryPoint.setServiceProperties(serviceProperties);
 
-        http.exceptionHandling().authenticationEntryPoint(casAuthenticationEntryPoint);
-        // 单点注销的过滤器，必须配置在SpringSecurity的过滤器链中，如果直接配置在Web容器中，貌似是不起作用的。我自己的是不起作用的。
-        SingleSignOutFilter singleSignOutFilter = new SingleSignOutFilter();
-        singleSignOutFilter.setCasServerUrlPrefix(casProperties.getCasServerUrlPrefix());
+		return entryPoint;
+	}
 
-        http.addFilter(casAuthenticationFilter)
-                .addFilterBefore(logoutFilter, LogoutFilter.class)
-                .addFilterBefore(singleSignOutFilter, CasAuthenticationFilter.class);
-
-        http.antMatcher("/**");
-    }
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(casAuthenticationProvider);
-    }
-
-    /**
-	 * 单点注销Session监听器
+	/*
+	 * 指定cas校验器
 	 */
-    @Bean
-    public ServletListenerRegistrationBean<SingleSignOutHttpSessionListener> singleSignOutHttpSessionListener(){
-        ServletListenerRegistrationBean<SingleSignOutHttpSessionListener> servletListenerRegistrationBean =
-                new ServletListenerRegistrationBean<SingleSignOutHttpSessionListener>();
-        servletListenerRegistrationBean.setListener(new SingleSignOutHttpSessionListener());
-        servletListenerRegistrationBean.setOrder(1);
-        return servletListenerRegistrationBean;
-    }
+	@Bean
+	@ConditionalOnMissingBean
+	public TicketValidator ticketValidator() {
+		// Cas20ServiceTicketValidator ticketValidator
+		return new Cas30ServiceTicketValidator(casProperties.getCasServerUrlPrefix());
+	}
+
+	@Bean
+	public CasAuthenticationProvider casAuthenticationProvider(CasAuthenticationUserDetailsService userDetailsService,
+			ServiceProperties serviceProperties, TicketValidator ticketValidator) {
+
+		CasAuthenticationProvider provider = new CasAuthenticationProvider();
+		provider.setKey("casProvider");
+		provider.setServiceProperties(serviceProperties);
+		provider.setTicketValidator(ticketValidator);
+		provider.setAuthenticationUserDetailsService(userDetailsService);
+
+		return provider;
+	}
 
 }
