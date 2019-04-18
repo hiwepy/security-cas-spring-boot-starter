@@ -19,7 +19,6 @@ import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
 import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
@@ -49,7 +48,6 @@ public class SecurityCasWebAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean
 	public ServiceProperties serviceProperties() {
 		ServiceProperties serviceProperties = new ServiceProperties();
 		serviceProperties.setArtifactParameter(casProperties.getArtifactParameterName());
@@ -61,15 +59,13 @@ public class SecurityCasWebAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean
 	public AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource(
 			ServiceProperties serviceProperties) {
 		return new ServiceAuthenticationDetailsSource(serviceProperties);
 	}
-
+	
 	@Bean
-	@ConditionalOnMissingBean
-	public AuthenticationEntryPoint authenticationEntryPoint(ServiceProperties serviceProperties) {
+	public CasAuthenticationEntryPoint casAuthenticationEntryPoint(ServiceProperties serviceProperties) {
 
 		CasAuthenticationEntryPoint entryPoint = new CasAuthenticationEntryPoint();
 
@@ -92,7 +88,8 @@ public class SecurityCasWebAutoConfiguration {
 	}
 
 	@Bean
-	public CasAuthenticationProvider casAuthenticationProvider(CasAuthenticationUserDetailsService userDetailsService,
+	public CasAuthenticationProvider casAuthenticationProvider(
+			CasAuthenticationUserDetailsService userDetailsService,
 			ServiceProperties serviceProperties, TicketValidator ticketValidator) {
 
 		CasAuthenticationProvider provider = new CasAuthenticationProvider();
