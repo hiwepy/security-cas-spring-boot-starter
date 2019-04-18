@@ -28,7 +28,7 @@ import org.springframework.security.web.authentication.session.SessionFixationPr
 @AutoConfigureBefore(SecurityBizAutoConfiguration.class)
 @ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
 @EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class, ServerProperties.class })
-public class SecurityCasWebAutoConfiguration {
+public class SecurityCasAutoConfiguration {
 
 	@Autowired
 	private SecurityCasProperties casProperties;

@@ -46,7 +46,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @AutoConfigureAfter(SecurityBizFilterAutoConfiguration.class)
 @ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
 @EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class, ServerProperties.class })
-public class SecurityCasWebFilterConfiguration extends WebSecurityConfigurerAdapter implements ApplicationEventPublisherAware {
+public class SecurityCasFilterConfiguration extends WebSecurityConfigurerAdapter implements ApplicationEventPublisherAware {
 
 	private ApplicationEventPublisher eventPublisher;
 
