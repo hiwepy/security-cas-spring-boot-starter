@@ -13,12 +13,14 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.boot.cas.rememberme.CasRememberMeServices;
 import org.springframework.security.boot.cas.userdetails.CasAuthenticationUserDetailsService;
 import org.springframework.security.boot.utils.CasUrlUtils;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
 import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
@@ -43,8 +45,8 @@ public class SecurityCasAutoConfiguration {
 	}
 
 	@Bean
-	public RememberMeServices rememberMeServices() {
-		return new NullRememberMeServices();
+	public RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
+		return new CasRememberMeServices(null, userDetailsService);
 	}
 
 	@Bean

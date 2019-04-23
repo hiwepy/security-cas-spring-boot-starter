@@ -27,7 +27,7 @@ import org.springframework.security.web.authentication.rememberme.RememberMeAuth
 
 public class CasRememberMeServices extends AbstractRememberMeServices {
 
-	protected CasRememberMeServices(String ticket, UserDetailsService userDetailsService) {
+	public CasRememberMeServices(String ticket, UserDetailsService userDetailsService) {
 		super(ticket, userDetailsService);
 	}
 
