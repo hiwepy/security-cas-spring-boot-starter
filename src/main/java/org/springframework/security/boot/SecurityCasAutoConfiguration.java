@@ -71,7 +71,7 @@ public class SecurityCasAutoConfiguration {
 
 		CasAuthenticationEntryPoint entryPoint = new CasAuthenticationEntryPoint();
 
-		entryPoint.setEncodeServiceUrlWithSessionId(false);
+		entryPoint.setEncodeServiceUrlWithSessionId(casProperties.isEncodeServiceUrlWithSessionId());
 		entryPoint.setLoginUrl(CasUrlUtils.constructLoginRedirectUrl(casProperties,
 				serverProperties.getServlet().getContextPath(), casProperties.getServerCallbackUrl()));
 		entryPoint.setServiceProperties(serviceProperties);

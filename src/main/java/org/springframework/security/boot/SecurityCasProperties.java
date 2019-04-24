@@ -60,6 +60,17 @@ public class SecurityCasProperties  extends CasClientProperties{
 	private boolean enabled = false;
 	/** Specifies the encoding charset the client should use */
 	private String encoding = "UTF-8";
+	/**
+	 * Determines whether the Service URL should include the session id for the specific
+	 * user. As of CAS 3.0.5, the session id will automatically be stripped. However,
+	 * older versions of CAS (i.e. CAS 2), do not automatically strip the session
+	 * identifier (this is a bug on the part of the older server implementations), so an
+	 * option to disable the session encoding is provided for backwards compatibility.
+	 *
+	 * By default, encoding is enabled.
+	 */
+	private boolean encodeServiceUrlWithSessionId = true;
+	
 	/** Whether Enable ErrorRedirectFilter. */
 	private boolean errorRedirect = false;
 	/** The Url to redirect to, find the path by Fully qualified exception name , i.e. java.lang.Exception . */
@@ -159,7 +170,7 @@ public class SecurityCasProperties  extends CasClientProperties{
 	 * tickets will be required for each request. Defaults to true.
 	 */
 	private boolean useSession = true;
-
+	
 	public CaMode getCaMode() {
 		return caMode;
 	}
@@ -302,6 +313,14 @@ public class SecurityCasProperties  extends CasClientProperties{
 
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
+	}
+	
+	public boolean isEncodeServiceUrlWithSessionId() {
+		return encodeServiceUrlWithSessionId;
+	}
+
+	public void setEncodeServiceUrlWithSessionId(boolean encodeServiceUrlWithSessionId) {
+		this.encodeServiceUrlWithSessionId = encodeServiceUrlWithSessionId;
 	}
 
 	public boolean isErrorRedirect() {

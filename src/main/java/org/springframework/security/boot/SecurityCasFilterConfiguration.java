@@ -131,7 +131,7 @@ public class SecurityCasFilterConfiguration extends WebSecurityConfigurerAdapter
 					serverProperties.getServlet().getContextPath(), bizProperties.getAuthc().getLoginUrl());
 		}
 		LogoutFilter logoutFilter = new LogoutFilter(logoutRedirectPath, logoutHandlers.toArray(new LogoutHandler[logoutHandlers.size()]));
-		logoutFilter.setFilterProcessesUrl(bizProperties.getLogoutUrlPatterns());
+		logoutFilter.setFilterProcessesUrl(bizProperties.getLogout().getLogoutUrlPatterns());
 		return logoutFilter;
 	}
 	
