@@ -84,15 +84,15 @@ public class SecurityCasFilterConfiguration extends WebSecurityConfigurerAdapter
 
 		CasAuthenticationFilter authcFilter = new CasAuthenticationFilter();
 
-		authcFilter.setAllowSessionCreation(bizProperties.getSessionMgt().isAllowSessionCreation());
+		authcFilter.setAllowSessionCreation(casProperties.getSessionMgt().isAllowSessionCreation());
 		authcFilter.setApplicationEventPublisher(eventPublisher);
 		authcFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
 		authcFilter.setAuthenticationFailureHandler(failureHandler);
 		authcFilter.setAuthenticationManager(authenticationManager);
 		authcFilter.setAuthenticationSuccessHandler(successHandler);
 		authcFilter.setContinueChainBeforeSuccessfulAuthentication(false);
-		if (StringUtils.hasText(bizProperties.getAuthc().getLoginUrlPatterns())) {
-			authcFilter.setFilterProcessesUrl(bizProperties.getAuthc().getLoginUrlPatterns());
+		if (StringUtils.hasText(casProperties.getAuthc().getLoginUrlPatterns())) {
+			authcFilter.setFilterProcessesUrl(casProperties.getAuthc().getLoginUrlPatterns());
 		}
 		authcFilter.setMessageSource(messageSource);
 		// 认证代理设置
@@ -124,14 +124,14 @@ public class SecurityCasFilterConfiguration extends WebSecurityConfigurerAdapter
 	@Bean
 	public LogoutFilter logoutFilter(List<LogoutHandler> logoutHandlers) {
 		
-		String logoutRedirectPath = bizProperties.getAuthc().getLoginUrl();
+		String logoutRedirectPath = casProperties.getAuthc().getLoginUrl();
 		// 登录注销后的重定向地址：直接进入登录页面
 		if (CaMode.sso.compareTo(casProperties.getCaMode()) == 0) {
 			logoutRedirectPath = CasUrlUtils.constructLogoutRedirectUrl(casProperties,
-					serverProperties.getServlet().getContextPath(), bizProperties.getAuthc().getLoginUrl());
+					serverProperties.getServlet().getContextPath(), casProperties.getAuthc().getLoginUrl());
 		}
 		LogoutFilter logoutFilter = new LogoutFilter(logoutRedirectPath, logoutHandlers.toArray(new LogoutHandler[logoutHandlers.size()]));
-		logoutFilter.setFilterProcessesUrl(bizProperties.getLogout().getLogoutUrlPatterns());
+		logoutFilter.setFilterProcessesUrl(casProperties.getLogout().getLogoutUrlPatterns());
 		return logoutFilter;
 	}
 	

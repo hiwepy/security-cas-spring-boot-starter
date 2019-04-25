@@ -5,7 +5,12 @@ import java.util.Map;
 
 import org.jasig.cas.client.Protocol;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.security.boot.biz.property.SecurityCsrfProperties;
+import org.springframework.security.boot.biz.property.SecurityLogoutProperties;
+import org.springframework.security.boot.biz.property.SecuritySessionMgtProperties;
 import org.springframework.security.boot.cas.CasClientProperties;
+import org.springframework.security.boot.cas.property.SecurityCasAuthcProperties;
 
 @ConfigurationProperties(SecurityCasProperties.PREFIX)
 public class SecurityCasProperties  extends CasClientProperties{
@@ -170,6 +175,15 @@ public class SecurityCasProperties  extends CasClientProperties{
 	 * tickets will be required for each request. Defaults to true.
 	 */
 	private boolean useSession = true;
+	
+	@NestedConfigurationProperty
+	private SecurityCasAuthcProperties authc = new SecurityCasAuthcProperties();
+	@NestedConfigurationProperty
+	private SecurityCsrfProperties csrf = new SecurityCsrfProperties();
+	@NestedConfigurationProperty
+	private SecurityLogoutProperties logout = new SecurityLogoutProperties();
+	@NestedConfigurationProperty
+	private SecuritySessionMgtProperties sessionMgt = new SecuritySessionMgtProperties();
 	
 	public CaMode getCaMode() {
 		return caMode;
@@ -617,6 +631,38 @@ public class SecurityCasProperties  extends CasClientProperties{
 
 	public void setServiceParameterName(String serviceParameterName) {
 		this.serviceParameterName = serviceParameterName;
+	}
+	
+	public SecurityCasAuthcProperties getAuthc() {
+		return authc;
+	}
+
+	public void setAuthc(SecurityCasAuthcProperties authc) {
+		this.authc = authc;
+	}
+
+	public SecurityCsrfProperties getCsrf() {
+		return csrf;
+	}
+
+	public void setCsrf(SecurityCsrfProperties csrf) {
+		this.csrf = csrf;
+	}
+
+	public SecurityLogoutProperties getLogout() {
+		return logout;
+	}
+
+	public void setLogout(SecurityLogoutProperties logout) {
+		this.logout = logout;
+	}
+
+	public SecuritySessionMgtProperties getSessionMgt() {
+		return sessionMgt;
+	}
+
+	public void setSessionMgt(SecuritySessionMgtProperties sessionMgt) {
+		this.sessionMgt = sessionMgt;
 	}
 
 }
