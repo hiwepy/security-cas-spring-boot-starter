@@ -43,7 +43,6 @@ import org.springframework.web.cors.CorsUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
-@AutoConfigureAfter(SecurityBizFilterAutoConfiguration.class)
 @ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
 @EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class, ServerProperties.class })
 public class SecurityCasFilterConfiguration extends WebSecurityConfigurerAdapter implements ApplicationEventPublisherAware {
