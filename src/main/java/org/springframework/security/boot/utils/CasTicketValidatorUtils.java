@@ -40,7 +40,7 @@ import org.jasig.cas.client.validation.TicketValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.boot.SecurityCasProperties;
-import org.springframework.security.boot.cas.exception.CasAuthenticationException;
+import org.springframework.security.boot.cas.exception.CasAuthenticationServiceException;
 
 
 public class CasTicketValidatorUtils {
@@ -70,7 +70,7 @@ public class CasTicketValidatorUtils {
         } else if (Protocol.SAML11 == casProperties.getProtocol()) {
             return buildSAMLTicketValidator(casProperties);
         } else {
-            throw new CasAuthenticationException("Unable to initialize the TicketValidator for protocol: " + casProperties.getProtocol().name());
+            throw new CasAuthenticationServiceException("Unable to initialize the TicketValidator for protocol: " + casProperties.getProtocol().name());
         }
 	}
 	

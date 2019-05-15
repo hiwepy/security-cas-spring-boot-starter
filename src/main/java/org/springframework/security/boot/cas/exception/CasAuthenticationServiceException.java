@@ -15,15 +15,16 @@
  */
 package org.springframework.security.boot.cas.exception;
 
-import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.boot.biz.exception.ExternalAuthenticationServiceException;
 
-public class CasAuthenticationException extends AuthenticationServiceException {
+@SuppressWarnings("serial")
+public class CasAuthenticationServiceException extends ExternalAuthenticationServiceException {
 
-	public CasAuthenticationException(String msg) {
+	public CasAuthenticationServiceException(String msg) {
         super(msg);
     }
 
-    public CasAuthenticationException(String message, Throwable cause) {
+    public CasAuthenticationServiceException(String message, Throwable cause) {
         super(message, cause);
     }
 }
