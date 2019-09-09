@@ -10,7 +10,6 @@ import org.jasig.cas.client.session.SingleSignOutHttpSessionListener;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -90,8 +89,8 @@ public class SecurityCasFilterConfiguration extends WebSecurityConfigurerAdapter
 		authcFilter.setAuthenticationManager(authenticationManager);
 		authcFilter.setAuthenticationSuccessHandler(successHandler);
 		authcFilter.setContinueChainBeforeSuccessfulAuthentication(false);
-		if (StringUtils.hasText(casProperties.getAuthc().getLoginUrlPatterns())) {
-			authcFilter.setFilterProcessesUrl(casProperties.getAuthc().getLoginUrlPatterns());
+		if (StringUtils.hasText(casProperties.getAuthc().getLoginUrl())) {
+			authcFilter.setFilterProcessesUrl(casProperties.getAuthc().getLoginUrl());
 		}
 		authcFilter.setMessageSource(messageSource);
 		// 认证代理设置
