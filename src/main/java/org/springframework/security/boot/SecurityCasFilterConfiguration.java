@@ -51,8 +51,6 @@ public class SecurityCasFilterConfiguration extends WebSecurityConfigurerAdapter
 	@Autowired
 	private SecurityCasProperties casProperties;
 	@Autowired
-	private SecurityBizProperties bizProperties;
-	@Autowired
 	private ServerProperties serverProperties;
 	
 	/**
@@ -89,8 +87,8 @@ public class SecurityCasFilterConfiguration extends WebSecurityConfigurerAdapter
 		authcFilter.setAuthenticationManager(authenticationManager);
 		authcFilter.setAuthenticationSuccessHandler(successHandler);
 		authcFilter.setContinueChainBeforeSuccessfulAuthentication(false);
-		if (StringUtils.hasText(casProperties.getAuthc().getLoginUrl())) {
-			authcFilter.setFilterProcessesUrl(casProperties.getAuthc().getLoginUrl());
+		if (StringUtils.hasText(casProperties.getAuthc().getPathPattern())) {
+			authcFilter.setFilterProcessesUrl(casProperties.getAuthc().getPathPattern());
 		}
 		authcFilter.setMessageSource(messageSource);
 		// 认证代理设置
@@ -122,11 +120,11 @@ public class SecurityCasFilterConfiguration extends WebSecurityConfigurerAdapter
 	@Bean
 	public LogoutFilter logoutFilter(List<LogoutHandler> logoutHandlers) {
 		
-		String logoutRedirectPath = casProperties.getAuthc().getLoginUrl();
+		String logoutRedirectPath = casProperties.getLogout().getLogoutUrl();
 		// 登录注销后的重定向地址：直接进入登录页面
 		if (CaMode.sso.compareTo(casProperties.getCaMode()) == 0) {
 			logoutRedirectPath = CasUrlUtils.constructLogoutRedirectUrl(casProperties,
-					serverProperties.getServlet().getContextPath(), casProperties.getAuthc().getLoginUrl());
+					serverProperties.getServlet().getContextPath(), casProperties.getLogout().getLogoutUrl());
 		}
 		LogoutFilter logoutFilter = new LogoutFilter(logoutRedirectPath, logoutHandlers.toArray(new LogoutHandler[logoutHandlers.size()]));
 		logoutFilter.setFilterProcessesUrl(casProperties.getLogout().getLogoutUrlPatterns());
