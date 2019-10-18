@@ -51,7 +51,8 @@ import org.springframework.util.CollectionUtils;
 @Configuration
 @AutoConfigureBefore({ SecurityFilterAutoConfiguration.class })
 @ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
-@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class, ServerProperties.class })
+@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class, 
+	SecurityCasAuthcProperties.class, ServerProperties.class })
 public class SecurityCasFilterConfiguration {
 
 	/**
@@ -111,6 +112,7 @@ public class SecurityCasFilterConfiguration {
 
     	
 		private final SecurityCasProperties casProperties;
+		private final SecurityCasAuthcProperties casAuthcProperties;
 		private final ServiceProperties serviceProperties;
 		
     	private final AuthenticationManager authenticationManager;
@@ -132,6 +134,7 @@ public class SecurityCasFilterConfiguration {
 				
 				SecurityBizProperties bizProperties,
 				SecurityCasProperties casProperties,
+				SecurityCasAuthcProperties casAuthcProperties,
 				ServiceProperties serviceProperties,
 				 
 				ObjectProvider<AuthenticationManager> authenticationManagerProvider,
@@ -152,6 +155,7 @@ public class SecurityCasFilterConfiguration {
    			) {
 			
    			this.casProperties = casProperties;
+   			this.casAuthcProperties = casAuthcProperties;
    			this.serviceProperties = serviceProperties;
    			
    			this.authenticationManager = authenticationManagerProvider.getIfAvailable();
@@ -185,7 +189,7 @@ public class SecurityCasFilterConfiguration {
 			map.from(authenticationFailureHandler).to(authenticationFilter::setAuthenticationFailureHandler);
 			map.from(authenticationDetailsSource).to(authenticationFilter::setAuthenticationDetailsSource);
 			
-			map.from(casProperties.getPathPattern()).to(authenticationFilter::setFilterProcessesUrl);
+			map.from(casAuthcProperties.getPathPattern()).to(authenticationFilter::setFilterProcessesUrl);
 			map.from(rememberMeServices).to(authenticationFilter::setRememberMeServices);
 			map.from(serviceProperties).to(authenticationFilter::setServiceProperties);
 			map.from(sessionAuthenticationStrategy).to(authenticationFilter::setSessionAuthenticationStrategy);
@@ -259,7 +263,7 @@ public class SecurityCasFilterConfiguration {
 	    
 	    @Override
    	    public void configure(WebSecurity web) throws Exception {
-   	    	web.ignoring().antMatchers(casProperties.getPathPattern());
+   	    	web.ignoring().antMatchers(casAuthcProperties.getPathPattern());
    	    }
 		
 	}

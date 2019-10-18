@@ -40,9 +40,6 @@ public class SecurityCasProperties {
 	/** Whether Enable Cas. */
 	private boolean enabled = false;
 
-	/** Authorization Path Pattern */
-	private String pathPattern = "/login/cas";
-
 	/**
 	 * Defines the location of the CAS server login URL, i.e.
 	 * https://localhost:8443/cas/login
