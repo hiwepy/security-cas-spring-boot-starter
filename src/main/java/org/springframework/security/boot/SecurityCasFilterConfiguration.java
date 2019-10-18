@@ -98,7 +98,7 @@ public class SecurityCasFilterConfiguration {
 
 		entryPoint.setEncodeServiceUrlWithSessionId(casProperties.isEncodeServiceUrlWithSessionId());
 		entryPoint.setLoginUrl(CasUrlUtils.constructLoginRedirectUrl(casProperties,
-				serverProperties.getServlet().getContextPath(), casProperties.getServerCallbackUrl()));
+				serverProperties.getServlet().getContextPath(), casProperties.getServiceCallbackUrl()));
 		entryPoint.setServiceProperties(serviceProperties);
 
 		return entryPoint;

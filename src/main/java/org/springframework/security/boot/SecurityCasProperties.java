@@ -154,7 +154,7 @@ public class SecurityCasProperties {
 	 */
 	private String serviceParameterName = ServiceProperties.DEFAULT_CAS_SERVICE_PARAMETER;
 	/** Defines the location of the application cas callback URL, i.e. /callback */
-	private String serverCallbackUrl;
+	private String serviceCallbackUrl;
 	/**
 	 * A reference to a properties file that includes SSL settings for client-side
 	 * SSL config, used during back-channel calls. The configuration includes keys
