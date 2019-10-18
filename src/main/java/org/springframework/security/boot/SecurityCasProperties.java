@@ -1,45 +1,52 @@
 package org.springframework.security.boot;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.jasig.cas.client.Protocol;
+import org.jasig.cas.client.configuration.ConfigurationKeys;
+import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
-import org.springframework.security.boot.biz.property.SecurityCsrfProperties;
 import org.springframework.security.boot.biz.property.SecurityLogoutProperties;
 import org.springframework.security.boot.biz.property.SecuritySessionMgtProperties;
-import org.springframework.security.boot.cas.CasClientProperties;
-import org.springframework.security.boot.cas.property.SecurityCasAuthcProperties;
+import org.springframework.security.cas.ServiceProperties;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @ConfigurationProperties(SecurityCasProperties.PREFIX)
-public class SecurityCasProperties  extends CasClientProperties{
+@Getter
+@Setter
+@ToString
+public class SecurityCasProperties{
 
 	// default name of the CAS attribute for remember me authentication (CAS 3.4.10+)
     public static final String DEFAULT_REMEMBER_ME_ATTRIBUTE_NAME = "longTermAuthenticationRequestTokenUsed";
-	public static final String PREFIX = "spring.security.cas";
-	
-	public static enum CaMode {
-		/** 中心认证：全部去认证中心进行认证. */
-		sso,
-		/** 单点漫游：可充认证中心登录，也可从其他入口登录. */
-		roam
+    /**
+     * Default timeout in milliseconds.
+     */
+	public static final long DEFAULT_TIMEOUT = 60000;
+	/**
+	 * CAS protocol.
+	 */
+	public static enum CasProtocol {
+	    CAS10, CAS20, CAS20_PROXY, CAS30, CAS30_PROXY, SAML
 	}
 	
-	/** Ca Mode  */
-	private CaMode caMode = CaMode.sso;
-	/** DEFAULT,JNDI,WEB_XML,PROPERTY_FILE,SYSTEM_PROPERTIES */
-	private String configurationStrategy;
 	/** Defines the location of the CAS server login URL, i.e. https://localhost:8443/cas/login */
-	private String casServerLoginUrl;
+	private String loginUrl;
 	/** Defines the location of the CAS server logout URL, i.e. https://localhost:8443/cas/logout */
-	private String casServerLogoutUrl;
+	private String logoutUrl;
 	/** Defines the location of the CAS server rest URL, i.e. https://localhost:8443/cas/v1/tickets */
-	private String casServerRestUrl;
+	private String restUrl;
 	/** The prefix url of the CAS server. i.e.https://localhost:8443/cas */
-	private String casServerUrlPrefix;
+	private String prefixUrl;
+	
     /** Defaults to true */
 	private boolean eagerlyCreateSessions = true;
+	
     /** Specifies whether any proxy is OK. Defaults to false. */
 	private boolean acceptAnyProxy = false;
 	/**
@@ -49,7 +56,7 @@ public class SecurityCasProperties  extends CasClientProperties{
 	 */
 	private String allowedProxyChains;
 	/** Specifies the name of the request parameter on where to find the artifact (i.e. ticket). */
-	private String artifactParameterName = "ticket";
+	private String artifactParameterName = ServiceProperties.DEFAULT_CAS_ARTIFACT_PARAMETER;
 	private boolean artifactParameterOverPost = false;
 	/** The Url Patterns of AssertionThreadLocalFilter. */
 	private String[] assertionThreadLocalFilterUrlPatterns = new String[] { "/*" };
@@ -65,17 +72,6 @@ public class SecurityCasProperties  extends CasClientProperties{
 	private boolean enabled = false;
 	/** Specifies the encoding charset the client should use */
 	private String encoding = "UTF-8";
-	/**
-	 * Determines whether the Service URL should include the session id for the specific
-	 * user. As of CAS 3.0.5, the session id will automatically be stripped. However,
-	 * older versions of CAS (i.e. CAS 2), do not automatically strip the session
-	 * identifier (this is a bug on the part of the older server implementations), so an
-	 * option to disable the session encoding is provided for backwards compatibility.
-	 *
-	 * By default, encoding is enabled.
-	 */
-	private boolean encodeServiceUrlWithSessionId = true;
-	
 	/** Whether Enable ErrorRedirectFilter. */
 	private boolean errorRedirect = false;
 	/** The Url to redirect to, find the path by Fully qualified exception name , i.e. java.lang.Exception . */
@@ -108,7 +104,11 @@ public class SecurityCasProperties  extends CasClientProperties{
 	/** Startup delay for the cleanup task to remove expired tickets from the storage. Defaults to 60000 msec */
 	private long millisBetweenCleanUps = 60000L;
 	/** The protocol of the CAS Client. */
-	private Protocol protocol = Protocol.CAS2;
+	private CasProtocol protocol = CasProtocol.CAS20;
+	
+
+	/** Whether Enable Proxy Granting. */
+	private boolean proxyGranting = false;
 	/** The callback URL to provide the CAS server to accept Proxy Granting Tickets. */
 	private String proxyCallbackUrl;
 	/**
@@ -132,7 +132,7 @@ public class SecurityCasProperties  extends CasClientProperties{
 	 */
 	private boolean renew = false;
 	/** Name of parameter containing the state of the CAS server webflow. */
-	private String relayStateParameterName;
+	private String relayStateParameterName = ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getDefaultValue();
 	/** Used to determine the principal role. */
 	private String roleAttribute;
 	/** default name of the CAS attribute for remember me authentication (CAS 3.4.10+) */
@@ -150,7 +150,7 @@ public class SecurityCasProperties  extends CasClientProperties{
 	/** The service URL to send to the CAS server, i.e. https://localhost:8443/yourwebapp/index.html */
 	private String service;
 	/** Specifies the name of the request parameter on where to find the service (i.e. service). */
-	private String serviceParameterName = "service";
+	private String serviceParameterName = ServiceProperties.DEFAULT_CAS_SERVICE_PARAMETER;
 	/** The Url Patterns of SingleSignOutFilter. */
 	private String[] signOutFilterUrlPatterns = new String[] { "/*" };
 	/**
@@ -176,493 +176,49 @@ public class SecurityCasProperties  extends CasClientProperties{
 	 */
 	private boolean useSession = true;
 	
-	@NestedConfigurationProperty
-	private SecurityCasAuthcProperties authc = new SecurityCasAuthcProperties();
-	@NestedConfigurationProperty
-	private SecurityCsrfProperties csrf = new SecurityCsrfProperties();
+	public static final String PREFIX = "spring.security.cas";
+    
+	public static enum CaMode {
+		/** 中心认证：全部去认证中心进行认证. */
+		sso,
+		/** 单点漫游：可充认证中心登录，也可从其他入口登录. */
+		roam
+	}
+	
+	/** Authorization Path Pattern */
+	private String pathPattern = "/login/cas";
+	
+	/** Ca Mode  */
+	private CaMode caMode = CaMode.sso;
+	  
+	/**
+	 * Determines whether the Service URL should include the session id for the specific
+	 * user. As of CAS 3.0.5, the session id will automatically be stripped. However,
+	 * older versions of CAS (i.e. CAS 2), do not automatically strip the session
+	 * identifier (this is a bug on the part of the older server implementations), so an
+	 * option to disable the session encoding is provided for backwards compatibility.
+	 *
+	 * By default, encoding is enabled.
+	 */
+	private boolean encodeServiceUrlWithSessionId = true;
+	 
+    /* Map containing user defined parameters */
+    private Map<String, String> customParams = new HashMap<>();
+    
+	
+	private String[] attributes = new String[] {};
+	
+    /**
+     * time, in milliseconds, before a {@link ProxyGrantingTicketHolder}
+     * is considered expired and ready for removal.
+     * 
+     * @see ProxyGrantingTicketStorageImpl#DEFAULT_TIMEOUT
+     */
+    private long timeout = DEFAULT_TIMEOUT;
+    
 	@NestedConfigurationProperty
 	private SecurityLogoutProperties logout = new SecurityLogoutProperties();
 	@NestedConfigurationProperty
 	private SecuritySessionMgtProperties sessionMgt = new SecuritySessionMgtProperties();
-	
-	public CaMode getCaMode() {
-		return caMode;
-	}
-
-	public void setCaMode(CaMode caMode) {
-		this.caMode = caMode;
-	}
-
-	public String getConfigurationStrategy() {
-		return configurationStrategy;
-	}
-
-	public void setConfigurationStrategy(String configurationStrategy) {
-		this.configurationStrategy = configurationStrategy;
-	}
-
-	public String getCasServerLoginUrl() {
-		return casServerLoginUrl;
-	}
-
-	public void setCasServerLoginUrl(String casServerLoginUrl) {
-		this.casServerLoginUrl = casServerLoginUrl;
-	}
-	
-	public String getCasServerLogoutUrl() {
-		return casServerLogoutUrl;
-	}
-
-	public void setCasServerLogoutUrl(String casServerLogoutUrl) {
-		this.casServerLogoutUrl = casServerLogoutUrl;
-	}
-
-	public String getCasServerRestUrl() {
-		return casServerRestUrl;
-	}
-
-	public void setCasServerRestUrl(String casServerRestUrl) {
-		this.casServerRestUrl = casServerRestUrl;
-	}
-
-	public String getCasServerUrlPrefix() {
-		return casServerUrlPrefix;
-	}
-
-	public void setCasServerUrlPrefix(String casServerUrlPrefix) {
-		this.casServerUrlPrefix = casServerUrlPrefix;
-	}
-
-	public boolean isEagerlyCreateSessions() {
-		return eagerlyCreateSessions;
-	}
-
-	public void setEagerlyCreateSessions(boolean eagerlyCreateSessions) {
-		this.eagerlyCreateSessions = eagerlyCreateSessions;
-	}
-
-	public boolean isAcceptAnyProxy() {
-		return acceptAnyProxy;
-	}
-
-	public void setAcceptAnyProxy(boolean acceptAnyProxy) {
-		this.acceptAnyProxy = acceptAnyProxy;
-	}
-
-	public String getAllowedProxyChains() {
-		return allowedProxyChains;
-	}
-
-	public void setAllowedProxyChains(String allowedProxyChains) {
-		this.allowedProxyChains = allowedProxyChains;
-	}
-
-	public String getArtifactParameterName() {
-		return artifactParameterName;
-	}
-
-	public void setArtifactParameterName(String artifactParameterName) {
-		this.artifactParameterName = artifactParameterName;
-	}
-
-	public boolean isArtifactParameterOverPost() {
-		return artifactParameterOverPost;
-	}
-
-	public void setArtifactParameterOverPost(boolean artifactParameterOverPost) {
-		this.artifactParameterOverPost = artifactParameterOverPost;
-	}
-
-	public String[] getAssertionThreadLocalFilterUrlPatterns() {
-		return assertionThreadLocalFilterUrlPatterns;
-	}
-
-	public void setAssertionThreadLocalFilterUrlPatterns(String[] assertionThreadLocalFilterUrlPatterns) {
-		this.assertionThreadLocalFilterUrlPatterns = assertionThreadLocalFilterUrlPatterns;
-	}
-
-	public String getAuthenticationRedirectStrategyClass() {
-		return authenticationRedirectStrategyClass;
-	}
-
-	public void setAuthenticationRedirectStrategyClass(String authenticationRedirectStrategyClass) {
-		this.authenticationRedirectStrategyClass = authenticationRedirectStrategyClass;
-	}
-
-	public String[] getAuthenticationFilterUrlPatterns() {
-		return authenticationFilterUrlPatterns;
-	}
-
-	public void setAuthenticationFilterUrlPatterns(String[] authenticationFilterUrlPatterns) {
-		this.authenticationFilterUrlPatterns = authenticationFilterUrlPatterns;
-	}
-
-	public String getCipherAlgorithm() {
-		return cipherAlgorithm;
-	}
-
-	public void setCipherAlgorithm(String cipherAlgorithm) {
-		this.cipherAlgorithm = cipherAlgorithm;
-	}
-
-	public String getDefaultErrorRedirectPage() {
-		return defaultErrorRedirectPage;
-	}
-
-	public void setDefaultErrorRedirectPage(String defaultErrorRedirectPage) {
-		this.defaultErrorRedirectPage = defaultErrorRedirectPage;
-	}
-
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
-
-	public String getEncoding() {
-		return encoding;
-	}
-
-	public void setEncoding(String encoding) {
-		this.encoding = encoding;
-	}
-	
-	public boolean isEncodeServiceUrlWithSessionId() {
-		return encodeServiceUrlWithSessionId;
-	}
-
-	public void setEncodeServiceUrlWithSessionId(boolean encodeServiceUrlWithSessionId) {
-		this.encodeServiceUrlWithSessionId = encodeServiceUrlWithSessionId;
-	}
-
-	public boolean isErrorRedirect() {
-		return errorRedirect;
-	}
-
-	public void setErrorRedirect(boolean errorRedirect) {
-		this.errorRedirect = errorRedirect;
-	}
-
-	public Map<String, String> getErrorRedirectMappings() {
-		return errorRedirectMappings;
-	}
-
-	public void setErrorRedirectMappings(Map<String, String> errorRedirectMappings) {
-		this.errorRedirectMappings = errorRedirectMappings;
-	}
-
-	public String[] getErrorRedirectFilterUrlPatterns() {
-		return errorRedirectFilterUrlPatterns;
-	}
-
-	public void setErrorRedirectFilterUrlPatterns(String[] errorRedirectFilterUrlPatterns) {
-		this.errorRedirectFilterUrlPatterns = errorRedirectFilterUrlPatterns;
-	}
-
-	public boolean isEncodeServiceUrl() {
-		return encodeServiceUrl;
-	}
-
-	public void setEncodeServiceUrl(boolean encodeServiceUrl) {
-		this.encodeServiceUrl = encodeServiceUrl;
-	}
-
-	public boolean isExceptionOnValidationFailure() {
-		return exceptionOnValidationFailure;
-	}
-
-	public void setExceptionOnValidationFailure(boolean exceptionOnValidationFailure) {
-		this.exceptionOnValidationFailure = exceptionOnValidationFailure;
-	}
-
-	public String getFailureUrl() {
-		return failureUrl;
-	}
-
-	public void setFailureUrl(String failureUrl) {
-		this.failureUrl = failureUrl;
-	}
-
-	public boolean isGateway() {
-		return gateway;
-	}
-
-	public void setGateway(boolean gateway) {
-		this.gateway = gateway;
-	}
-
-	public String getGatewayStorageClass() {
-		return gatewayStorageClass;
-	}
-
-	public void setGatewayStorageClass(String gatewayStorageClass) {
-		this.gatewayStorageClass = gatewayStorageClass;
-	}
-
-	public String getHostnameVerifier() {
-		return hostnameVerifier;
-	}
-
-	public void setHostnameVerifier(String hostnameVerifier) {
-		this.hostnameVerifier = hostnameVerifier;
-	}
-
-	public String getHostnameVerifierConfig() {
-		return hostnameVerifierConfig;
-	}
-
-	public void setHostnameVerifierConfig(String hostnameVerifierConfig) {
-		this.hostnameVerifierConfig = hostnameVerifierConfig;
-	}
-
-	public boolean isIgnoreCase() {
-		return ignoreCase;
-	}
-
-	public void setIgnoreCase(boolean ignoreCase) {
-		this.ignoreCase = ignoreCase;
-	}
-
-	public String getIgnorePattern() {
-		return ignorePattern;
-	}
-
-	public void setIgnorePattern(String ignorePattern) {
-		this.ignorePattern = ignorePattern;
-	}
-
-	public String getIgnoreUrlPatternType() {
-		return ignoreUrlPatternType;
-	}
-
-	public void setIgnoreUrlPatternType(String ignoreUrlPatternType) {
-		this.ignoreUrlPatternType = ignoreUrlPatternType;
-	}
-
-	public boolean isIgnoreInitConfiguration() {
-		return ignoreInitConfiguration;
-	}
-
-	public void setIgnoreInitConfiguration(boolean ignoreInitConfiguration) {
-		this.ignoreInitConfiguration = ignoreInitConfiguration;
-	}
-
-	public String getLogoutParameterName() {
-		return logoutParameterName;
-	}
-
-	public void setLogoutParameterName(String logoutParameterName) {
-		this.logoutParameterName = logoutParameterName;
-	}
-
-	public long getMillisBetweenCleanUps() {
-		return millisBetweenCleanUps;
-	}
-
-	public void setMillisBetweenCleanUps(long millisBetweenCleanUps) {
-		this.millisBetweenCleanUps = millisBetweenCleanUps;
-	}
-
-	public Protocol getProtocol() {
-		return protocol;
-	}
-
-	public void setProtocol(Protocol protocol) {
-		this.protocol = protocol;
-	}
-
-	public String getProxyCallbackUrl() {
-		return proxyCallbackUrl;
-	}
-
-	public void setProxyCallbackUrl(String proxyCallbackUrl) {
-		this.proxyCallbackUrl = proxyCallbackUrl;
-	}
-
-	public String getProxyReceptorUrl() {
-		return proxyReceptorUrl;
-	}
-
-	public void setProxyReceptorUrl(String proxyReceptorUrl) {
-		this.proxyReceptorUrl = proxyReceptorUrl;
-	}
-
-	public String getProxyGrantingTicketStorageClass() {
-		return proxyGrantingTicketStorageClass;
-	}
-
-	public void setProxyGrantingTicketStorageClass(String proxyGrantingTicketStorageClass) {
-		this.proxyGrantingTicketStorageClass = proxyGrantingTicketStorageClass;
-	}
-
-	public String[] getRequestWrapperFilterUrlPatterns() {
-		return requestWrapperFilterUrlPatterns;
-	}
-
-	public void setRequestWrapperFilterUrlPatterns(String[] requestWrapperFilterUrlPatterns) {
-		this.requestWrapperFilterUrlPatterns = requestWrapperFilterUrlPatterns;
-	}
-
-	public boolean isRedirectAfterValidation() {
-		return redirectAfterValidation;
-	}
-
-	public void setRedirectAfterValidation(boolean redirectAfterValidation) {
-		this.redirectAfterValidation = redirectAfterValidation;
-	}
-
-	public boolean isRenew() {
-		return renew;
-	}
-
-	public void setRenew(boolean renew) {
-		this.renew = renew;
-	}
-
-	public String getRelayStateParameterName() {
-		return relayStateParameterName;
-	}
-
-	public void setRelayStateParameterName(String relayStateParameterName) {
-		this.relayStateParameterName = relayStateParameterName;
-	}
-
-	public String getRoleAttribute() {
-		return roleAttribute;
-	}
-
-	public void setRoleAttribute(String roleAttribute) {
-		this.roleAttribute = roleAttribute;
-	}
-	
-	public String getRememberMeAttributeName() {
-		return rememberMeAttributeName;
-	}
-
-	public void setRememberMeAttributeName(String rememberMeAttributeName) {
-		this.rememberMeAttributeName = rememberMeAttributeName;
-	}
-
-	public String getSecretKey() {
-		return secretKey;
-	}
-
-	public void setSecretKey(String secretKey) {
-		this.secretKey = secretKey;
-	}
-
-	public String getServerCallbackUrl() {
-		return serverCallbackUrl;
-	}
-
-	public void setServerCallbackUrl(String serverCallbackUrl) {
-		this.serverCallbackUrl = serverCallbackUrl;
-	}
-
-	public String getServerName() {
-		return serverName;
-	}
-
-	public void setServerName(String serverName) {
-		this.serverName = serverName;
-	}
-	
-	public String getService() {
-		return service;
-	}
-
-	public void setService(String service) {
-		this.service = service;
-	}
-
-	public String[] getSignOutFilterUrlPatterns() {
-		return signOutFilterUrlPatterns;
-	}
-
-	public void setSignOutFilterUrlPatterns(String[] signOutFilterUrlPatterns) {
-		this.signOutFilterUrlPatterns = signOutFilterUrlPatterns;
-	}
-
-	public String getSslConfigFile() {
-		return sslConfigFile;
-	}
-
-	public void setSslConfigFile(String sslConfigFile) {
-		this.sslConfigFile = sslConfigFile;
-	}
-
-	public String[] getTicketValidationFilterUrlPatterns() {
-		return ticketValidationFilterUrlPatterns;
-	}
-
-	public void setTicketValidationFilterUrlPatterns(String[] ticketValidationFilterUrlPatterns) {
-		this.ticketValidationFilterUrlPatterns = ticketValidationFilterUrlPatterns;
-	}
-
-	public String getTicketValidatorClass() {
-		return ticketValidatorClass;
-	}
-
-	public void setTicketValidatorClass(String ticketValidatorClass) {
-		this.ticketValidatorClass = ticketValidatorClass;
-	}
-
-	public long getTolerance() {
-		return tolerance;
-	}
-
-	public void setTolerance(long tolerance) {
-		this.tolerance = tolerance;
-	}
-
-	public boolean isUseSession() {
-		return useSession;
-	}
-
-	public void setUseSession(boolean useSession) {
-		this.useSession = useSession;
-	}
-
-	public String getServiceParameterName() {
-		return serviceParameterName;
-	}
-
-	public void setServiceParameterName(String serviceParameterName) {
-		this.serviceParameterName = serviceParameterName;
-	}
-	
-	public SecurityCasAuthcProperties getAuthc() {
-		return authc;
-	}
-
-	public void setAuthc(SecurityCasAuthcProperties authc) {
-		this.authc = authc;
-	}
-
-	public SecurityCsrfProperties getCsrf() {
-		return csrf;
-	}
-
-	public void setCsrf(SecurityCsrfProperties csrf) {
-		this.csrf = csrf;
-	}
-
-	public SecurityLogoutProperties getLogout() {
-		return logout;
-	}
-
-	public void setLogout(SecurityLogoutProperties logout) {
-		this.logout = logout;
-	}
-
-	public SecuritySessionMgtProperties getSessionMgt() {
-		return sessionMgt;
-	}
-
-	public void setSessionMgt(SecuritySessionMgtProperties sessionMgt) {
-		this.sessionMgt = sessionMgt;
-	}
 
 }

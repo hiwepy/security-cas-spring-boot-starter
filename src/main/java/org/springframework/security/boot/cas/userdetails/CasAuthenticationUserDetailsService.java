@@ -20,6 +20,4 @@ import org.springframework.security.core.userdetails.AuthenticationUserDetailsSe
 
 public abstract class CasAuthenticationUserDetailsService implements AuthenticationUserDetailsService<CasAssertionAuthenticationToken> {
 
- 
-
 }
