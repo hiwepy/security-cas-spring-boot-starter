@@ -24,11 +24,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.boot.biz.authentication.PostRequestAuthenticationFailureHandler;
 import org.springframework.security.boot.biz.authentication.PostRequestAuthenticationSuccessHandler;
-import org.springframework.security.boot.cas.userdetails.CasAuthenticationUserDetailsService;
 import org.springframework.security.boot.utils.CasUrlUtils;
 import org.springframework.security.boot.utils.StringUtils;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
+import org.springframework.security.cas.userdetails.AbstractCasAssertionUserDetailsService;
 import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
 import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource;
@@ -74,7 +74,7 @@ public class SecurityCasFilterConfiguration {
     
 	@Bean
 	public CasAuthenticationProvider casAuthenticationProvider(
-			CasAuthenticationUserDetailsService userDetailsService,
+			AbstractCasAssertionUserDetailsService casAssertionUserDetailsService,
 			GrantedAuthoritiesMapper authoritiesMapper,
 			ServiceProperties serviceProperties, 
 			TicketValidator ticketValidator) {
@@ -84,7 +84,7 @@ public class SecurityCasFilterConfiguration {
 		provider.setAuthoritiesMapper(authoritiesMapper);
 		provider.setServiceProperties(serviceProperties);
 		provider.setTicketValidator(ticketValidator);
-		provider.setAuthenticationUserDetailsService(userDetailsService);
+		provider.setAuthenticationUserDetailsService(casAssertionUserDetailsService);
 
 		return provider;
 	}
