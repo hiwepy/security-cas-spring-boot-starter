@@ -110,7 +110,6 @@ public class SecurityCasFilterConfiguration {
 	static class CasWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
     	
-	    private final SecurityBizProperties bizProperties;
 		private final SecurityCasProperties casProperties;
 		private final ServiceProperties serviceProperties;
 		
@@ -152,7 +151,6 @@ public class SecurityCasFilterConfiguration {
    				
    			) {
 			
-   			this.bizProperties = bizProperties;
    			this.casProperties = casProperties;
    			this.serviceProperties = serviceProperties;
    			
@@ -181,7 +179,6 @@ public class SecurityCasFilterConfiguration {
 			 */
 			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
 			
-			map.from(bizProperties.getSessionMgt().isAllowSessionCreation()).to(authenticationFilter::setAllowSessionCreation);
 			
 			map.from(authenticationManager).to(authenticationFilter::setAuthenticationManager);
 			map.from(authenticationSuccessHandler).to(authenticationFilter::setAuthenticationSuccessHandler);
@@ -193,6 +190,7 @@ public class SecurityCasFilterConfiguration {
 			map.from(serviceProperties).to(authenticationFilter::setServiceProperties);
 			map.from(sessionAuthenticationStrategy).to(authenticationFilter::setSessionAuthenticationStrategy);
 			map.from(true).to(authenticationFilter::setContinueChainBeforeSuccessfulAuthentication);
+			map.from(casProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
 			
 			if (StringUtils.hasText(casProperties.getProxyReceptorUrl())) {
 				authenticationFilter.setProxyAuthenticationFailureHandler(authenticationFailureHandler);

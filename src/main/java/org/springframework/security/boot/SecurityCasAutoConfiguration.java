@@ -29,7 +29,7 @@ public class SecurityCasAutoConfiguration {
 	public ServiceProperties serviceProperties(SecurityCasProperties casProperties) {
 		ServiceProperties serviceProperties = new ServiceProperties();
 		serviceProperties.setArtifactParameter(casProperties.getArtifactParameterName());
-		// serviceProperties.setAuthenticateAllArtifacts(authenticateAllArtifacts);
+		serviceProperties.setAuthenticateAllArtifacts(casProperties.isAuthenticateAllArtifacts());
 		serviceProperties.setSendRenew(casProperties.isRenew());
 		serviceProperties.setService(casProperties.getService());
 		serviceProperties.setServiceParameter(casProperties.getServiceParameterName());

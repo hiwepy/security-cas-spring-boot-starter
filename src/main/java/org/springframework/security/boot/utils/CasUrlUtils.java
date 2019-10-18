@@ -47,7 +47,7 @@ public class CasUrlUtils {
 		
 		try {
 			
-			URL url = new URL(casProperties.getServerName());
+			URL url = new URL(casProperties.getService());
 			
 			// 重定向地址：用于重新回到业务系统
 			StringBuilder callbackUrl = new StringBuilder(url.getProtocol()).append("://").append(url.getHost())
@@ -57,7 +57,7 @@ public class CasUrlUtils {
 			
 		} catch (MalformedURLException e) {
 			// 重定向地址：用于重新回到业务系统
-			StringBuilder callbackUrl = new StringBuilder(casProperties.getServerName()).append(contextPath).append(serverUrl);
+			StringBuilder callbackUrl = new StringBuilder(casProperties.getService()).append(contextPath).append(serverUrl);
 			return callbackUrl.toString();
 		}
 
@@ -90,8 +90,8 @@ public class CasUrlUtils {
 	public static String constructServiceUrl(ServletRequest request, ServletResponse response, SecurityCasProperties casProperties) {
 		
 		return CommonUtils.constructServiceUrl(WebUtils.getNativeRequest(request, HttpServletRequest.class), 
-				WebUtils.getNativeResponse(response, HttpServletResponse.class), casProperties.getServerName(),
-				casProperties.getServerName(), casProperties.getServiceParameterName(),
+				WebUtils.getNativeResponse(response, HttpServletResponse.class), casProperties.getService(),
+				casProperties.getService(), casProperties.getServiceParameterName(),
 				casProperties.getArtifactParameterName(), casProperties.isEncodeServiceUrl());
 		
 	}
