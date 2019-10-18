@@ -107,7 +107,7 @@ public class SecurityCasFilterConfiguration {
 	@Configuration
 	@ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
 	@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class })
-    @Order(106)
+    @Order(109)
 	static class CasWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
     	
