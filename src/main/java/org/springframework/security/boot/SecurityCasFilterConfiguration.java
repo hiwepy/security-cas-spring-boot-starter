@@ -257,7 +257,7 @@ public class SecurityCasFilterConfiguration {
 	        http.addFilterBefore(authenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
 	                .addFilterBefore(logoutFilter(), LogoutFilter.class)
 	                .addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)
-	                .addFilter(assertionThreadLocalFilter());
+	                .addFilterAfter(assertionThreadLocalFilter(), CasAuthenticationFilter.class);
 
 	    }
 	    
