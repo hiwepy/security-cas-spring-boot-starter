@@ -3,6 +3,7 @@ package org.springframework.security.boot;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jasig.cas.client.configuration.ConfigurationKeys;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.jasig.cas.client.session.SessionMappingStorage;
 import org.jasig.cas.client.session.SingleSignOutFilter;
@@ -17,6 +18,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAut
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.PropertyMapper;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,6 +57,7 @@ import org.springframework.util.CollectionUtils;
 	SecurityCasAuthcProperties.class, ServerProperties.class })
 public class SecurityCasFilterConfiguration {
 
+
 	/**
 	 * 	单点注销Session监听器
 	 */
@@ -67,6 +70,69 @@ public class SecurityCasFilterConfiguration {
         return servletListenerRegistrationBean;
     }
     
+    /*
+	 * CAS SignOut Filter </br>
+	 * 该过滤器用于实现单点登出功能，单点退出配置，一定要放在其他filter之前
+	 */
+	@Bean
+	public FilterRegistrationBean<SingleSignOutFilter> singleSignOutFilter(SecurityCasProperties casProperties,
+			SecurityCasAuthcProperties casAuthcProperties, SessionMappingStorage sessionMappingStorage) {
+		
+		SingleSignOutFilter singleSignOutFilter = new SingleSignOutFilter();
+        
+		/**
+		 * 批量设置参数
+		 */
+		PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+		
+		map.from(casProperties.getArtifactParameterName()).to(singleSignOutFilter::setArtifactParameterName);
+		map.from(casProperties.getPrefixUrl()).to(singleSignOutFilter::setCasServerUrlPrefix);
+		map.from(casProperties.isIgnoreInitConfiguration()).to(singleSignOutFilter::setIgnoreInitConfiguration);
+		map.from(casProperties.getLogoutParameterName()).to(singleSignOutFilter::setLogoutParameterName);
+		map.from(casProperties.getLogout().getLogoutSuccessUrl()).to(singleSignOutFilter::setLogoutCallbackPath);
+		map.from(casProperties.getRelayStateParameterName()).to(singleSignOutFilter::setRelayStateParameterName);
+		map.from(sessionMappingStorage).to(singleSignOutFilter::setSessionMappingStorage);
+
+		FilterRegistrationBean<SingleSignOutFilter> filterRegistration = new FilterRegistrationBean<SingleSignOutFilter>();
+		filterRegistration.setFilter(new SingleSignOutFilter());
+		filterRegistration.setEnabled(casProperties.isEnabled());
+		
+		if(StringUtils.hasText(casProperties.getArtifactParameterName())) {	
+			filterRegistration.addInitParameter(ConfigurationKeys.ARTIFACT_PARAMETER_NAME.getName(), casProperties.getArtifactParameterName());
+		}
+		if(StringUtils.hasText(casProperties.getLogoutParameterName())) {	
+			filterRegistration.addInitParameter(ConfigurationKeys.LOGOUT_PARAMETER_NAME.getName(), casProperties.getLogoutParameterName());
+		}
+		if(StringUtils.hasText(casProperties.getRelayStateParameterName())) {	
+			filterRegistration.addInitParameter(ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getName(), casProperties.getRelayStateParameterName());
+		}
+		filterRegistration.addInitParameter(ConfigurationKeys.CAS_SERVER_URL_PREFIX.getName(), casProperties.getPrefixUrl());
+		filterRegistration.addInitParameter(ConfigurationKeys.ARTIFACT_PARAMETER_OVER_POST.getName(), String.valueOf(casProperties.isArtifactParameterOverPost()));
+		filterRegistration.addInitParameter(ConfigurationKeys.EAGERLY_CREATE_SESSIONS.getName(), String.valueOf(casProperties.isEagerlyCreateSessions()));
+		
+		filterRegistration.addUrlPatterns(casAuthcProperties.getSsoPathPatterns());
+		filterRegistration.setOrder(2);
+		return filterRegistration;
+	}
+	
+	/*
+	 * CAS Assertion Thread Local Filter </br>
+	 * 该过滤器使得可以通过org.jasig.cas.client.util.AssertionHolder来获取用户的登录名。
+	 * 比如AssertionHolder.getAssertion().getPrincipal().getName()。
+	 * 这个类把Assertion信息放在ThreadLocal变量中，这样应用程序不在web层也能够获取到当前登录信息
+	 */
+	@Bean
+	public FilterRegistrationBean<AssertionThreadLocalFilter> assertionThreadLocalFilter(SecurityCasProperties casProperties,
+			SecurityCasAuthcProperties casAuthcProperties) {
+		FilterRegistrationBean<AssertionThreadLocalFilter> filterRegistration = new FilterRegistrationBean<AssertionThreadLocalFilter>();
+		filterRegistration.setFilter(new AssertionThreadLocalFilter());
+		filterRegistration.setEnabled(casProperties.isEnabled());
+		filterRegistration.addUrlPatterns(casAuthcProperties.getAssertionPathPatterns());
+		filterRegistration.setOrder(6);
+		return filterRegistration;
+	}
+	
+	
     @Bean("casLogoutSuccessHandler")
 	public LogoutSuccessHandler logoutSuccessHandler(SecurityCasProperties casProperties) {
 		return new ForwardLogoutSuccessHandler(casProperties.getLoginUrl());
@@ -122,7 +188,6 @@ public class SecurityCasFilterConfiguration {
 		private final CasAuthenticationEntryPoint authenticationEntryPoint;
  	    private final CasAuthenticationProvider authenticationProvider;
  	    private final ProxyGrantingTicketStorage proxyGrantingTicketStorage;
- 	    private final SessionMappingStorage sessionMappingStorage;
  	    
  	    private final LogoutSuccessHandler logoutSuccessHandler;
  	    private final List<LogoutHandler> logoutHandlers;
@@ -149,7 +214,6 @@ public class SecurityCasFilterConfiguration {
    				
    				ObjectProvider<ProxyGrantingTicketStorage> proxyGrantingTicketStorageProvider,
    				ObjectProvider<RememberMeServices> rememberMeServicesProvider,
-   				ObjectProvider<SessionMappingStorage> sessionMappingStorageProvider,
    				ObjectProvider<SessionAuthenticationStrategy> sessionAuthenticationStrategyProvider
    				
    			) {
@@ -169,7 +233,6 @@ public class SecurityCasFilterConfiguration {
    			
    			this.proxyGrantingTicketStorage = proxyGrantingTicketStorageProvider.getIfAvailable();
    			this.rememberMeServices = rememberMeServicesProvider.getIfAvailable();
-   			this.sessionMappingStorage = sessionMappingStorageProvider.getIfAvailable();
    			this.sessionAuthenticationStrategy = sessionAuthenticationStrategyProvider.getIfAvailable();
    			
 		}
@@ -183,7 +246,6 @@ public class SecurityCasFilterConfiguration {
 			 */
 			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
 			
-			
 			map.from(authenticationManager).to(authenticationFilter::setAuthenticationManager);
 			map.from(authenticationSuccessHandler).to(authenticationFilter::setAuthenticationSuccessHandler);
 			map.from(authenticationFailureHandler).to(authenticationFilter::setAuthenticationFailureHandler);
@@ -196,12 +258,10 @@ public class SecurityCasFilterConfiguration {
 			map.from(true).to(authenticationFilter::setContinueChainBeforeSuccessfulAuthentication);
 			map.from(casProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
 			
-			if (StringUtils.hasText(casProperties.getProxyReceptorUrl())) {
-				authenticationFilter.setProxyAuthenticationFailureHandler(authenticationFailureHandler);
-				if(proxyGrantingTicketStorage != null) {
-					authenticationFilter.setProxyGrantingTicketStorage(proxyGrantingTicketStorage);
-				}
-				authenticationFilter.setProxyReceptorUrl(casProperties.getProxyReceptorUrl());	
+			if (casProperties.isAcceptAnyProxy()) {
+				map.from(authenticationFailureHandler).to(authenticationFilter::setProxyAuthenticationFailureHandler);
+				map.from(proxyGrantingTicketStorage).to(authenticationFilter::setProxyGrantingTicketStorage);
+				map.from(casProperties.getProxyReceptorUrl()).to(authenticationFilter::setProxyReceptorUrl); 
 			}
 
 			return authenticationFilter;
@@ -223,25 +283,6 @@ public class SecurityCasFilterConfiguration {
 			return logoutFilter;
 		}
 		
-		public SingleSignOutFilter singleSignOutFilter() {
-			
-	        SingleSignOutFilter singleSignOutFilter = new SingleSignOutFilter();
-	        
-	        singleSignOutFilter.setArtifactParameterName(casProperties.getArtifactParameterName());
-	        singleSignOutFilter.setCasServerUrlPrefix(casProperties.getPrefixUrl());
-	        singleSignOutFilter.setIgnoreInitConfiguration(casProperties.isIgnoreInitConfiguration());
-	        singleSignOutFilter.setLogoutCallbackPath(casProperties.getLogout().getLogoutSuccessUrl());
-	        singleSignOutFilter.setLogoutParameterName(casProperties.getLogoutParameterName());
-	        singleSignOutFilter.setRelayStateParameterName(casProperties.getRelayStateParameterName());
-	        singleSignOutFilter.setSessionMappingStorage(sessionMappingStorage);
-	        
-	        return singleSignOutFilter;
-		}
-		
-		public AssertionThreadLocalFilter assertionThreadLocalFilter() {
-	        return new AssertionThreadLocalFilter();
-		}
-		
 		@Override
 	    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 	        auth.authenticationProvider(authenticationProvider);
@@ -255,15 +296,13 @@ public class SecurityCasFilterConfiguration {
 	        http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
 	        
 	        http.addFilterBefore(authenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
-	                .addFilterBefore(logoutFilter(), LogoutFilter.class)
-	                .addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)
-	                .addFilterAfter(assertionThreadLocalFilter(), CasAuthenticationFilter.class);
+	                .addFilterBefore(logoutFilter(), LogoutFilter.class);
 
 	    }
 	    
 	    @Override
    	    public void configure(WebSecurity web) throws Exception {
-   	    	web.ignoring().antMatchers(casAuthcProperties.getPathPattern());
+   	    	//web.ignoring().antMatchers(casAuthcProperties.getPathPattern());
    	    }
 		
 	}

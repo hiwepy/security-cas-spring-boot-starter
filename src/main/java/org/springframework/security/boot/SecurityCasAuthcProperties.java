@@ -31,5 +31,12 @@ public class SecurityCasAuthcProperties {
 
 	/** Authorization Path Pattern */
 	private String pathPattern = "/login/cas";
-
+	
+	/** Authorization Path Pattern */
+	private String[] ssoPathPatterns = new String[] {"/*"};
+	
+	/** Authorization Path Pattern */
+	private String[] assertionPathPatterns = new String[] {"/*"};
+	
+	
 }

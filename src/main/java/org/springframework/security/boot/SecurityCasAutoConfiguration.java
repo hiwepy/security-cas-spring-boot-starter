@@ -3,6 +3,8 @@ package org.springframework.security.boot;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
+import org.jasig.cas.client.session.HashMapBackedSessionMappingStorage;
+import org.jasig.cas.client.session.SessionMappingStorage;
 import org.jasig.cas.client.validation.TicketValidator;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -55,6 +57,12 @@ public class SecurityCasAutoConfiguration {
 		return new ServiceAuthenticationDetailsSource(serviceProperties);
 	}
 	
+	@Bean
+	@ConditionalOnMissingBean
+	public SessionMappingStorage sessionMappingStorage() {
+		return new HashMapBackedSessionMappingStorage();
+	}
+	  
 	@Bean
 	@ConditionalOnMissingBean
 	public StatelessTicketCache statelessTicketCache() {

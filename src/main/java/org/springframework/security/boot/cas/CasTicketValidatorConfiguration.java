@@ -90,7 +90,7 @@ public class CasTicketValidatorConfiguration {
         cas20ServiceTicketValidator.setEncoding(casProperties.getEncoding());
         cas20ServiceTicketValidator.setRenew(casProperties.isRenew());
        
-        if( casProperties.isProxyGranting()) {
+        if( casProperties.isAcceptAnyProxy()) {
         	
         	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(casProperties));
         	if(proxyRetriever == null) {
@@ -111,7 +111,7 @@ public class CasTicketValidatorConfiguration {
         cas20ProxyTicketValidator.setAcceptAnyProxy(casProperties.isAcceptAnyProxy());
         cas20ProxyTicketValidator.setAllowedProxyChains(CommonUtils.createProxyList(casProperties.getAllowedProxyChains()));
         
-        if( casProperties.isProxyGranting()) {
+        if( casProperties.isAcceptAnyProxy()) {
         	
         	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(casProperties));
         	if(proxyRetriever == null) {
@@ -132,7 +132,7 @@ public class CasTicketValidatorConfiguration {
         cas30ServiceTicketValidator.setEncoding(casProperties.getEncoding());
         cas30ServiceTicketValidator.setRenew(casProperties.isRenew());
        
-        if( casProperties.isProxyGranting()) {
+        if( casProperties.isAcceptAnyProxy()) {
         	
         	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(casProperties));
         	if(proxyRetriever == null) {
@@ -153,7 +153,7 @@ public class CasTicketValidatorConfiguration {
         cas30ProxyTicketValidator.setAcceptAnyProxy(casProperties.isAcceptAnyProxy());
         cas30ProxyTicketValidator.setAllowedProxyChains(CommonUtils.createProxyList(casProperties.getAllowedProxyChains()));
         
-        if( casProperties.isProxyGranting()) {
+        if( casProperties.isAcceptAnyProxy()) {
         	
         	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(casProperties));
         	if(proxyRetriever == null) {

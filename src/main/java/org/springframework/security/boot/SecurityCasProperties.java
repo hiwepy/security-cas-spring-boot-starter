@@ -77,6 +77,8 @@ public class SecurityCasProperties {
 	 */
 	private boolean authenticateAllArtifacts = false;
 
+	private boolean artifactParameterOverPost = false;
+	
 	/** Specifies whether any proxy is OK. Defaults to false. */
 	private boolean acceptAnyProxy = false;
 	/**
@@ -121,8 +123,7 @@ public class SecurityCasProperties {
 	private String logoutParameterName;
 	/** The protocol of the CAS Client. */
 	private CasProtocol protocol = CasProtocol.CAS20;
-	/** Whether Enable Proxy Granting. */
-	private boolean proxyGranting = false;
+
 	/**
 	 * The callback URL to provide the CAS server to accept Proxy Granting Tickets.
 	 */
