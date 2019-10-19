@@ -280,7 +280,8 @@ public class SecurityCasFilterConfiguration {
 
 	        http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
 	        
-	        http.addFilterBefore(authenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
+	        http.antMatcher(casAuthcProperties.getPathPattern())
+	        	.addFilterBefore(authenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
 	            .addFilterBefore(logoutFilter(), LogoutFilter.class);
 
 	    }
