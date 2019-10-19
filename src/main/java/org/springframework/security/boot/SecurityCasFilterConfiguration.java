@@ -71,28 +71,13 @@ public class SecurityCasFilterConfiguration {
     }
     
     /*
-	 * CAS SignOut Filter </br>
-	 * 该过滤器用于实现单点登出功能，单点退出配置，一定要放在其他filter之前
+	 * 	CAS SignOut Filter
+	 * 	该过滤器用于实现单点登出功能，单点退出配置，一定要放在其他filter之前
 	 */
 	@Bean
 	public FilterRegistrationBean<SingleSignOutFilter> singleSignOutFilter(SecurityCasProperties casProperties,
 			SecurityCasAuthcProperties casAuthcProperties, SessionMappingStorage sessionMappingStorage) {
 		
-		SingleSignOutFilter singleSignOutFilter = new SingleSignOutFilter();
-        
-		/**
-		 * 批量设置参数
-		 */
-		PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-		
-		map.from(casProperties.getArtifactParameterName()).to(singleSignOutFilter::setArtifactParameterName);
-		map.from(casProperties.getPrefixUrl()).to(singleSignOutFilter::setCasServerUrlPrefix);
-		map.from(casProperties.isIgnoreInitConfiguration()).to(singleSignOutFilter::setIgnoreInitConfiguration);
-		map.from(casProperties.getLogoutParameterName()).to(singleSignOutFilter::setLogoutParameterName);
-		map.from(casProperties.getLogout().getLogoutSuccessUrl()).to(singleSignOutFilter::setLogoutCallbackPath);
-		map.from(casProperties.getRelayStateParameterName()).to(singleSignOutFilter::setRelayStateParameterName);
-		map.from(sessionMappingStorage).to(singleSignOutFilter::setSessionMappingStorage);
-
 		FilterRegistrationBean<SingleSignOutFilter> filterRegistration = new FilterRegistrationBean<SingleSignOutFilter>();
 		filterRegistration.setFilter(new SingleSignOutFilter());
 		filterRegistration.setEnabled(casProperties.isEnabled());
@@ -116,10 +101,10 @@ public class SecurityCasFilterConfiguration {
 	}
 	
 	/*
-	 * CAS Assertion Thread Local Filter </br>
-	 * 该过滤器使得可以通过org.jasig.cas.client.util.AssertionHolder来获取用户的登录名。
-	 * 比如AssertionHolder.getAssertion().getPrincipal().getName()。
-	 * 这个类把Assertion信息放在ThreadLocal变量中，这样应用程序不在web层也能够获取到当前登录信息
+	 * 	CAS Assertion Thread Local Filter
+	 * 	该过滤器使得可以通过org.jasig.cas.client.util.AssertionHolder来获取用户的登录名。
+	 * 	比如AssertionHolder.getAssertion().getPrincipal().getName()。
+	 * 	这个类把Assertion信息放在ThreadLocal变量中，这样应用程序不在web层也能够获取到当前登录信息
 	 */
 	@Bean
 	public FilterRegistrationBean<AssertionThreadLocalFilter> assertionThreadLocalFilter(SecurityCasProperties casProperties,

@@ -20,8 +20,9 @@ import lombok.ToString;
 @ToString
 public class SecurityCasProperties {
 
-	// default name of the CAS attribute for remember me authentication (CAS
-	// 3.4.10+)
+	/**
+	 * Default name of the CAS attribute for remember me authentication (CAS 3.4.10+)
+	 */
 	public static final String DEFAULT_REMEMBER_ME_ATTRIBUTE_NAME = "longTermAuthenticationRequestTokenUsed";
 	/**
 	 * Default timeout in milliseconds.
@@ -41,33 +42,30 @@ public class SecurityCasProperties {
 	private boolean enabled = false;
 
 	/**
-	 * Defines the location of the CAS server login URL, i.e.
-	 * https://localhost:8443/cas/login
+	 * Defines the location of the CAS server login URL, i.e. https://localhost:8443/cas/login
 	 */
 	private String loginUrl;
 	/**
-	 * Defines the location of the CAS server logout URL, i.e.
-	 * https://localhost:8443/cas/logout
+	 * Defines the location of the CAS server logout URL, i.e. https://localhost:8443/cas/logout
 	 */
 	private String logoutUrl;
 	/**
-	 * Defines the location of the CAS server rest URL, i.e.
-	 * https://localhost:8443/cas/v1/tickets
+	 * Defines the location of the CAS server rest URL, i.e. https://localhost:8443/cas/v1/tickets
 	 */
 	private String restUrl;
-	/** The prefix url of the CAS server. i.e.https://localhost:8443/cas */
+	/** 
+	 * The prefix url of the CAS server. i.e.https://localhost:8443/cas 
+	 */
 	private String prefixUrl;
-	/**
-	 * the url where the application is redirected if the CAS service ticket
-	 * validation failed (example : /mycontextpatch/cas_error.jsp)
+	/** 
+	 * The url where the application is redirected if the CAS service ticket validation failed (example : /mycontextpatch/cas_error.jsp) 
 	 */
 	private String failureUrl;
 
 	private String[] attributes = new String[] {};
 
 	/**
-	 * Specifies the name of the request parameter on where to find the artifact
-	 * (i.e. ticket).
+	 * Specifies the name of the request parameter on where to find the artifact (i.e. ticket).
 	 */
 	private String artifactParameterName = ServiceProperties.DEFAULT_CAS_ARTIFACT_PARAMETER;
 	/**
@@ -79,19 +77,28 @@ public class SecurityCasProperties {
 
 	private boolean artifactParameterOverPost = false;
 	
-	/** Specifies whether any proxy is OK. Defaults to false. */
+	/** 
+     * Specifies whether any proxy is OK. Defaults to false. 
+     */
 	private boolean acceptAnyProxy = false;
 	/**
-	 * Specifies the proxy chain. Each acceptable proxy chain should include a
-	 * space-separated list of URLs (for exact match) or regular expressions of URLs
-	 * (starting by the ^ character). Each acceptable proxy chain should appear on
-	 * its own line.
+	 * Specifies the proxy chain. 
+	 * Each acceptable proxy chain should include a space-separated list of URLs (for exact match) or regular expressions of URLs (starting by the ^ character). 
+	 * Each acceptable proxy chain should appear on its own line.
 	 */
 	private String allowedProxyChains;
-
-	/* Map containing user defined parameters */
+	/* 
+	 * Map containing user defined parameters 
+	 */
 	private Map<String, String> customParams = new HashMap<>();
-
+	/** 
+	 * Specifies the encoding charset the client should use 
+	 */
+	private String encoding = "UTF-8";
+	/** 
+	 * Whether the client should auto encode the service url. Defaults to true 
+	 */
+	private boolean encodeServiceUrl = true;
 	/**
 	 * Determines whether the Service URL should include the session id for the
 	 * specific user. As of CAS 3.0.5, the session id will automatically be
@@ -103,15 +110,11 @@ public class SecurityCasProperties {
 	 * By default, encoding is enabled.
 	 */
 	private boolean encodeServiceUrlWithSessionId = true;
-
-	/** Specifies the encoding charset the client should use */
-	private String encoding = "UTF-8";
-
-	/** Defaults to true */
+	/** 
+	 * Defaults to true 
+	 */
 	private boolean eagerlyCreateSessions = true;
-	/** Whether the client should auto encode the service url. Defaults to true */
-	private boolean encodeServiceUrl = true;
-
+	
 	/**
 	 * Specifies whether gateway=true should be sent to the CAS server. Valid values
 	 * are either true/false (or no value at all)
@@ -123,7 +126,6 @@ public class SecurityCasProperties {
 	private String logoutParameterName;
 	/** The protocol of the CAS Client. */
 	private CasProtocol protocol = CasProtocol.CAS20;
-
 	/**
 	 * The callback URL to provide the CAS server to accept Proxy Granting Tickets.
 	 */
