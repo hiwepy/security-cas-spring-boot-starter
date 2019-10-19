@@ -36,3 +36,6 @@ target
 transaction-logs
 .flattened-pom.xml
 secrets.yml
+.apt_generated
+.settings
+.sts4-cache
