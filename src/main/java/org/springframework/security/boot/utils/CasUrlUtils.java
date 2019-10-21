@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jasig.cas.client.util.CommonUtils;
-import org.springframework.security.boot.SecurityCasProperties;
+import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.web.util.WebUtils;
 
 public class CasUrlUtils {
@@ -38,7 +38,7 @@ public class CasUrlUtils {
 		return callbackUrlBuilder.toString();
 	}
 	
-	public static String constructCallbackUrl(SecurityCasProperties casProperties, String contextPath, String serverUrl) {
+	public static String constructCallbackUrl(SecurityCasAuthcProperties casProperties, String contextPath, String serverUrl) {
 
 		contextPath = StringUtils.hasText(contextPath) ? contextPath : "/";
 		if (contextPath.endsWith("/")) {
@@ -63,7 +63,7 @@ public class CasUrlUtils {
 
 	}
 	
-	public static String constructRedirectUrl(SecurityCasProperties casProperties, String casServerPath, String contextPath, String serverUrl)  {
+	public static String constructRedirectUrl(SecurityCasAuthcProperties casProperties, String casServerPath, String contextPath, String serverUrl)  {
 
 		StringBuilder casRedirectUrl = new StringBuilder(casProperties.getPrefixUrl());
 		if (!casRedirectUrl.toString().endsWith("/")) {
@@ -77,17 +77,17 @@ public class CasUrlUtils {
 		
 	}
 	
-	public static String constructLogoutRedirectUrl(SecurityCasProperties casProperties, String contextPath, String serverUrl){
+	public static String constructLogoutRedirectUrl(SecurityCasAuthcProperties casProperties, String contextPath, String serverUrl){
 		String callbackUrl = CasUrlUtils.constructCallbackUrl(casProperties, contextPath, serverUrl);
 		return CommonUtils.constructRedirectUrl(casProperties.getLogoutUrl(), casProperties.getServiceParameterName(), callbackUrl, casProperties.isRenew(), casProperties.isGateway());
 	}
 	
-	public static String constructLoginRedirectUrl(SecurityCasProperties casProperties, String contextPath, String serverUrl){
+	public static String constructLoginRedirectUrl(SecurityCasAuthcProperties casProperties, String contextPath, String serverUrl){
 		String callbackUrl = CasUrlUtils.constructCallbackUrl(casProperties, contextPath, serverUrl);
 		return CommonUtils.constructRedirectUrl(casProperties.getLogoutUrl(), casProperties.getServiceParameterName(), callbackUrl, casProperties.isRenew(), casProperties.isGateway());
 	}
 	
-	public static String constructServiceUrl(ServletRequest request, ServletResponse response, SecurityCasProperties casProperties) {
+	public static String constructServiceUrl(ServletRequest request, ServletResponse response, SecurityCasAuthcProperties casProperties) {
 		
 		return CommonUtils.constructServiceUrl(WebUtils.getNativeRequest(request, HttpServletRequest.class), 
 				WebUtils.getNativeResponse(response, HttpServletResponse.class), casProperties.getService(),

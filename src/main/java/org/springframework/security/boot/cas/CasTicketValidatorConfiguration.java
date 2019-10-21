@@ -37,8 +37,8 @@ import org.jasig.cas.client.validation.Saml11TicketValidator;
 import org.jasig.cas.client.validation.TicketValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.boot.SecurityCasProperties;
-import org.springframework.security.boot.SecurityCasProperties.CasProtocol;
+import org.springframework.security.boot.SecurityCasAuthcProperties;
+import org.springframework.security.boot.SecurityCasAuthcProperties.CasProtocol;
 import org.springframework.security.boot.cas.exception.CasAuthenticationServiceException;
 
 
@@ -59,7 +59,7 @@ public class CasTicketValidatorConfiguration {
 	/**
 	 * Constructs a Cas20ServiceTicketValidator or a Cas20ProxyTicketValidator based on supplied parameters.
 	 */
-	public TicketValidator retrieveTicketValidator(final SecurityCasProperties casProperties) {
+	public TicketValidator retrieveTicketValidator(final SecurityCasAuthcProperties casProperties) {
         if (casProperties.getProtocol() == CasProtocol.CAS10) {
             return buildCas10TicketValidator(casProperties);
         } else if (casProperties.getProtocol() == CasProtocol.CAS20) {
@@ -77,14 +77,14 @@ public class CasTicketValidatorConfiguration {
         }
     }
 
-    protected TicketValidator buildCas10TicketValidator(final SecurityCasProperties casProperties) {
+    protected TicketValidator buildCas10TicketValidator(final SecurityCasAuthcProperties casProperties) {
         final Cas10TicketValidator cas10TicketValidator = new Cas10TicketValidator(casProperties.getPrefixUrl());
         cas10TicketValidator.setEncoding(casProperties.getEncoding());
         cas10TicketValidator.setRenew(casProperties.isRenew());
         return cas10TicketValidator;
     }
 
-    protected TicketValidator buildCas20TicketValidator(final SecurityCasProperties casProperties) {
+    protected TicketValidator buildCas20TicketValidator(final SecurityCasAuthcProperties casProperties) {
         
     	final Cas20ServiceTicketValidator cas20ServiceTicketValidator = new Cas20ServiceTicketValidator(casProperties.getPrefixUrl());
         cas20ServiceTicketValidator.setEncoding(casProperties.getEncoding());
@@ -104,7 +104,7 @@ public class CasTicketValidatorConfiguration {
         return cas20ServiceTicketValidator;
     }
 
-    protected TicketValidator buildCas20ProxyTicketValidator(final SecurityCasProperties casProperties) {
+    protected TicketValidator buildCas20ProxyTicketValidator(final SecurityCasAuthcProperties casProperties) {
         final Cas20ProxyTicketValidator cas20ProxyTicketValidator = new Cas20ProxyTicketValidator(casProperties.getPrefixUrl());
         cas20ProxyTicketValidator.setEncoding(casProperties.getEncoding());
         cas20ProxyTicketValidator.setRenew(casProperties.isRenew());
@@ -126,7 +126,7 @@ public class CasTicketValidatorConfiguration {
         return cas20ProxyTicketValidator;
     }
 
-    protected TicketValidator buildCas30TicketValidator(final SecurityCasProperties casProperties) {
+    protected TicketValidator buildCas30TicketValidator(final SecurityCasAuthcProperties casProperties) {
         final Cas30ServiceTicketValidator cas30ServiceTicketValidator = new Cas30ServiceTicketValidator(casProperties.getPrefixUrl());
         
         cas30ServiceTicketValidator.setEncoding(casProperties.getEncoding());
@@ -146,7 +146,7 @@ public class CasTicketValidatorConfiguration {
         return cas30ServiceTicketValidator;
     }
 
-    protected TicketValidator buildCas30ProxyTicketValidator(final SecurityCasProperties casProperties) {
+    protected TicketValidator buildCas30ProxyTicketValidator(final SecurityCasAuthcProperties casProperties) {
         final Cas30ProxyTicketValidator cas30ProxyTicketValidator = new Cas30ProxyTicketValidator(casProperties.getPrefixUrl());
         cas30ProxyTicketValidator.setEncoding(casProperties.getEncoding());
         cas30ProxyTicketValidator.setRenew(casProperties.isRenew());
@@ -167,7 +167,7 @@ public class CasTicketValidatorConfiguration {
         return cas30ProxyTicketValidator;
     }
     
-    protected TicketValidator buildSAMLTicketValidator(final SecurityCasProperties casProperties) {
+    protected TicketValidator buildSAMLTicketValidator(final SecurityCasAuthcProperties casProperties) {
     	 final Saml11TicketValidator saml11TicketValidator = new Saml11TicketValidator(casProperties.getPrefixUrl());
          saml11TicketValidator.setTolerance(casProperties.getTolerance());
          saml11TicketValidator.setEncoding(casProperties.getEncoding());
@@ -183,7 +183,7 @@ public class CasTicketValidatorConfiguration {
 	 * @return Properties that can contains key/trust info for Client Side
 	 *         Certificates
 	 */
-	protected Properties getSSLConfig(SecurityCasProperties casProperties) {
+	protected Properties getSSLConfig(SecurityCasAuthcProperties casProperties) {
 		final Properties properties = new Properties();
 		final String fileName = casProperties.getSslConfigFile();
 

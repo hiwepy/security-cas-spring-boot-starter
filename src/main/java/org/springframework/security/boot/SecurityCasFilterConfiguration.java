@@ -72,7 +72,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Configuration
 @AutoConfigureBefore({ SecurityFilterAutoConfiguration.class })
 @ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
-@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class, ServerProperties.class })
+@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityCasAuthcProperties.class, SecurityBizProperties.class, ServerProperties.class })
 public class SecurityCasFilterConfiguration {
 	
 	/**
@@ -93,26 +93,27 @@ public class SecurityCasFilterConfiguration {
 	 */
 	@Bean
 	public FilterRegistrationBean<SingleSignOutFilter> singleSignOutFilter(SecurityCasProperties casProperties, 
+			SecurityCasAuthcProperties casAuthcProperties, 
 			SessionMappingStorage sessionMappingStorage) {
 		
 		FilterRegistrationBean<SingleSignOutFilter> filterRegistration = new FilterRegistrationBean<SingleSignOutFilter>();
 		filterRegistration.setFilter(new SingleSignOutFilter());
 		filterRegistration.setEnabled(casProperties.isEnabled());
 		
-		if(StringUtils.hasText(casProperties.getArtifactParameterName())) {	
-			filterRegistration.addInitParameter(ConfigurationKeys.ARTIFACT_PARAMETER_NAME.getName(), casProperties.getArtifactParameterName());
+		if(StringUtils.hasText(casAuthcProperties.getArtifactParameterName())) {	
+			filterRegistration.addInitParameter(ConfigurationKeys.ARTIFACT_PARAMETER_NAME.getName(), casAuthcProperties.getArtifactParameterName());
 		}
-		if(StringUtils.hasText(casProperties.getLogoutParameterName())) {	
-			filterRegistration.addInitParameter(ConfigurationKeys.LOGOUT_PARAMETER_NAME.getName(), casProperties.getLogoutParameterName());
+		if(StringUtils.hasText(casAuthcProperties.getLogoutParameterName())) {	
+			filterRegistration.addInitParameter(ConfigurationKeys.LOGOUT_PARAMETER_NAME.getName(), casAuthcProperties.getLogoutParameterName());
 		}
-		if(StringUtils.hasText(casProperties.getRelayStateParameterName())) {	
-			filterRegistration.addInitParameter(ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getName(), casProperties.getRelayStateParameterName());
+		if(StringUtils.hasText(casAuthcProperties.getRelayStateParameterName())) {	
+			filterRegistration.addInitParameter(ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getName(), casAuthcProperties.getRelayStateParameterName());
 		}
-		filterRegistration.addInitParameter(ConfigurationKeys.CAS_SERVER_URL_PREFIX.getName(), casProperties.getPrefixUrl());
-		filterRegistration.addInitParameter(ConfigurationKeys.ARTIFACT_PARAMETER_OVER_POST.getName(), String.valueOf(casProperties.isArtifactParameterOverPost()));
-		filterRegistration.addInitParameter(ConfigurationKeys.EAGERLY_CREATE_SESSIONS.getName(), String.valueOf(casProperties.isEagerlyCreateSessions()));
+		filterRegistration.addInitParameter(ConfigurationKeys.CAS_SERVER_URL_PREFIX.getName(), casAuthcProperties.getPrefixUrl());
+		filterRegistration.addInitParameter(ConfigurationKeys.ARTIFACT_PARAMETER_OVER_POST.getName(), String.valueOf(casAuthcProperties.isArtifactParameterOverPost()));
+		filterRegistration.addInitParameter(ConfigurationKeys.EAGERLY_CREATE_SESSIONS.getName(), String.valueOf(casAuthcProperties.isEagerlyCreateSessions()));
 		
-		filterRegistration.addUrlPatterns(casProperties.getSsoPathPatterns());
+		filterRegistration.addUrlPatterns(casAuthcProperties.getSsoPathPatterns());
 		filterRegistration.setOrder(2);
 		return filterRegistration;
 	}
@@ -124,38 +125,41 @@ public class SecurityCasFilterConfiguration {
 	 * 	这个类把Assertion信息放在ThreadLocal变量中，这样应用程序不在web层也能够获取到当前登录信息
 	 */
 	@Bean
-	public FilterRegistrationBean<AssertionThreadLocalFilter> assertionThreadLocalFilter(SecurityCasProperties casProperties) {
+	public FilterRegistrationBean<AssertionThreadLocalFilter> assertionThreadLocalFilter(SecurityCasProperties casProperties,
+			SecurityCasAuthcProperties casAuthcProperties) {
 		FilterRegistrationBean<AssertionThreadLocalFilter> filterRegistration = new FilterRegistrationBean<AssertionThreadLocalFilter>();
 		filterRegistration.setFilter(new AssertionThreadLocalFilter());
 		filterRegistration.setEnabled(casProperties.isEnabled());
-		filterRegistration.addUrlPatterns(casProperties.getAssertionPathPatterns());
+		filterRegistration.addUrlPatterns(casAuthcProperties.getAssertionPathPatterns());
 		filterRegistration.setOrder(6);
 		return filterRegistration;
 	}
 	
 
 	@Bean
-	public ServiceProperties serviceProperties(SecurityCasProperties casProperties) {
+	public ServiceProperties serviceProperties(SecurityCasProperties casProperties,
+			SecurityCasAuthcProperties casAuthcProperties) {
 		ServiceProperties serviceProperties = new ServiceProperties();
-		serviceProperties.setArtifactParameter(casProperties.getArtifactParameterName());
-		serviceProperties.setAuthenticateAllArtifacts(casProperties.isAuthenticateAllArtifacts());
-		serviceProperties.setSendRenew(casProperties.isRenew());
-		serviceProperties.setService(casProperties.getService());
-		serviceProperties.setServiceParameter(casProperties.getServiceParameterName());
+		serviceProperties.setArtifactParameter(casAuthcProperties.getArtifactParameterName());
+		serviceProperties.setAuthenticateAllArtifacts(casAuthcProperties.isAuthenticateAllArtifacts());
+		serviceProperties.setSendRenew(casAuthcProperties.isRenew());
+		serviceProperties.setService(casAuthcProperties.getService());
+		serviceProperties.setServiceParameter(casAuthcProperties.getServiceParameterName());
 		return serviceProperties;
 	}
 	
 	@Bean
 	@ConditionalOnMissingBean
-	public AbstractCasAssertionUserDetailsService casAssertionUserDetailsService(SecurityCasProperties casProperties) {
-		String[] attributes = ArrayUtils.isEmpty(casProperties.getAttributes()) ? new String[] {} : casProperties.getAttributes();
+	public AbstractCasAssertionUserDetailsService casAssertionUserDetailsService(SecurityCasAuthcProperties casAuthcProperties) {
+		String[] attributes = ArrayUtils.isEmpty(casAuthcProperties.getAttributes()) ? new String[] {} : casAuthcProperties.getAttributes();
 		return new GrantedAuthorityFromAssertionAttributesUserDetailsService(attributes);
 	}
 	
 	@Bean
 	@ConditionalOnMissingBean
-	public ProxyGrantingTicketStorage proxyGrantingTicketStorage(SecurityCasProperties casProperties) {
-		return new ProxyGrantingTicketStorageImpl(casProperties.getTimeout());
+	public ProxyGrantingTicketStorage proxyGrantingTicketStorage(
+			SecurityCasAuthcProperties casAuthcProperties) {
+		return new ProxyGrantingTicketStorageImpl(casAuthcProperties.getTimeout());
 	}
 
 	@Bean
@@ -178,14 +182,14 @@ public class SecurityCasFilterConfiguration {
 	
 	@Bean
 	@ConditionalOnMissingBean
-	public TicketValidator ticketValidator(SecurityCasProperties casProperties, ProxyGrantingTicketStorage proxyGrantingTicketStorage) {
+	public TicketValidator ticketValidator(SecurityCasAuthcProperties casProperties, ProxyGrantingTicketStorage proxyGrantingTicketStorage) {
 		CasTicketValidatorConfiguration ticketValidatorConfig = new CasTicketValidatorConfiguration(proxyGrantingTicketStorage);
 		return ticketValidatorConfig.retrieveTicketValidator(casProperties);
 	}
 	
     @Bean("casLogoutSuccessHandler")
-	public LogoutSuccessHandler logoutSuccessHandler(SecurityCasProperties casProperties) {
-		return new ForwardLogoutSuccessHandler(casProperties.getLoginUrl());
+	public LogoutSuccessHandler logoutSuccessHandler(SecurityCasAuthcProperties casAuthcProperties) {
+		return new ForwardLogoutSuccessHandler(casAuthcProperties.getLoginUrl());
 	}
     
 	@Bean
@@ -206,15 +210,16 @@ public class SecurityCasFilterConfiguration {
 	}
 
 	@Bean
-	public CasAuthenticationEntryPoint casAuthenticationEntryPoint(SecurityCasProperties casProperties,
+	public CasAuthenticationEntryPoint casAuthenticationEntryPoint(
+			SecurityCasAuthcProperties casAuthcProperties,
 			ServerProperties serverProperties,
 			ServiceProperties serviceProperties) {
 
 		CasAuthenticationEntryPoint entryPoint = new CasAuthenticationEntryPoint();
 
-		entryPoint.setEncodeServiceUrlWithSessionId(casProperties.isEncodeServiceUrlWithSessionId());
-		entryPoint.setLoginUrl(CasUrlUtils.constructLoginRedirectUrl(casProperties,
-				serverProperties.getServlet().getContextPath(), casProperties.getServiceCallbackUrl()));
+		entryPoint.setEncodeServiceUrlWithSessionId(casAuthcProperties.isEncodeServiceUrlWithSessionId());
+		entryPoint.setLoginUrl(CasUrlUtils.constructLoginRedirectUrl(casAuthcProperties,
+				serverProperties.getServlet().getContextPath(), casAuthcProperties.getServiceCallbackUrl()));
 		entryPoint.setServiceProperties(serviceProperties);
 
 		return entryPoint;
@@ -232,7 +237,7 @@ public class SecurityCasFilterConfiguration {
 	static class CasWebSecurityConfigurerAdapter extends SecurityBizConfigurerAdapter {
 
 		private final SecurityBizProperties bizProperties;
-		private final SecurityCasProperties casProperties;
+		private final SecurityCasAuthcProperties casAuthcProperties;
 		private final ServiceProperties serviceProperties;
 		
 		private final AuthenticationManager authenticationManager;
@@ -255,7 +260,7 @@ public class SecurityCasFilterConfiguration {
 		public CasWebSecurityConfigurerAdapter(
 				
 				SecurityBizProperties bizProperties,
-				SecurityCasProperties casProperties,
+				SecurityCasAuthcProperties casAuthcProperties,
 				ServiceProperties serviceProperties,
 				
 				ObjectProvider<AuthenticationManager> authenticationManagerProvider,
@@ -282,7 +287,7 @@ public class SecurityCasFilterConfiguration {
 			super(bizProperties);
 			
 			this.bizProperties = bizProperties;
-   			this.casProperties = casProperties;
+   			this.casAuthcProperties = casAuthcProperties;
    			this.serviceProperties = serviceProperties;
    			
    			this.authenticationManager = authenticationManagerProvider.getIfAvailable();
@@ -322,17 +327,17 @@ public class SecurityCasFilterConfiguration {
 			map.from(authenticationFailureHandler).to(authenticationFilter::setAuthenticationFailureHandler);
 			map.from(authenticationDetailsSource).to(authenticationFilter::setAuthenticationDetailsSource);
 			
-			map.from(casProperties.getPathPattern()).to(authenticationFilter::setFilterProcessesUrl);
+			map.from(casAuthcProperties.getPathPattern()).to(authenticationFilter::setFilterProcessesUrl);
 			map.from(rememberMeServices).to(authenticationFilter::setRememberMeServices);
 			map.from(serviceProperties).to(authenticationFilter::setServiceProperties);
 			map.from(sessionAuthenticationStrategy).to(authenticationFilter::setSessionAuthenticationStrategy);
 			map.from(true).to(authenticationFilter::setContinueChainBeforeSuccessfulAuthentication);
-			map.from(casProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
+			map.from(casAuthcProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
 			
-			if (casProperties.isAcceptAnyProxy()) {
+			if (casAuthcProperties.isAcceptAnyProxy()) {
 				map.from(authenticationFailureHandler).to(authenticationFilter::setProxyAuthenticationFailureHandler);
 				map.from(proxyGrantingTicketStorage).to(authenticationFilter::setProxyGrantingTicketStorage);
-				map.from(casProperties.getProxyReceptorUrl()).to(authenticationFilter::setProxyReceptorUrl); 
+				map.from(casAuthcProperties.getProxyReceptorUrl()).to(authenticationFilter::setProxyReceptorUrl); 
 			}
 
 			return authenticationFilter;
@@ -350,7 +355,7 @@ public class SecurityCasFilterConfiguration {
 	    	// Session 管理器配置参数
    	    	SecuritySessionMgtProperties sessionMgt = bizProperties.getSessionMgt();
    	    	// Session 注销配置参数
-   	    	SecurityLogoutProperties logout = casProperties.getLogout();
+   	    	SecurityLogoutProperties logout = casAuthcProperties.getLogout();
    	    	
    	    	http.csrf().disable(); // We don't need CSRF for JWT based authentication
 	    	http.headers().cacheControl(); // 禁用缓存
@@ -384,11 +389,11 @@ public class SecurityCasFilterConfiguration {
    	    		.requestCache()
    	        	.requestCache(requestCache)
    	        	.and()
-   	        	.antMatcher(casProperties.getPathPattern())
+   	        	.antMatcher(casAuthcProperties.getPathPattern())
 	        	.addFilterBefore(authenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
    	    	
    	    	// CSRF 配置
-   	    	SecurityCsrfProperties csrf = casProperties.getCsrf();
+   	    	SecurityCsrfProperties csrf = casAuthcProperties.getCsrf();
    	    	if(csrf.isEnabled()) {
    	       		http.csrf()
    				   	.csrfTokenRepository(csrfTokenRepository)
