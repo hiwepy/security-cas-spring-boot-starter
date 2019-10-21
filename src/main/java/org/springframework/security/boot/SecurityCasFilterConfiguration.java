@@ -57,7 +57,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
 import org.springframework.security.web.authentication.logout.ForwardLogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
@@ -66,7 +65,6 @@ import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
-import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -222,7 +220,7 @@ public class SecurityCasFilterConfiguration {
 	}
 	
 	@Bean("casLogoutSuccessHandler")
-	public LogoutSuccessHandler jwtLogoutSuccessHandler() {
+	public LogoutSuccessHandler castLogoutSuccessHandler() {
 		return new HttpStatusReturningLogoutSuccessHandler();
 	}
 	
@@ -304,7 +302,12 @@ public class SecurityCasFilterConfiguration {
    			this.sessionInformationExpiredStrategy = sessionInformationExpiredStrategyProvider.getIfAvailable();
 		}
 
-		public CasAuthenticationFilter authenticationProcessingFilter() {
+		@Override
+		protected AuthenticationManager authenticationManager() throws Exception {
+			return authenticationManager == null ? super.authenticationManager() : authenticationManager;
+		}
+		
+		public CasAuthenticationFilter authenticationProcessingFilter() throws Exception {
 
 			CasAuthenticationFilter authenticationFilter = new CasAuthenticationFilter();
 
@@ -313,7 +316,7 @@ public class SecurityCasFilterConfiguration {
 			 */
 			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
 			
-			map.from(authenticationManager).to(authenticationFilter::setAuthenticationManager);
+			map.from(authenticationManager()).to(authenticationFilter::setAuthenticationManager);
 			map.from(authenticationSuccessHandler).to(authenticationFilter::setAuthenticationSuccessHandler);
 			map.from(authenticationFailureHandler).to(authenticationFilter::setAuthenticationFailureHandler);
 			map.from(authenticationDetailsSource).to(authenticationFilter::setAuthenticationDetailsSource);
@@ -332,22 +335,6 @@ public class SecurityCasFilterConfiguration {
 			}
 
 			return authenticationFilter;
-		}
-		
-		/**
-		 * 	系统登录注销过滤器；默认：org.springframework.security.web.authentication.logout.LogoutFilter
-		 */
-		public LogoutFilter logoutFilter() {
-			
-			LogoutFilter logoutFilter = null;
-			if(CollectionUtils.isEmpty(logoutHandlers)) {
-				logoutFilter = new LogoutFilter(logoutSuccessHandler);
-			} else {
-				logoutFilter = new LogoutFilter(logoutSuccessHandler, logoutHandlers.toArray(new LogoutHandler[logoutHandlers.size()]));
-			}
-			logoutFilter.setFilterProcessesUrl(casProperties.getLogout().getPathPatterns());
-			
-			return logoutFilter;
 		}
 		
 		@Override
