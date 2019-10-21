@@ -51,6 +51,7 @@ import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -235,7 +236,7 @@ public class SecurityCasFilterConfiguration {
 	@Configuration
 	@ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
 	@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class })
-	@Order(SecurityProperties.DEFAULT_FILTER_ORDER + 80)
+	@Order(SecurityProperties.DEFAULT_FILTER_ORDER + 60)
 	static class CasWebSecurityConfigurerAdapter extends SecurityBizConfigurerAdapter {
 
 		private final SecurityBizProperties bizProperties;
@@ -411,6 +412,9 @@ public class SecurityCasFilterConfiguration {
 	    	super.configure(http);
 	    }
 	    
+	    @Override
+	    public void configure(WebSecurity web) throws Exception {
+	    }
 		
 	}
 	
