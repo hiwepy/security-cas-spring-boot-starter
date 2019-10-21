@@ -7,6 +7,7 @@ import org.jasig.cas.client.configuration.ConfigurationKeys;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.security.boot.biz.property.SecurityCsrfProperties;
 import org.springframework.security.boot.biz.property.SecurityLogoutProperties;
 import org.springframework.security.cas.ServiceProperties;
 
@@ -29,7 +30,7 @@ public class SecurityCasProperties {
 	 */
 	public static final long DEFAULT_TIMEOUT = 60000;
 
-	public static final String PREFIX = "spring.security.cas";
+	public static final String PREFIX = "spring.security.cas.authc";
 
 	/**
 	 * CAS protocol.
@@ -41,6 +42,15 @@ public class SecurityCasProperties {
 	/** Whether Enable Cas. */
 	private boolean enabled = false;
 
+	/** Authorization Path Pattern */
+	private String pathPattern = "/login/cas";
+	
+	/** Authorization Path Pattern */
+	private String[] ssoPathPatterns = new String[] {"/*"};
+	
+	/** Authorization Path Pattern */
+	private String[] assertionPathPatterns = new String[] {"/*"};
+	
 	/**
 	 * Defines the location of the CAS server login URL, i.e. https://localhost:8443/cas/login
 	 */
@@ -185,6 +195,9 @@ public class SecurityCasProperties {
 	private boolean useSession = true;
 
 	@NestedConfigurationProperty
+	private SecurityCsrfProperties csrf = new SecurityCsrfProperties();
+	
+	@NestedConfigurationProperty
 	private SecurityLogoutProperties logout = new SecurityLogoutProperties();
-
+	
 }
