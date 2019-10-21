@@ -36,8 +36,6 @@ import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -159,7 +157,7 @@ public class SecurityCasFilterConfiguration {
 	@ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
 	@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class })
     @Order(109)
-	static class CasWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+	static class CasWebSecurityConfigurerAdapter extends SecurityBizConfigurerAdapter {
 
     	
 		private final SecurityCasProperties casProperties;
@@ -202,6 +200,8 @@ public class SecurityCasFilterConfiguration {
    				ObjectProvider<SessionAuthenticationStrategy> sessionAuthenticationStrategyProvider
    				
    			) {
+			
+			super(bizProperties);
 			
    			this.casProperties = casProperties;
    			this.casAuthcProperties = casAuthcProperties;
@@ -271,6 +271,7 @@ public class SecurityCasFilterConfiguration {
 		@Override
 		public void configure(AuthenticationManagerBuilder auth) throws Exception {
 	        auth.authenticationProvider(authenticationProvider);
+	        super.configure(auth);
 	    }
 
 	    @Override
@@ -283,13 +284,11 @@ public class SecurityCasFilterConfiguration {
 	        http.antMatcher(casAuthcProperties.getPathPattern())
 	        	.addFilterBefore(authenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
 	            .addFilterBefore(logoutFilter(), LogoutFilter.class);
-
+	        
+	        super.configure(http);
+	        
 	    }
 	    
-	    @Override
-   	    public void configure(WebSecurity web) throws Exception {
-   	    	//web.ignoring().antMatchers(casAuthcProperties.getPathPattern());
-   	    }
 		
 	}
 	
