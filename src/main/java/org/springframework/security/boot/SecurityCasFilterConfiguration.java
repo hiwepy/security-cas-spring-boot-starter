@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.jasig.cas.client.configuration.ConfigurationKeys;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
 import org.jasig.cas.client.session.HashMapBackedSessionMappingStorage;
@@ -24,7 +23,6 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAut
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.PropertyMapper;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,7 +55,6 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
 import org.springframework.security.web.authentication.logout.ForwardLogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
@@ -69,6 +66,8 @@ import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -90,55 +89,6 @@ public class SecurityCasFilterConfiguration {
         return servletListenerRegistrationBean;
     }
     
-    /*
-	 * 	CAS SignOut Filter
-	 * 	该过滤器用于实现单点登出功能，单点退出配置，一定要放在其他filter之前
-	 */
-	@Bean
-	public FilterRegistrationBean<SingleSignOutFilter> singleSignOutFilter(SecurityCasProperties casProperties, 
-			SecurityCasAuthcProperties casAuthcProperties, 
-			SessionMappingStorage sessionMappingStorage) {
-		
-		FilterRegistrationBean<SingleSignOutFilter> filterRegistration = new FilterRegistrationBean<SingleSignOutFilter>();
-		filterRegistration.setFilter(new SingleSignOutFilter());
-		filterRegistration.setEnabled(casProperties.isEnabled());
-		
-		if(StringUtils.hasText(casAuthcProperties.getArtifactParameterName())) {	
-			filterRegistration.addInitParameter(ConfigurationKeys.ARTIFACT_PARAMETER_NAME.getName(), casAuthcProperties.getArtifactParameterName());
-		}
-		if(StringUtils.hasText(casAuthcProperties.getLogoutParameterName())) {	
-			filterRegistration.addInitParameter(ConfigurationKeys.LOGOUT_PARAMETER_NAME.getName(), casAuthcProperties.getLogoutParameterName());
-		}
-		if(StringUtils.hasText(casAuthcProperties.getRelayStateParameterName())) {	
-			filterRegistration.addInitParameter(ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getName(), casAuthcProperties.getRelayStateParameterName());
-		}
-		filterRegistration.addInitParameter(ConfigurationKeys.CAS_SERVER_URL_PREFIX.getName(), casAuthcProperties.getPrefixUrl());
-		filterRegistration.addInitParameter(ConfigurationKeys.ARTIFACT_PARAMETER_OVER_POST.getName(), String.valueOf(casAuthcProperties.isArtifactParameterOverPost()));
-		filterRegistration.addInitParameter(ConfigurationKeys.EAGERLY_CREATE_SESSIONS.getName(), String.valueOf(casAuthcProperties.isEagerlyCreateSessions()));
-		
-		filterRegistration.addUrlPatterns(casAuthcProperties.getSsoPathPatterns());
-		filterRegistration.setOrder(2);
-		return filterRegistration;
-	}
-	
-	/*
-	 * 	CAS Assertion Thread Local Filter
-	 * 	该过滤器使得可以通过org.jasig.cas.client.util.AssertionHolder来获取用户的登录名。
-	 * 	比如AssertionHolder.getAssertion().getPrincipal().getName()。
-	 * 	这个类把Assertion信息放在ThreadLocal变量中，这样应用程序不在web层也能够获取到当前登录信息
-	 */
-	@Bean
-	public FilterRegistrationBean<AssertionThreadLocalFilter> assertionThreadLocalFilter(SecurityCasProperties casProperties,
-			SecurityCasAuthcProperties casAuthcProperties) {
-		FilterRegistrationBean<AssertionThreadLocalFilter> filterRegistration = new FilterRegistrationBean<AssertionThreadLocalFilter>();
-		filterRegistration.setFilter(new AssertionThreadLocalFilter());
-		filterRegistration.setEnabled(casProperties.isEnabled());
-		filterRegistration.addUrlPatterns(casAuthcProperties.getAssertionPathPatterns());
-		filterRegistration.setOrder(6);
-		return filterRegistration;
-	}
-	
-
 	@Bean
 	public ServiceProperties serviceProperties(SecurityCasProperties casProperties,
 			SecurityCasAuthcProperties casAuthcProperties) {
@@ -257,6 +207,7 @@ public class SecurityCasFilterConfiguration {
     	private final RequestCache requestCache;
     	private final RememberMeServices rememberMeServices;
     	private final SessionRegistry sessionRegistry;
+    	private final SessionMappingStorage sessionMappingStorage;
 		private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
 		private final SessionInformationExpiredStrategy sessionInformationExpiredStrategy;
 		
@@ -282,6 +233,7 @@ public class SecurityCasFilterConfiguration {
 				ObjectProvider<RequestCache> requestCacheProvider,
 				ObjectProvider<RememberMeServices> rememberMeServicesProvider,
 				ObjectProvider<SessionRegistry> sessionRegistryProvider,
+				ObjectProvider<SessionMappingStorage> sessionMappingStorageProvider,
 				ObjectProvider<SessionAuthenticationStrategy> sessionAuthenticationStrategyProvider,
 				ObjectProvider<SessionInformationExpiredStrategy> sessionInformationExpiredStrategyProvider
    				
@@ -307,6 +259,7 @@ public class SecurityCasFilterConfiguration {
    			this.requestCache = requestCacheProvider.getIfAvailable();
    			this.rememberMeServices = rememberMeServicesProvider.getIfAvailable();
    			this.sessionRegistry = sessionRegistryProvider.getIfAvailable();
+   			this.sessionMappingStorage = sessionMappingStorageProvider.getIfAvailable();
    			this.sessionAuthenticationStrategy = sessionAuthenticationStrategyProvider.getIfAvailable();
    			this.sessionInformationExpiredStrategy = sessionInformationExpiredStrategyProvider.getIfAvailable();
 		}
@@ -348,6 +301,34 @@ public class SecurityCasFilterConfiguration {
 			}
 
 			return authenticationFilter;
+		}
+		
+		/*
+		 * 	CAS SignOut Filter
+		 * 	该过滤器用于实现单点登出功能，单点退出配置，一定要放在其他filter之前
+		 */
+		public SingleSignOutFilter singleSignOutFilter() {
+			
+			SingleSignOutFilter singleSignOutFilter = new SingleSignOutFilter();
+			singleSignOutFilter.setArtifactParameterName(casAuthcProperties.getArtifactParameterName());
+			singleSignOutFilter.setCasServerUrlPrefix(casAuthcProperties.getPrefixUrl());
+			singleSignOutFilter.setIgnoreInitConfiguration(true);
+			singleSignOutFilter.setLogoutCallbackPath("");
+			singleSignOutFilter.setLogoutParameterName(casAuthcProperties.getLogoutParameterName());
+			singleSignOutFilter.setRelayStateParameterName(casAuthcProperties.getRelayStateParameterName());
+			singleSignOutFilter.setSessionMappingStorage(sessionMappingStorage);			
+			
+			return singleSignOutFilter;
+		}
+		
+		/*
+		 * 	CAS Assertion Thread Local Filter
+		 * 	该过滤器使得可以通过org.jasig.cas.client.util.AssertionHolder来获取用户的登录名。
+		 * 	比如AssertionHolder.getAssertion().getPrincipal().getName()。
+		 * 	这个类把Assertion信息放在ThreadLocal变量中，这样应用程序不在web层也能够获取到当前登录信息
+		 */
+		public AssertionThreadLocalFilter assertionThreadLocalFilter() {
+			return new AssertionThreadLocalFilter();
 		}
 		
 		@Override
@@ -396,8 +377,11 @@ public class SecurityCasFilterConfiguration {
    	    		.requestCache()
    	        	.requestCache(requestCache)
    	        	.and()
+   	        	.requestMatcher(new OrRequestMatcher(new AntPathRequestMatcher(casAuthcProperties.getPathPattern())))
    	        	.antMatcher(casAuthcProperties.getPathPattern())
-	        	.addFilterBefore(authenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+	        	.addFilterAt(authenticationProcessingFilter(), CasAuthenticationFilter.class)
+   	            .addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)
+   	            .addFilterAfter(assertionThreadLocalFilter(), CasAuthenticationFilter.class);
    	    	
    	    	// CSRF 配置
    	    	SecurityCsrfProperties csrf = casAuthcProperties.getCsrf();
