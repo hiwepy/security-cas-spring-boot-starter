@@ -7,6 +7,7 @@ import org.jasig.cas.client.configuration.ConfigurationKeys;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.security.boot.biz.property.SecurityAuthcProperties;
 import org.springframework.security.boot.biz.property.SecurityHeaderCorsProperties;
 import org.springframework.security.boot.biz.property.SecurityHeaderCsrfProperties;
 import org.springframework.security.boot.biz.property.SecurityHeadersProperties;
@@ -21,7 +22,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class SecurityCasAuthcProperties {
+public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 
 	/**
 	 * Default name of the CAS attribute for remember me authentication (CAS 3.4.10+)
@@ -131,8 +132,7 @@ public class SecurityCasAuthcProperties {
 	private boolean gateway = false;
 
 	private boolean ignoreInitConfiguration = false;
-	/** Defaults to logoutRequest */
-	private String logoutParameterName;
+	
 	/** The protocol of the CAS Client. */
 	private CasProtocol protocol = CasProtocol.CAS20;
 	/**
@@ -153,8 +153,20 @@ public class SecurityCasAuthcProperties {
 	 * specified as local init-param setting..
 	 */
 	private boolean renew = false;
-	/** Name of parameter containing the state of the CAS server webflow. */
-	private String relayStateParameterName = ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getDefaultValue();
+	
+
+    /** Parameter name that stores logout request for SLO */
+    private String logoutParameterName = ConfigurationKeys.LOGOUT_PARAMETER_NAME.getDefaultValue();
+    
+    /** Parameter name that stores the state of the CAS server webflow for the callback */
+    private String relayStateParameterName = ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getDefaultValue();
+    
+    /** The prefix url of the CAS server */
+    private String casServerUrlPrefix = "";
+
+    /** The logout callback path configured at the CAS server, if there is one */
+    private String logoutCallbackPath;
+    
 	/**
 	 * The service URL to send to the CAS server, i.e.
 	 * https://localhost:8443/yourwebapp/index.html
