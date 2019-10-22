@@ -7,7 +7,7 @@ import org.jasig.cas.client.configuration.ConfigurationKeys;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
-import org.springframework.security.boot.biz.property.SecurityHeaderCrosProperties;
+import org.springframework.security.boot.biz.property.SecurityHeaderCorsProperties;
 import org.springframework.security.boot.biz.property.SecurityHeaderCsrfProperties;
 import org.springframework.security.boot.biz.property.SecurityHeadersProperties;
 import org.springframework.security.boot.biz.property.SecurityLogoutProperties;
@@ -194,7 +194,7 @@ public class SecurityCasAuthcProperties {
 	private boolean useSession = true;
 
 	@NestedConfigurationProperty
-	private SecurityHeaderCrosProperties cros = new SecurityHeaderCrosProperties();
+	private SecurityHeaderCorsProperties cors = new SecurityHeaderCorsProperties();
 	
 	@NestedConfigurationProperty
 	private SecurityHeaderCsrfProperties csrf = new SecurityHeaderCsrfProperties();
