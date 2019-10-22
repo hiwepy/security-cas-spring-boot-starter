@@ -32,12 +32,10 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.boot.biz.authentication.PostRequestAuthenticationFailureHandler;
 import org.springframework.security.boot.biz.authentication.PostRequestAuthenticationSuccessHandler;
 import org.springframework.security.boot.biz.authentication.captcha.CaptchaResolver;
-import org.springframework.security.boot.biz.property.SecurityCsrfProperties;
 import org.springframework.security.boot.biz.property.SecurityLogoutProperties;
 import org.springframework.security.boot.biz.property.SecuritySessionMgtProperties;
 import org.springframework.security.boot.cas.CasTicketValidatorConfiguration;
 import org.springframework.security.boot.utils.CasUrlUtils;
-import org.springframework.security.boot.utils.StringUtils;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
 import org.springframework.security.cas.authentication.NullStatelessTicketCache;
@@ -61,13 +59,13 @@ import org.springframework.security.web.authentication.logout.HttpStatusReturnin
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -190,7 +188,7 @@ public class SecurityCasFilterConfiguration {
 	static class CasWebSecurityConfigurerAdapter extends SecurityBizConfigurerAdapter {
 
 		private final SecurityBizProperties bizProperties;
-		private final SecurityCasAuthcProperties casAuthcProperties;
+		private final SecurityCasAuthcProperties authcProperties;
 		private final ServiceProperties serviceProperties;
 		
 		private final AuthenticationManager authenticationManager;
@@ -199,7 +197,6 @@ public class SecurityCasFilterConfiguration {
 	    private final CasAuthenticationProvider authenticationProvider;
 	    private final AuthenticationSuccessHandler authenticationSuccessHandler;
 	    private final AuthenticationFailureHandler authenticationFailureHandler;
-	    private final CsrfTokenRepository csrfTokenRepository;
 	    private final InvalidSessionStrategy invalidSessionStrategy;
 	    private final LogoutSuccessHandler logoutSuccessHandler;
 	    private final List<LogoutHandler> logoutHandlers;
@@ -225,6 +222,7 @@ public class SecurityCasFilterConfiguration {
    				@Qualifier("casAuthenticationFailureHandler") ObjectProvider<PostRequestAuthenticationFailureHandler> authenticationFailureHandler,
    				ObjectProvider<CaptchaResolver> captchaResolverProvider,
    				ObjectProvider<CsrfTokenRepository> csrfTokenRepositoryProvider,
+   				ObjectProvider<CorsConfigurationSource> configurationSourceProvider,
    				ObjectProvider<InvalidSessionStrategy> invalidSessionStrategyProvider,
    				@Qualifier("casLogoutSuccessHandler") ObjectProvider<LogoutSuccessHandler> logoutSuccessHandlerProvider,
    				ObjectProvider<LogoutHandler> logoutHandlerProvider,
@@ -239,10 +237,10 @@ public class SecurityCasFilterConfiguration {
    				
    			) {
 			
-			super(bizProperties);
+			super(bizProperties, csrfTokenRepositoryProvider.getIfAvailable(), configurationSourceProvider.getIfAvailable());
 			
 			this.bizProperties = bizProperties;
-   			this.casAuthcProperties = casAuthcProperties;
+   			this.authcProperties = casAuthcProperties;
    			this.serviceProperties = serviceProperties;
    			
    			this.authenticationManager = authenticationManagerProvider.getIfAvailable();
@@ -251,7 +249,6 @@ public class SecurityCasFilterConfiguration {
    			this.authenticationEntryPoint = authenticationEntryPointProvider.getIfAvailable();
    			this.authenticationFailureHandler = authenticationFailureHandler.getIfAvailable();
    			this.authenticationSuccessHandler = authenticationSuccessHandler.getIfAvailable();
-   			this.csrfTokenRepository = csrfTokenRepositoryProvider.getIfAvailable();
    			this.invalidSessionStrategy = invalidSessionStrategyProvider.getIfAvailable();
    			this.logoutSuccessHandler = logoutSuccessHandlerProvider.getIfAvailable();
    			this.logoutHandlers = logoutHandlerProvider.stream().collect(Collectors.toList());
@@ -287,17 +284,17 @@ public class SecurityCasFilterConfiguration {
 			map.from(authenticationFailureHandler).to(authenticationFilter::setAuthenticationFailureHandler);
 			map.from(authenticationDetailsSource).to(authenticationFilter::setAuthenticationDetailsSource);
 			
-			map.from(casAuthcProperties.getPathPattern()).to(authenticationFilter::setFilterProcessesUrl);
+			map.from(authcProperties.getPathPattern()).to(authenticationFilter::setFilterProcessesUrl);
 			map.from(rememberMeServices).to(authenticationFilter::setRememberMeServices);
 			map.from(serviceProperties).to(authenticationFilter::setServiceProperties);
 			map.from(sessionAuthenticationStrategy).to(authenticationFilter::setSessionAuthenticationStrategy);
 			map.from(true).to(authenticationFilter::setContinueChainBeforeSuccessfulAuthentication);
-			map.from(casAuthcProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
+			map.from(authcProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
 			
-			if (casAuthcProperties.isAcceptAnyProxy()) {
+			if (authcProperties.isAcceptAnyProxy()) {
 				map.from(authenticationFailureHandler).to(authenticationFilter::setProxyAuthenticationFailureHandler);
 				map.from(proxyGrantingTicketStorage).to(authenticationFilter::setProxyGrantingTicketStorage);
-				map.from(casAuthcProperties.getProxyReceptorUrl()).to(authenticationFilter::setProxyReceptorUrl); 
+				map.from(authcProperties.getProxyReceptorUrl()).to(authenticationFilter::setProxyReceptorUrl); 
 			}
 
 			return authenticationFilter;
@@ -310,12 +307,12 @@ public class SecurityCasFilterConfiguration {
 		public SingleSignOutFilter singleSignOutFilter() {
 			
 			SingleSignOutFilter singleSignOutFilter = new SingleSignOutFilter();
-			singleSignOutFilter.setArtifactParameterName(casAuthcProperties.getArtifactParameterName());
-			singleSignOutFilter.setCasServerUrlPrefix(casAuthcProperties.getPrefixUrl());
+			singleSignOutFilter.setArtifactParameterName(authcProperties.getArtifactParameterName());
+			singleSignOutFilter.setCasServerUrlPrefix(authcProperties.getPrefixUrl());
 			singleSignOutFilter.setIgnoreInitConfiguration(true);
 			singleSignOutFilter.setLogoutCallbackPath("");
-			singleSignOutFilter.setLogoutParameterName(casAuthcProperties.getLogoutParameterName());
-			singleSignOutFilter.setRelayStateParameterName(casAuthcProperties.getRelayStateParameterName());
+			singleSignOutFilter.setLogoutParameterName(authcProperties.getLogoutParameterName());
+			singleSignOutFilter.setRelayStateParameterName(authcProperties.getRelayStateParameterName());
 			singleSignOutFilter.setSessionMappingStorage(sessionMappingStorage);			
 			
 			return singleSignOutFilter;
@@ -343,11 +340,7 @@ public class SecurityCasFilterConfiguration {
 	    	// Session 管理器配置参数
    	    	SecuritySessionMgtProperties sessionMgt = bizProperties.getSessionMgt();
    	    	// Session 注销配置参数
-   	    	SecurityLogoutProperties logout = casAuthcProperties.getLogout();
-   	    	
-   	    	http.csrf().disable(); // We don't need CSRF for JWT based authentication
-	    	http.headers().cacheControl(); // 禁用缓存
-	    	http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
+   	    	SecurityLogoutProperties logout = authcProperties.getLogout();
 	    	
    		    // Session 管理器配置
    	    	http.sessionManagement()
@@ -376,23 +369,20 @@ public class SecurityCasFilterConfiguration {
    	        	.and()
    	    		.requestCache()
    	        	.requestCache(requestCache)
+   	        	// 异常处理
    	        	.and()
-   	        	.requestMatcher(new OrRequestMatcher(new AntPathRequestMatcher(casAuthcProperties.getPathPattern())))
-   	        	.antMatcher(casAuthcProperties.getPathPattern())
+   	        	.exceptionHandling()
+   	        	.authenticationEntryPoint(authenticationEntryPoint)
+   	        	.and()
+   	        	.requestMatcher(new OrRequestMatcher(new AntPathRequestMatcher(authcProperties.getPathPattern())))
+   	        	.antMatcher(authcProperties.getPathPattern())
 	        	.addFilterAt(authenticationProcessingFilter(), CasAuthenticationFilter.class)
    	            .addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)
    	            .addFilterAfter(assertionThreadLocalFilter(), CasAuthenticationFilter.class);
    	    	
-   	    	// CSRF 配置
-   	    	SecurityCsrfProperties csrf = casAuthcProperties.getCsrf();
-   	    	if(csrf.isEnabled()) {
-   	       		http.csrf()
-   				   	.csrfTokenRepository(csrfTokenRepository)
-   				   	.ignoringAntMatchers(StringUtils.tokenizeToStringArray(csrf.getIgnoringAntMatchers()))
-   					.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-   	        } else {
-   	        	http.csrf().disable();
-   	        }
+   	    	super.configure(http, authcProperties.getCros());
+   	    	super.configure(http, authcProperties.getCsrf());
+   	    	super.configure(http, authcProperties.getHeaders());
 	    	super.configure(http);
 	    }
 	    
