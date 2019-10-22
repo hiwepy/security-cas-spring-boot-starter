@@ -1,6 +1,5 @@
 package org.springframework.security.boot;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -14,7 +13,6 @@ import org.jasig.cas.client.util.AssertionThreadLocalFilter;
 import org.jasig.cas.client.util.HttpServletRequestWrapperFilter;
 import org.jasig.cas.client.validation.TicketValidator;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -28,14 +26,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.boot.biz.authentication.AuthenticationListener;
-import org.springframework.security.boot.biz.authentication.PostRequestAuthenticationFailureHandler;
-import org.springframework.security.boot.biz.authentication.PostRequestAuthenticationSuccessHandler;
 import org.springframework.security.boot.biz.authentication.captcha.CaptchaResolver;
-import org.springframework.security.boot.biz.authentication.nested.MatchedAuthenticationFailureHandler;
-import org.springframework.security.boot.biz.authentication.nested.MatchedAuthenticationSuccessHandler;
 import org.springframework.security.boot.biz.property.SecurityLogoutProperties;
 import org.springframework.security.boot.biz.property.SecuritySessionMgtProperties;
+import org.springframework.security.boot.cas.CasAuthenticationFailureHandler;
+import org.springframework.security.boot.cas.CasAuthenticationSuccessHandler;
+import org.springframework.security.boot.cas.CasProxyFailureHandler;
 import org.springframework.security.boot.cas.CasTicketValidatorConfiguration;
 import org.springframework.security.boot.utils.CasUrlUtils;
 import org.springframework.security.cas.ServiceProperties;
@@ -54,7 +50,6 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.ForwardLogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -124,11 +119,6 @@ public class SecurityCasFilterConfiguration {
 		return ticketValidatorConfig.retrieveTicketValidator(casProperties);
 	}
 	
-    @Bean("casLogoutSuccessHandler")
-	public LogoutSuccessHandler logoutSuccessHandler(SecurityCasAuthcProperties authcProperties) {
-		return new ForwardLogoutSuccessHandler(authcProperties.getLoginUrl());
-	}
-    
 	@Bean
 	public CasAuthenticationProvider casAuthenticationProvider(
 			AbstractCasAssertionUserDetailsService casAssertionUserDetailsService,
@@ -155,16 +145,10 @@ public class SecurityCasFilterConfiguration {
 		CasAuthenticationEntryPoint entryPoint = new CasAuthenticationEntryPoint();
 
 		entryPoint.setEncodeServiceUrlWithSessionId(authcProperties.isEncodeServiceUrlWithSessionId());
-		entryPoint.setLoginUrl(CasUrlUtils.constructLoginRedirectUrl(authcProperties,
-				serverProperties.getServlet().getContextPath(), authcProperties.getServiceCallbackUrl()));
+		entryPoint.setLoginUrl(CasUrlUtils.constructLoginRedirectUrl(authcProperties));
 		entryPoint.setServiceProperties(serviceProperties);
 
 		return entryPoint;
-	}
-	
-	@Bean("casLogoutSuccessHandler")
-	public AuthenticationSuccessHandler authenticationSuccessHandler() {
-		return new SavedRequestAwareAuthenticationSuccessHandler();
 	}
 	
 	@Configuration
@@ -180,6 +164,7 @@ public class SecurityCasFilterConfiguration {
 		private final CasAuthenticationEntryPoint authenticationEntryPoint;
 	    private final AuthenticationSuccessHandler authenticationSuccessHandler;
 	    private final AuthenticationFailureHandler authenticationFailureHandler;
+	    private final AuthenticationFailureHandler proxyFailureHandler;
 	    private final InvalidSessionStrategy invalidSessionStrategy;
 	    private final LogoutSuccessHandler logoutSuccessHandler;
 	    private final LogoutHandler logoutHandler;
@@ -200,21 +185,16 @@ public class SecurityCasFilterConfiguration {
 				ObjectProvider<CasAuthenticationProvider> authenticationProvider,
 				ObjectProvider<ServiceAuthenticationDetailsSource> authenticationDetailsSourceProvider,
    				ObjectProvider<AuthenticationManager> authenticationManagerProvider,
-   				ObjectProvider<AuthenticationListener> authenticationListenerProvider,
    				ObjectProvider<CasAuthenticationEntryPoint> authenticationEntryPointProvider,
-   				ObjectProvider<MatchedAuthenticationSuccessHandler> authenticationSuccessHandlerProvider,
-   				ObjectProvider<MatchedAuthenticationFailureHandler> authenticationFailureHandlerProvider,
    				ObjectProvider<CaptchaResolver> captchaResolverProvider,
    				ObjectProvider<LogoutHandler> logoutHandlerProvider,
    				ObjectProvider<ObjectMapper> objectMapperProvider,
    				ObjectProvider<ProxyGrantingTicketStorage> proxyGrantingTicketStorageProvider,
-   				ObjectProvider<SessionMappingStorage> sessionMappingStorageProvider,
-   				
-   				@Qualifier("casAuthenticationSuccessHandler") ObjectProvider<PostRequestAuthenticationSuccessHandler> authenticationSuccessHandler,
-   				@Qualifier("casAuthenticationFailureHandler") ObjectProvider<PostRequestAuthenticationFailureHandler> authenticationFailureHandler,
-   				@Qualifier("casLogoutSuccessHandler") ObjectProvider<LogoutSuccessHandler> logoutSuccessHandlerProvider
+   				ObjectProvider<SessionMappingStorage> sessionMappingStorageProvider
    				
    			) {
+			
+			
 			
 			super(bizProperties, authcProperties, authenticationProvider.stream().collect(Collectors.toList()),
 					authenticationManagerProvider.getIfAvailable());
@@ -222,14 +202,14 @@ public class SecurityCasFilterConfiguration {
    			this.authcProperties = authcProperties;
    			this.serviceProperties = serviceProperties;
    			
-   			List<AuthenticationListener> authenticationListeners = authenticationListenerProvider.stream().collect(Collectors.toList());
    			this.authenticationDetailsSource = authenticationDetailsSourceProvider.getIfAvailable();
    			this.authenticationEntryPoint =  authenticationEntryPointProvider.getIfAvailable();
-   			this.authenticationSuccessHandler = super.authenticationSuccessHandler(authenticationListeners, authenticationSuccessHandlerProvider.stream().collect(Collectors.toList()));
-   			this.authenticationFailureHandler = super.authenticationFailureHandler(authenticationListeners, authenticationFailureHandlerProvider.stream().collect(Collectors.toList()));
+   			this.authenticationSuccessHandler = authenticationSuccessHandler();
+   			this.authenticationFailureHandler = authenticationFailureHandler();
+   			this.proxyFailureHandler = proxyFailureHandler();
    			this.invalidSessionStrategy = super.invalidSessionStrategy();
    			this.logoutHandler = super.logoutHandler(logoutHandlerProvider.stream().collect(Collectors.toList()));
-   			this.logoutSuccessHandler = logoutSuccessHandlerProvider.getIfAvailable();
+   			this.logoutSuccessHandler = logoutSuccessHandler();
    			this.proxyGrantingTicketStorage = proxyGrantingTicketStorageProvider.getIfAvailable();
    			this.requestCache = super.requestCache();
    			this.rememberMeServices = super.rememberMeServices();
@@ -238,6 +218,49 @@ public class SecurityCasFilterConfiguration {
    			this.sessionAuthenticationStrategy = super.sessionAuthenticationStrategy();
    			this.sessionInformationExpiredStrategy = super.sessionInformationExpiredStrategy();
    			
+		}
+		
+
+		public AuthenticationSuccessHandler authenticationSuccessHandler() {
+			
+			CasAuthenticationSuccessHandler successHandler = new CasAuthenticationSuccessHandler(authcProperties);
+			
+			successHandler.setAlwaysUseDefaultTargetUrl(authcProperties.isAlwaysUseDefaultTargetUrl());
+			successHandler.setDefaultTargetUrl(authcProperties.getSuccessUrl());
+			successHandler.setRedirectStrategy(redirectStrategy());
+			successHandler.setTargetUrlParameter(authcProperties.getTargetUrlParameter());
+			successHandler.setUseReferer(authcProperties.isUseReferer());
+			
+			return successHandler;
+			
+		}
+
+		public AuthenticationFailureHandler authenticationFailureHandler() {
+	    	
+			CasAuthenticationFailureHandler failureHandler = new CasAuthenticationFailureHandler(authcProperties);
+
+	    	failureHandler.setAllowSessionCreation(authcProperties.getSessionMgt().isAllowSessionCreation());
+			failureHandler.setDefaultFailureUrl(authcProperties.getSessionMgt().getFailureUrl());
+			failureHandler.setRedirectStrategy(redirectStrategy());
+			failureHandler.setUseForward(authcProperties.getSessionMgt().isUseForward());
+			return failureHandler;
+			
+		}
+	    
+	   	public AuthenticationFailureHandler proxyFailureHandler() {
+	    	
+	    	CasProxyFailureHandler failureHandler = new CasProxyFailureHandler(authcProperties);
+			
+			failureHandler.setAllowSessionCreation(authcProperties.getSessionMgt().isAllowSessionCreation());
+			failureHandler.setDefaultFailureUrl(authcProperties.getSessionMgt().getFailureUrl());
+			failureHandler.setRedirectStrategy(redirectStrategy());
+			failureHandler.setUseForward(authcProperties.getSessionMgt().isUseForward());
+			return failureHandler;
+			
+	   	}
+
+		public LogoutSuccessHandler logoutSuccessHandler() {
+			return new ForwardLogoutSuccessHandler(authcProperties.getLoginUrl());
 		}
 
 		public CasAuthenticationFilter authenticationProcessingFilter() throws Exception {
@@ -262,11 +285,10 @@ public class SecurityCasFilterConfiguration {
 			map.from(authcProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
 			
 			if (authcProperties.isAcceptAnyProxy()) {
-				map.from(authenticationFailureHandler).to(authenticationFilter::setProxyAuthenticationFailureHandler);
+				map.from(proxyFailureHandler).to(authenticationFilter::setProxyAuthenticationFailureHandler);
 				map.from(proxyGrantingTicketStorage).to(authenticationFilter::setProxyGrantingTicketStorage);
 				map.from(authcProperties.getProxyReceptorUrl()).to(authenticationFilter::setProxyReceptorUrl); 
 			}
-
 			return authenticationFilter;
 		}
 		
@@ -390,3 +412,4 @@ public class SecurityCasFilterConfiguration {
 	}
 	
 }
+

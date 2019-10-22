@@ -147,6 +147,7 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 * /my/receptor.
 	 */
 	private String proxyReceptorUrl;
+	
 	/**
 	 * Specifies whether renew=true should be sent to the CAS server. Valid values
 	 * are either true/false (or no value at all). Note that renew cannot be
@@ -161,15 +162,8 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
     /** Parameter name that stores the state of the CAS server webflow for the callback */
     private String relayStateParameterName = ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getDefaultValue();
     
-    /** The prefix url of the CAS server */
-    private String casServerUrlPrefix = "";
-
-    /** The logout callback path configured at the CAS server, if there is one */
-    private String logoutCallbackPath;
-    
 	/**
-	 * The service URL to send to the CAS server, i.e.
-	 * https://localhost:8443/yourwebapp/index.html
+	 * The service URL to send to the CAS server, i.e. https://localhost:8443/yourwebapp/index.html
 	 */
 	private String service;
 	/**
