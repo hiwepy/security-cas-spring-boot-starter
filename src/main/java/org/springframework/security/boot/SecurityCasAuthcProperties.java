@@ -175,7 +175,7 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	/** 
 	 * Defines the location of the application cas callback URL, i.e. /callback 
 	 */
-	private String serviceCallbackUrl;
+	private String serviceCallback;
 	
 	/**
 	 * A reference to a properties file that includes SSL settings for client-side
