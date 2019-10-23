@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.biz.ListenedAuthenticationFailureHandler;
 import org.springframework.security.boot.biz.authentication.AuthenticationListener;
+import org.springframework.security.boot.utils.CasUrlUtils;
 import org.springframework.security.core.AuthenticationException;
 
 /**
@@ -37,7 +38,7 @@ public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailu
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException e) throws IOException, ServletException {
 
-		String redirectUrl = createRedirectUrl();
+		String redirectUrl = CasUrlUtils.constructRedirectUrl(authcProperties);
 		
 		logger.debug(redirectUrl);
 		logger.error("Failure");
@@ -45,20 +46,6 @@ public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailu
 		
 		//super.onAuthenticationFailure(request, response, e);
 		
-	}
-	
-
-	/**
-	 * Constructs the Url for Redirection to the CAS server. Default implementation relies
-	 * on the CAS client to do the bulk of the work.
-	 *
-	 * @param serviceUrl the service url that should be included.
-	 * @return the redirect url. CANNOT be NULL.
-	 */
-	protected String createRedirectUrl() {
-		return CommonUtils.constructRedirectUrl(authcProperties.getLoginUrl(),
-				this.authcProperties.getServiceParameterName(), authcProperties.getServiceUrl(),
-				this.authcProperties.isRenew(), false);
 	}
 
 

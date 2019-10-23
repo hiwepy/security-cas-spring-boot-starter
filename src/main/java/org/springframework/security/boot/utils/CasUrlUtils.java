@@ -20,14 +20,32 @@ import org.springframework.security.boot.SecurityCasAuthcProperties;
 
 public class CasUrlUtils {
 
+	public static String constructCallbackUrl(String serviceUrl, String callbackUrl) {
+		return serviceUrl + (serviceUrl.endsWith("/") ? "" : "/") + callbackUrl;
+	}
+	
 	public static String constructLogoutRedirectUrl(SecurityCasAuthcProperties authcProperties) {
 		return CommonUtils.constructRedirectUrl(authcProperties.getLogoutUrl(), authcProperties.getServiceParameterName(),
 				authcProperties.getServiceUrl(), authcProperties.isRenew(), authcProperties.isGateway());
 	}
 
 	public static String constructLoginRedirectUrl(SecurityCasAuthcProperties authcProperties) {
-		return CommonUtils.constructRedirectUrl(authcProperties.getLogoutUrl(), authcProperties.getServiceParameterName(),
+		return CommonUtils.constructRedirectUrl(authcProperties.getLoginUrl(), authcProperties.getServiceParameterName(),
 				authcProperties.getServiceUrl(), authcProperties.isRenew(), authcProperties.isGateway());
 	}
 
+	/**
+	 * Constructs the Url for Redirection to the CAS server. Default implementation relies
+	 * on the CAS client to do the bulk of the work.
+	 *
+	 * @param serviceUrl the service url that should be included.
+	 * @return the redirect url. CANNOT be NULL.
+	 */
+	public static String constructRedirectUrl(SecurityCasAuthcProperties authcProperties) {
+		String callbackUrl = constructCallbackUrl(authcProperties.getServiceUrl(), authcProperties.getServiceCallbackUrl());
+		return CommonUtils.constructRedirectUrl(authcProperties.getLoginUrl(),
+				authcProperties.getServiceParameterName(), callbackUrl,
+				authcProperties.isRenew(), false);
+	}
+	
 }

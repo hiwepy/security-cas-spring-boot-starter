@@ -131,11 +131,11 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 */
 	private boolean gateway = false;
 
-	private boolean ignoreInitConfiguration = false;
-
     /** Parameter name that stores logout request for SLO */
     private String logoutParameterName = ConfigurationKeys.LOGOUT_PARAMETER_NAME.getDefaultValue();
     
+	private boolean ignoreInitConfiguration = false;
+	
 	/** The protocol of the CAS Client. */
 	private CasProtocol protocol = CasProtocol.CAS20;
 	/**
@@ -158,6 +158,7 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 */
 	private boolean renew = false;
 	
+
     /** Parameter name that stores the state of the CAS server webflow for the callback */
     private String relayStateParameterName = ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getDefaultValue();
     
@@ -170,6 +171,11 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 * (i.e. service).
 	 */
 	private String serviceParameterName = ServiceProperties.DEFAULT_CAS_SERVICE_PARAMETER;
+	
+	/** 
+	 * Defines the location of the application cas callback URL, i.e. /callback 
+	 */
+	private String serviceCallbackUrl;
 	
 	/**
 	 * A reference to a properties file that includes SSL settings for client-side
