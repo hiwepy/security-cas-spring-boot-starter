@@ -7,6 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.biz.ListenedAuthenticationSuccessHandler;
 import org.springframework.security.boot.biz.authentication.AuthenticationListener;
@@ -19,6 +21,7 @@ import org.springframework.security.core.Authentication;
  */
 public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSuccessHandler {
 	
+	private Logger logger = LoggerFactory.getLogger(CasAuthenticationSuccessHandler.class);
 	private SecurityCasAuthcProperties authcProperties;
 	
 	public CasAuthenticationSuccessHandler(SecurityCasAuthcProperties authcProperties) {
@@ -42,9 +45,14 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 			}
 		}
 		
-		CasUrlUtils.constructLoginRedirectUrl(authcProperties);
+		logger.error("Success");
 		
-		super.onAuthenticationSuccess(request, response, authentication);
+		String redirectUrl = CasUrlUtils.constructLoginRedirectUrl(authcProperties);
+		
+		logger.debug(authentication.getName());
+		logger.debug(redirectUrl);
+		
+		//super.onAuthenticationSuccess(request, response, authentication);
 
 	}
 

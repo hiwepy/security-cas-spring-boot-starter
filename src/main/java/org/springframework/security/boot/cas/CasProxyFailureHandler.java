@@ -7,6 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.biz.ListenedAuthenticationFailureHandler;
 import org.springframework.security.boot.biz.authentication.AuthenticationListener;
@@ -17,6 +19,7 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class CasProxyFailureHandler extends ListenedAuthenticationFailureHandler {
 	
+	private Logger logger = LoggerFactory.getLogger(CasProxyFailureHandler.class);
 	private SecurityCasAuthcProperties authcProperties;
 	
 	public CasProxyFailureHandler(SecurityCasAuthcProperties authcProperties) {
@@ -40,7 +43,9 @@ public class CasProxyFailureHandler extends ListenedAuthenticationFailureHandler
 			}
 		}
 		 
-		super.onAuthenticationFailure(request, response, e);
+		logger.error("Proxy");
+		
+		//super.onAuthenticationFailure(request, response, e);
 		
 	}
 

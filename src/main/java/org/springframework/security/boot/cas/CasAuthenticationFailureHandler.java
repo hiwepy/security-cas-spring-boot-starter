@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jasig.cas.client.util.CommonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.biz.ListenedAuthenticationFailureHandler;
 import org.springframework.security.boot.biz.authentication.AuthenticationListener;
@@ -18,6 +20,7 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailureHandler {
 	
+	private Logger logger = LoggerFactory.getLogger(CasAuthenticationFailureHandler.class);
 	private SecurityCasAuthcProperties authcProperties;
 	
 	public CasAuthenticationFailureHandler(SecurityCasAuthcProperties authcProperties) {
@@ -34,7 +37,11 @@ public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailu
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException e) throws IOException, ServletException {
 
-		response.sendRedirect(createRedirectUrl());
+		String redirectUrl = createRedirectUrl();
+		
+		logger.debug(redirectUrl);
+		logger.error("Failure");
+		response.sendRedirect(redirectUrl);
 		
 		//super.onAuthenticationFailure(request, response, e);
 		
@@ -50,7 +57,7 @@ public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailu
 	 */
 	protected String createRedirectUrl() {
 		return CommonUtils.constructRedirectUrl(authcProperties.getLoginUrl(),
-				this.authcProperties.getServiceParameterName(), authcProperties.getService(),
+				this.authcProperties.getServiceParameterName(), authcProperties.getServiceUrl(),
 				this.authcProperties.isRenew(), false);
 	}
 

@@ -22,12 +22,12 @@ public class CasUrlUtils {
 
 	public static String constructLogoutRedirectUrl(SecurityCasAuthcProperties authcProperties) {
 		return CommonUtils.constructRedirectUrl(authcProperties.getLogoutUrl(), authcProperties.getServiceParameterName(),
-				authcProperties.getService(), authcProperties.isRenew(), authcProperties.isGateway());
+				authcProperties.getServiceUrl(), authcProperties.isRenew(), authcProperties.isGateway());
 	}
 
 	public static String constructLoginRedirectUrl(SecurityCasAuthcProperties authcProperties) {
 		return CommonUtils.constructRedirectUrl(authcProperties.getLogoutUrl(), authcProperties.getServiceParameterName(),
-				authcProperties.getService(), authcProperties.isRenew(), authcProperties.isGateway());
+				authcProperties.getServiceUrl(), authcProperties.isRenew(), authcProperties.isGateway());
 	}
 
 }

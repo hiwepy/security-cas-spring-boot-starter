@@ -75,7 +75,7 @@ public class SecurityCasFilterConfiguration {
 		serviceProperties.setArtifactParameter(authcProperties.getArtifactParameterName());
 		serviceProperties.setAuthenticateAllArtifacts(authcProperties.isAuthenticateAllArtifacts());
 		serviceProperties.setSendRenew(authcProperties.isRenew());
-		serviceProperties.setService(authcProperties.getService());
+		serviceProperties.setService(authcProperties.getServiceUrl());
 		serviceProperties.setServiceParameter(authcProperties.getServiceParameterName());
 		return serviceProperties;
 	}
@@ -136,6 +136,14 @@ public class SecurityCasFilterConfiguration {
 		return provider;
 	}
 
+	/**
+	 * 
+	 * TODO
+	 * @author 		： <a href="https://github.com/vindell">wandl</a>
+	 * @return
+	 * @throws Exception
+	 * @see org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint
+	 */
 	@Bean
 	public CasAuthenticationEntryPoint casAuthenticationEntryPoint(
 			SecurityCasAuthcProperties authcProperties,
