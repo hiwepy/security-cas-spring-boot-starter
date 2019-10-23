@@ -42,7 +42,7 @@ public class CasUrlUtils {
 	 * @return the redirect url. CANNOT be NULL.
 	 */
 	public static String constructRedirectUrl(SecurityCasAuthcProperties authcProperties) {
-		String callbackUrl = constructCallbackUrl(authcProperties.getServiceUrl(), authcProperties.getServiceCallback());
+		String callbackUrl = constructCallbackUrl(authcProperties.getServiceUrl(), authcProperties.getServiceCallbackUrl());
 		return CommonUtils.constructRedirectUrl(authcProperties.getLoginUrl(),
 				authcProperties.getServiceParameterName(), callbackUrl,
 				authcProperties.isRenew(), false);
