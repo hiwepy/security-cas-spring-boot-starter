@@ -415,8 +415,9 @@ public class SecurityCasFilterConfiguration {
 	    
 	    @Override
 	    public void configure(WebSecurity web) throws Exception {
+	    	super.configure(web);
 	    }
-		
+	    
 	}
 	
 }
