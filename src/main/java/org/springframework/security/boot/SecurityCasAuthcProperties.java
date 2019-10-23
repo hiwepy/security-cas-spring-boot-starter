@@ -52,15 +52,15 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	private String[] assertionPathPatterns = new String[] {"/*"};
 	
 	/**
-	 * Defines the location of the CAS server login URL, i.e. https://localhost:8443/cas/login
+	 * The location of the CAS server login URL, i.e. https://localhost:8443/cas/login
 	 */
 	private String loginUrl;
 	/**
-	 * Defines the location of the CAS server logout URL, i.e. https://localhost:8443/cas/logout
+	 * The location of the CAS server logout URL, i.e. https://localhost:8443/cas/logout
 	 */
 	private String logoutUrl;
 	/**
-	 * Defines the location of the CAS server rest URL, i.e. https://localhost:8443/cas/v1/tickets
+	 * The location of the CAS server rest URL, i.e. https://localhost:8443/cas/v1/tickets
 	 */
 	private String restUrl;
 	/** 
@@ -138,12 +138,7 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	
 	/** The protocol of the CAS Client. */
 	private CasProtocol protocol = CasProtocol.CAS20;
-	
-	/**
-	 * The callback URL to provide the CAS server to accept Proxy Granting Tickets.
-	 */
-	private String proxyCallbackUrl;
-	
+
 	/**
 	 * The URL to watch for PGTIOU/PGT responses from the CAS server. Should be
 	 * defined from the root of the context. For example, if your application is
@@ -151,7 +146,12 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 * /cas-client-app/my/receptor you need to configure proxyReceptorUrl to be
 	 * /my/receptor.
 	 */
-	private String proxyReceptorUrl;
+	private String proxyReceptorUrl = "/login/cas-proxy";
+	
+	/**
+	 * The callback URL to provide the CAS server to accept Proxy Granting Tickets. i.e. /proxyCallback 
+	 */
+	private String proxyCallbackUrl;
 
 	/**
 	 * Specifies whether renew=true should be sent to the CAS server. Valid values
@@ -164,8 +164,14 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
     /** Parameter name that stores the state of the CAS server webflow for the callback */
     private String relayStateParameterName = ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getDefaultValue();
 
+
+	/**
+	 * The service URL to send to the CAS server, i.e. https://localhost:8443/yourwebapp/index.html
+	 */
+	private String serviceUrl;
+	
 	/** 
-	 * Defines the location of the application cas callback URL, i.e. /callback 
+	 * The location of the application cas callback URL, i.e. /callback 
 	 */
 	private String serviceCallbackUrl;
 	
@@ -175,10 +181,6 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 */
 	private String serviceParameterName = ServiceProperties.DEFAULT_CAS_SERVICE_PARAMETER;
 
-	/**
-	 * The service URL to send to the CAS server, i.e. https://localhost:8443/yourwebapp/index.html
-	 */
-	private String serviceUrl;
 	
 	/**
 	 * A reference to a properties file that includes SSL settings for client-side
