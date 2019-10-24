@@ -29,6 +29,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.boot.biz.authentication.captcha.CaptchaResolver;
 import org.springframework.security.boot.biz.property.SecurityLogoutProperties;
 import org.springframework.security.boot.biz.property.SecuritySessionMgtProperties;
+import org.springframework.security.boot.cas.CasAuthenticationExtProvider;
 import org.springframework.security.boot.cas.CasAuthenticationFailureHandler;
 import org.springframework.security.boot.cas.CasAuthenticationSuccessHandler;
 import org.springframework.security.boot.cas.CasProxyFailureHandler;
@@ -126,7 +127,7 @@ public class SecurityCasFilterConfiguration {
 			ServiceProperties serviceProperties, 
 			TicketValidator ticketValidator) {
 
-		CasAuthenticationProvider provider = new CasAuthenticationProvider();
+		CasAuthenticationExtProvider provider = new CasAuthenticationExtProvider();
 		provider.setKey("casProvider");
 		provider.setAuthoritiesMapper(authoritiesMapper);
 		provider.setServiceProperties(serviceProperties);
