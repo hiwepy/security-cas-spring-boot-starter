@@ -77,7 +77,10 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 			// 重定向
 	        String targetUrl = CasUrlUtils.addParameter(authcProperties.getFrontendTargetUrl(), "token", tokenString);
 	        	   targetUrl = CasUrlUtils.addParameter(targetUrl, getTargetUrlParameter(), determineTargetUrl(request, response));
-	        
+	       
+	        logger.debug("redirect :" + targetUrl);
+	        logger.debug("token : " + tokenString);
+	        	   
 			if (response.isCommitted()) {
 				logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
 				return;

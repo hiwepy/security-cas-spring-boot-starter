@@ -13,6 +13,7 @@ import org.jasig.cas.client.util.AssertionThreadLocalFilter;
 import org.jasig.cas.client.util.HttpServletRequestWrapperFilter;
 import org.jasig.cas.client.validation.TicketValidator;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -49,8 +50,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.logout.ForwardLogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -161,6 +162,22 @@ public class SecurityCasFilterConfiguration {
 		return entryPoint;
 	}
 	
+	@Bean("casAuthenticationSuccessHandler")
+	public CasAuthenticationSuccessHandler casAuthenticationSuccessHandler(SecurityCasAuthcProperties authcProperties,
+			@Autowired(required = false) JwtPayloadRepository jwtPayloadRepository) {
+		
+		CasAuthenticationSuccessHandler successHandler = new CasAuthenticationSuccessHandler(authcProperties);
+		
+		successHandler.setAlwaysUseDefaultTargetUrl(authcProperties.isAlwaysUseDefaultTargetUrl());
+		successHandler.setDefaultTargetUrl(authcProperties.getSuccessUrl());
+		successHandler.setTargetUrlParameter(authcProperties.getTargetUrlParameter());
+		successHandler.setUseReferer(authcProperties.isUseReferer());
+		successHandler.setJwtPayloadRepository(jwtPayloadRepository);
+		
+		return successHandler;
+		
+	}
+	
 	@Configuration
 	@ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
 	@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class })
@@ -172,16 +189,16 @@ public class SecurityCasFilterConfiguration {
 		
 		private final ServiceAuthenticationDetailsSource authenticationDetailsSource;
 		private final CasAuthenticationEntryPoint authenticationEntryPoint;
-	    private final AuthenticationSuccessHandler authenticationSuccessHandler;
+	    private final CasAuthenticationSuccessHandler authenticationSuccessHandler;
 	    private final AuthenticationFailureHandler authenticationFailureHandler;
 	    private final AuthenticationFailureHandler proxyFailureHandler;
-	    private final JwtPayloadRepository jwtPayloadRepository;
 	    private final InvalidSessionStrategy invalidSessionStrategy;
 	    private final LogoutSuccessHandler logoutSuccessHandler;
 	    private final LogoutHandler logoutHandler;
 	    private final ProxyGrantingTicketStorage proxyGrantingTicketStorage;
     	private final RequestCache requestCache;
     	private final RememberMeServices rememberMeServices;
+    	private final RedirectStrategy redirectStrategy;
     	private final SessionRegistry sessionRegistry;
     	private final SessionMappingStorage sessionMappingStorage;
 		private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
@@ -194,11 +211,11 @@ public class SecurityCasFilterConfiguration {
 				ServiceProperties serviceProperties,
 				
 				ObjectProvider<CasAuthenticationProvider> authenticationProvider,
+				ObjectProvider<CasAuthenticationSuccessHandler> authenticationSuccessHandlerProvider,
 				ObjectProvider<ServiceAuthenticationDetailsSource> authenticationDetailsSourceProvider,
    				ObjectProvider<AuthenticationManager> authenticationManagerProvider,
    				ObjectProvider<CasAuthenticationEntryPoint> authenticationEntryPointProvider,
    				ObjectProvider<CaptchaResolver> captchaResolverProvider,
-   				ObjectProvider<JwtPayloadRepository> jwtPayloadRepositoryProvider,
    				ObjectProvider<LogoutHandler> logoutHandlerProvider,
    				ObjectProvider<ObjectMapper> objectMapperProvider,
    				ObjectProvider<ProxyGrantingTicketStorage> proxyGrantingTicketStorageProvider,
@@ -216,38 +233,24 @@ public class SecurityCasFilterConfiguration {
    			
    			this.authenticationDetailsSource = authenticationDetailsSourceProvider.getIfAvailable();
    			this.authenticationEntryPoint =  authenticationEntryPointProvider.getIfAvailable();
-   			this.authenticationSuccessHandler = authenticationSuccessHandler();
+   			this.authenticationSuccessHandler = authenticationSuccessHandlerProvider.getIfAvailable();
    			this.authenticationFailureHandler = authenticationFailureHandler();
    			this.proxyFailureHandler = proxyFailureHandler();
    			this.invalidSessionStrategy = super.invalidSessionStrategy();
-   			this.jwtPayloadRepository = jwtPayloadRepositoryProvider.getIfAvailable();
    			this.logoutHandler = super.logoutHandler(logoutHandlerProvider.stream().collect(Collectors.toList()));
    			this.logoutSuccessHandler = logoutSuccessHandler();
    			this.proxyGrantingTicketStorage = proxyGrantingTicketStorageProvider.getIfAvailable();
    			this.requestCache = super.requestCache();
    			this.rememberMeServices = super.rememberMeServices();
+   			this.redirectStrategy = super.redirectStrategy();
    			this.sessionRegistry = super.sessionRegistry();
    			this.sessionMappingStorage = sessionMappingStorageProvider.getIfAvailable();
    			this.sessionAuthenticationStrategy = super.sessionAuthenticationStrategy();
    			this.sessionInformationExpiredStrategy = super.sessionInformationExpiredStrategy();
-   			
 		}
 		
 
-		public AuthenticationSuccessHandler authenticationSuccessHandler() {
-			
-			CasAuthenticationSuccessHandler successHandler = new CasAuthenticationSuccessHandler(authcProperties);
-			
-			successHandler.setAlwaysUseDefaultTargetUrl(authcProperties.isAlwaysUseDefaultTargetUrl());
-			successHandler.setDefaultTargetUrl(authcProperties.getSuccessUrl());
-			successHandler.setRedirectStrategy(redirectStrategy());
-			successHandler.setTargetUrlParameter(authcProperties.getTargetUrlParameter());
-			successHandler.setUseReferer(authcProperties.isUseReferer());
-			successHandler.setJwtPayloadRepository(jwtPayloadRepository);
-			
-			return successHandler;
-			
-		}
+		
 
 		public AuthenticationFailureHandler authenticationFailureHandler() {
 	    	
@@ -255,7 +258,7 @@ public class SecurityCasFilterConfiguration {
 
 	    	failureHandler.setAllowSessionCreation(authcProperties.getSessionMgt().isAllowSessionCreation());
 			failureHandler.setDefaultFailureUrl(authcProperties.getSessionMgt().getFailureUrl());
-			failureHandler.setRedirectStrategy(redirectStrategy());
+			failureHandler.setRedirectStrategy(redirectStrategy);
 			failureHandler.setUseForward(authcProperties.getSessionMgt().isUseForward());
 			return failureHandler;
 			
@@ -267,7 +270,7 @@ public class SecurityCasFilterConfiguration {
 			
 			failureHandler.setAllowSessionCreation(authcProperties.getSessionMgt().isAllowSessionCreation());
 			failureHandler.setDefaultFailureUrl(authcProperties.getSessionMgt().getFailureUrl());
-			failureHandler.setRedirectStrategy(redirectStrategy());
+			failureHandler.setRedirectStrategy(redirectStrategy);
 			failureHandler.setUseForward(authcProperties.getSessionMgt().isUseForward());
 			return failureHandler;
 			
@@ -286,6 +289,8 @@ public class SecurityCasFilterConfiguration {
 			 */
 			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
 			
+			authenticationSuccessHandler.setRedirectStrategy(redirectStrategy);
+			
 			map.from(authenticationManagerBean()).to(authenticationFilter::setAuthenticationManager);
 			map.from(authenticationSuccessHandler).to(authenticationFilter::setAuthenticationSuccessHandler);
 			map.from(authenticationFailureHandler).to(authenticationFilter::setAuthenticationFailureHandler);
@@ -295,7 +300,7 @@ public class SecurityCasFilterConfiguration {
 			map.from(rememberMeServices).to(authenticationFilter::setRememberMeServices);
 			map.from(serviceProperties).to(authenticationFilter::setServiceProperties);
 			map.from(sessionAuthenticationStrategy).to(authenticationFilter::setSessionAuthenticationStrategy);
-			map.from(true).to(authenticationFilter::setContinueChainBeforeSuccessfulAuthentication);
+			map.from(authcProperties.isContinueChainBeforeSuccessfulAuthentication()).to(authenticationFilter::setContinueChainBeforeSuccessfulAuthentication);
 			map.from(authcProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
 			
 			if (authcProperties.isAcceptAnyProxy()) {
