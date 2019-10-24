@@ -72,6 +72,9 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 */
 	private String failureUrl;
 
+	/**
+	 *  The Map of key/value pairs associated with this principal.
+	 */
 	private String[] attributes = new String[] {};
 
 	/**
@@ -124,6 +127,11 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 * Defaults to true 
 	 */
 	private boolean eagerlyCreateSessions = true;
+
+	/**
+	 * Whether Enable Front-end Authorization Proxy. 
+	 */
+	private boolean frontendProxy = false;
 	
 	/**
 	 * Specifies whether gateway=true should be sent to the CAS server. Valid values

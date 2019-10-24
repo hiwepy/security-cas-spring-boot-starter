@@ -15,6 +15,10 @@
  */
 package org.springframework.security.boot.utils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import org.jasig.cas.client.util.CommonUtils;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 
@@ -42,5 +46,49 @@ public class CasUrlUtils {
 				authcProperties.getServiceParameterName(), authcProperties.getServiceCallbackUrl(),
 				authcProperties.isRenew(), false);
 	}
+	
+    /**
+     * Add a new parameter to an url.
+     *
+     * @param url   url
+     * @param name  name of the parameter
+     * @param value value of the parameter
+     * @return the new url with the parameter appended
+     */
+    public static String addParameter(final String url, final String name, final String value) {
+        if (url != null) {
+            final StringBuilder sb = new StringBuilder();
+            sb.append(url);
+            if (name != null) {
+                if (url.indexOf("?") >= 0) {
+                    sb.append("&");
+                } else {
+                    sb.append("?");
+                }
+                sb.append(name);
+                sb.append("=");
+                if (value != null) {
+                    sb.append(urlEncode(value));
+                }
+            }
+            return sb.toString();
+        }
+        return null;
+    }
+
+    /**
+     * URL encode a text using UTF-8.
+     *
+     * @param text text to encode
+     * @return the encoded text
+     */
+    public static String urlEncode(final String text) {
+        try {
+            return URLEncoder.encode(text, StandardCharsets.UTF_8.name());
+        } catch (final UnsupportedEncodingException e) {
+            final String message = "Unable to encode text : " + text;
+            throw new RuntimeException(message, e);
+        }
+    }
 	
 }
