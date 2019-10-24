@@ -104,6 +104,9 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 * Map containing user defined parameters 
 	 */
 	private Map<String, String> customParams = new HashMap<>();
+	
+	private String defaultTargetUrl = "/";
+	
 	/** 
 	 * Specifies the encoding charset the client should use 
 	 */

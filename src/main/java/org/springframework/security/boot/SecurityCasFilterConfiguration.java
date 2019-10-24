@@ -169,7 +169,7 @@ public class SecurityCasFilterConfiguration {
 		CasAuthenticationSuccessHandler successHandler = new CasAuthenticationSuccessHandler(authcProperties);
 		
 		successHandler.setAlwaysUseDefaultTargetUrl(authcProperties.isAlwaysUseDefaultTargetUrl());
-		successHandler.setDefaultTargetUrl(authcProperties.getSuccessUrl());
+		successHandler.setDefaultTargetUrl(authcProperties.getDefaultTargetUrl());
 		successHandler.setTargetUrlParameter(authcProperties.getTargetUrlParameter());
 		successHandler.setUseReferer(authcProperties.isUseReferer());
 		successHandler.setJwtPayloadRepository(jwtPayloadRepository);
