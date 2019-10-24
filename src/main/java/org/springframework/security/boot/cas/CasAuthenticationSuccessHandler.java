@@ -71,12 +71,12 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 		
 		// 前端跳转代理
 		if(authcProperties.isFrontendProxy()) {
+			
 			// 签发jwt
 	    	String tokenString = getJwtPayloadRepository().issueJwt((AbstractAuthenticationToken) authentication);
 			// 重定向
-	        String targetUrl = CasUrlUtils.addParameter(this.getDefaultTargetUrl(), "token", tokenString);
-
-	        	targetUrl = CasUrlUtils.addParameter(targetUrl, getTargetUrlParameter(), determineTargetUrl(request, response));
+	        String targetUrl = CasUrlUtils.addParameter(authcProperties.getFrontendTargetUrl(), "token", tokenString);
+	        	   targetUrl = CasUrlUtils.addParameter(targetUrl, getTargetUrlParameter(), determineTargetUrl(request, response));
 	        
 			if (response.isCommitted()) {
 				logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
@@ -84,6 +84,7 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 			}
 
 			getRedirectStrategy().sendRedirect(request, response, targetUrl);
+			
 		} else {
 			super.handle(request, response, authentication);
 		}

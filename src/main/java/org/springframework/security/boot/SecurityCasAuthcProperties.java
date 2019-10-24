@@ -133,6 +133,8 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 */
 	private boolean frontendProxy = false;
 	
+	private String frontendTargetUrl = "/";
+	
 	/**
 	 * Specifies whether gateway=true should be sent to the CAS server. Valid values
 	 * are either true/false (or no value at all)
