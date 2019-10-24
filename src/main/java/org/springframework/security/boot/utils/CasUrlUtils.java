@@ -20,10 +20,6 @@ import org.springframework.security.boot.SecurityCasAuthcProperties;
 
 public class CasUrlUtils {
 
-	public static String constructCallbackUrl(String serviceUrl, String callbackUrl) {
-		return serviceUrl + (serviceUrl.endsWith("/") ? "" : "/") + callbackUrl;
-	}
-	
 	public static String constructLogoutRedirectUrl(SecurityCasAuthcProperties authcProperties) {
 		return CommonUtils.constructRedirectUrl(authcProperties.getLogoutUrl(), authcProperties.getServiceParameterName(),
 				authcProperties.getServiceUrl(), authcProperties.isRenew(), authcProperties.isGateway());
@@ -42,9 +38,8 @@ public class CasUrlUtils {
 	 * @return the redirect url. CANNOT be NULL.
 	 */
 	public static String constructRedirectUrl(SecurityCasAuthcProperties authcProperties) {
-		String callbackUrl = constructCallbackUrl(authcProperties.getServiceUrl(), authcProperties.getServiceCallbackUrl());
 		return CommonUtils.constructRedirectUrl(authcProperties.getLoginUrl(),
-				authcProperties.getServiceParameterName(), callbackUrl,
+				authcProperties.getServiceParameterName(), authcProperties.getServiceCallbackUrl(),
 				authcProperties.isRenew(), false);
 	}
 	
