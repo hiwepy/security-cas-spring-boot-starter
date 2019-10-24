@@ -29,6 +29,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.boot.biz.authentication.captcha.CaptchaResolver;
 import org.springframework.security.boot.biz.property.SecurityLogoutProperties;
 import org.springframework.security.boot.biz.property.SecuritySessionMgtProperties;
+import org.springframework.security.boot.biz.userdetails.JwtPayloadRepository;
 import org.springframework.security.boot.cas.CasAuthenticationExtProvider;
 import org.springframework.security.boot.cas.CasAuthenticationFailureHandler;
 import org.springframework.security.boot.cas.CasAuthenticationSuccessHandler;
@@ -174,6 +175,7 @@ public class SecurityCasFilterConfiguration {
 	    private final AuthenticationSuccessHandler authenticationSuccessHandler;
 	    private final AuthenticationFailureHandler authenticationFailureHandler;
 	    private final AuthenticationFailureHandler proxyFailureHandler;
+	    private final JwtPayloadRepository jwtPayloadRepository;
 	    private final InvalidSessionStrategy invalidSessionStrategy;
 	    private final LogoutSuccessHandler logoutSuccessHandler;
 	    private final LogoutHandler logoutHandler;
@@ -196,6 +198,7 @@ public class SecurityCasFilterConfiguration {
    				ObjectProvider<AuthenticationManager> authenticationManagerProvider,
    				ObjectProvider<CasAuthenticationEntryPoint> authenticationEntryPointProvider,
    				ObjectProvider<CaptchaResolver> captchaResolverProvider,
+   				ObjectProvider<JwtPayloadRepository> jwtPayloadRepositoryProvider,
    				ObjectProvider<LogoutHandler> logoutHandlerProvider,
    				ObjectProvider<ObjectMapper> objectMapperProvider,
    				ObjectProvider<ProxyGrantingTicketStorage> proxyGrantingTicketStorageProvider,
@@ -217,6 +220,7 @@ public class SecurityCasFilterConfiguration {
    			this.authenticationFailureHandler = authenticationFailureHandler();
    			this.proxyFailureHandler = proxyFailureHandler();
    			this.invalidSessionStrategy = super.invalidSessionStrategy();
+   			this.jwtPayloadRepository = jwtPayloadRepositoryProvider.getIfAvailable();
    			this.logoutHandler = super.logoutHandler(logoutHandlerProvider.stream().collect(Collectors.toList()));
    			this.logoutSuccessHandler = logoutSuccessHandler();
    			this.proxyGrantingTicketStorage = proxyGrantingTicketStorageProvider.getIfAvailable();
@@ -239,6 +243,7 @@ public class SecurityCasFilterConfiguration {
 			successHandler.setRedirectStrategy(redirectStrategy());
 			successHandler.setTargetUrlParameter(authcProperties.getTargetUrlParameter());
 			successHandler.setUseReferer(authcProperties.isUseReferer());
+			successHandler.setJwtPayloadRepository(jwtPayloadRepository);
 			
 			return successHandler;
 			
