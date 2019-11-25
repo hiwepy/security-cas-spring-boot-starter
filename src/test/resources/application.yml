@@ -5,9 +5,9 @@ server:
 ###Spring Boot 相关组件（SpringMVC、Freemarker、Session、Cache、DataSource）配置：  
 ################################################################################################################
 spring:
-      # 权限控制
+  # 权限控制
   security:
-            # 默认路径拦截规则定义
+    # 默认路径拦截规则定义
     filter-chain-definition-map:
       '[/]': anon
       '[/**/favicon.ico]': anon
@@ -39,7 +39,7 @@ spring:
     cas:
       enabled: true
       authc:
-        path-pattern: /authz/login/pac4j
+        path-pattern: /authz/login/cas
         accept-any-proxy: true
         attributes:
         - comsys_department
@@ -56,16 +56,21 @@ spring:
         - comsys_other_post
         - comsys_usertype
         - comsys_teaching_number
+        continue-chain-before-successful-authentication: false
+        frontend-proxy: true
+        frontend-target-url: http://10.30.186.134:8089/#/client
+        always-use-default-target-url: true
+        default-target-url: /portal  
         gateway: false
         login-url: http://10.30.186.104/sso/login
         logout-url: http://10.30.186.104/sso/logout
         prefix-url: http://10.30.186.104/sso/
         protocol: cas20-proxy
-        proxy-receptor-url: /authz/login/pac4j-proxy
-        proxy-callback-url: http://10.30.186.134:8080/jeebiz-authz/authz/login/pac4j-proxy
+        proxy-receptor-url: /authz/login/cas-proxy
+        proxy-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas-proxy
         renew: false
-        service-url: http://10.30.186.134:8080/jeebiz-authz/authz/login/pac4j?client_name=cas
-        service-callback-url: http://10.30.186.134:8080/jeebiz-authz/authz/login/pac4j?client_name=cas
+        service-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
+        service-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
         session-mgt:
           allow-session-creation: true
-          creation-policy: never
+          creation-policy: if-required
