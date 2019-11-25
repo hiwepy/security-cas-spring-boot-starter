@@ -336,9 +336,7 @@ public class SecurityCasFilterConfiguration {
 			 * 批量设置参数
 			 */
 			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-			
 			map.from(authcProperties.getArtifactParameterName()).to(singleSignOutFilter::setArtifactParameterName);
-			map.from(authcProperties.getPrefixUrl()).to(singleSignOutFilter::setCasServerUrlPrefix);
 			map.from(true).to(singleSignOutFilter::setIgnoreInitConfiguration);
 			map.from("").to(singleSignOutFilter::setLogoutCallbackPath);
 			map.from(authcProperties.getLogoutParameterName()).to(singleSignOutFilter::setLogoutParameterName);
