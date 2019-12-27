@@ -19,7 +19,7 @@ import org.springframework.security.core.Authentication;
 
 /**
  * Cas认证请求成功后的处理实现
- * @author ： <a href="https://github.com/vindell">vindell</a>
+ * @author ： <a href="https://github.com/hiwepy">hiwepy</a>
  */
 public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSuccessHandler {
 	

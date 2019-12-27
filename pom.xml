@@ -10,12 +10,12 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	
-	<groupId>com.github.vindell</groupId>
+	<groupId>com.github.hiwepy</groupId>
 	<artifactId>spring-boot-starter-security-cas</artifactId>
 	<description>Spring Boot Starter For Spring Security With Cas</description>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>${project.groupId}:${project.artifactId}</name>
-	<url>https://github.com/vindell/${project.artifactId}</url>
+	<url>https://github.com/hiwepy/${project.artifactId}</url>
 	<packaging>jar</packaging>
 
 	<licenses>
@@ -26,15 +26,15 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:git:https:github.com/vindell/${project.artifactId}.git</connection>
-		<developerConnection>scm:git:https:github.com/vindell/${project.artifactId}.git</developerConnection>
-		<url>https:github.com/vindell/${project.artifactId}</url>
+		<connection>scm:git:https:github.com/hiwepy/${project.artifactId}.git</connection>
+		<developerConnection>scm:git:https:github.com/hiwepy/${project.artifactId}.git</developerConnection>
+		<url>https:github.com/hiwepy/${project.artifactId}</url>
 		<tag>${project.artifactId}</tag>
 	</scm>
 
 	<developers>
 		<developer>
-			<name>vindell</name>
+			<name>wandl</name>
 			<email>hnxyhcwdl1003@163.com</email>
 			<roles>
 				<role>developer</role>
@@ -423,9 +423,9 @@
 			    <artifactId>xmemcached</artifactId>
 			    <version>${xmemcached.version}</version>
 			</dependency>
-			<!-- https://github.com/vindell/spring-boot-starter-security-biz -->
+			<!-- https://github.com/hiwepy/spring-boot-starter-security-biz -->
 			<dependency>
-				<groupId>com.github.vindell</groupId>
+				<groupId>com.github.hiwepy</groupId>
 				<artifactId>spring-boot-starter-security-biz</artifactId>
 				<version>${spring-security-biz.version}</version>
 			</dependency>
@@ -490,9 +490,9 @@
 			<artifactId>spring-boot-autoconfigure</artifactId>
 		</dependency>
 		
-		<!-- https://github.com/vindell/spring-boot-starter-security-biz -->
+		<!-- https://github.com/hiwepy/spring-boot-starter-security-biz -->
 		<dependency>
-			<groupId>com.github.vindell</groupId>
+			<groupId>com.github.hiwepy</groupId>
 			<artifactId>spring-boot-starter-security-biz</artifactId>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.redisson/redisson-spring-boot-starter -->

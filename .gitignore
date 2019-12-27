@@ -7,6 +7,7 @@
 *~
 .#*
 .*.md.html
+.apt_generated
 .DS_Store
 .classpath
 .factorypath
@@ -17,6 +18,7 @@
 .recommenders
 .settings
 .springBeans
+.sts4-cache
 /build
 /code
 MANIFEST.MF
@@ -36,6 +38,3 @@ target
 transaction-logs
 .flattened-pom.xml
 secrets.yml
-.apt_generated
-.settings
-.sts4-cache

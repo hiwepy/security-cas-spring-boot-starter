@@ -142,7 +142,7 @@ public class SecurityCasFilterConfiguration {
 	/**
 	 * 
 	 * TODO
-	 * @author 		： <a href="https://github.com/vindell">wandl</a>
+	 * @author 		： <a href="https://github.com/hiwepy">wandl</a>
 	 * @return
 	 * @throws Exception
 	 * @see org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint
