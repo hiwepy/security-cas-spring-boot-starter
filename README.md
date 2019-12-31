@@ -1,4 +1,4 @@
-# spring-boot-starter-security-cas
+# security-cas-spring-boot-starter
 security starter for spring boot
 
 ### 说明
@@ -14,7 +14,7 @@ security starter for spring boot
 ``` xml
 <dependency>
 	<groupId>${project.groupId}</groupId>
-	<artifactId>spring-boot-starter-security-biz</artifactId>
+	<artifactId>security-cas-spring-boot-starter</artifactId>
 	<version>${project.version}</version>
 </dependency>
 ```
