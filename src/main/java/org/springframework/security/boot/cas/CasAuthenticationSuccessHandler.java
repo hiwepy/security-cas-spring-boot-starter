@@ -85,8 +85,8 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 				logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
 				return;
 			}
-
-			getRedirectStrategy().sendRedirect(request, response, targetUrl);
+			response.sendRedirect(targetUrl);
+			//getRedirectStrategy().sendRedirect(request, response, targetUrl);
 			
 		} else {
 			super.handle(request, response, authentication);
