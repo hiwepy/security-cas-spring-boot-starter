@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.biz.ListenedAuthenticationFailureHandler;
 import org.springframework.security.boot.biz.authentication.AuthenticationListener;
@@ -37,7 +38,20 @@ public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailu
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException e) throws IOException, ServletException {
 
-		String redirectUrl = CasUrlUtils.constructRedirectUrl(authcProperties);
+		// 没有票据
+		if(e instanceof BadCredentialsException) {
+			
+			// 重新登录
+			String redirectUrl = CasUrlUtils.constructRedirectUrl(authcProperties);
+			
+			logger.debug(redirectUrl);
+			logger.error("Failure");
+			response.sendRedirect(redirectUrl);
+			
+			return;
+		}
+		
+		String redirectUrl = CasUrlUtils.constructFailureRedirectUrl(authcProperties);
 		
 		logger.debug(redirectUrl);
 		logger.error("Failure");

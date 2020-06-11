@@ -38,12 +38,25 @@ public class CasUrlUtils {
 	 * Constructs the Url for Redirection to the CAS server. Default implementation relies
 	 * on the CAS client to do the bulk of the work.
 	 *
-	 * @param serviceUrl the service url that should be included.
+	 * @param authcProperties the service url that should be included.
 	 * @return the redirect url. CANNOT be NULL.
 	 */
 	public static String constructRedirectUrl(SecurityCasAuthcProperties authcProperties) {
 		return CommonUtils.constructRedirectUrl(authcProperties.getLoginUrl(),
-				authcProperties.getServiceParameterName(), authcProperties.getServiceCallbackUrl(),
+				authcProperties.getServiceParameterName(), authcProperties.getServiceUrl(),
+				authcProperties.isRenew(), false);
+	}
+	
+	/**
+	 * Constructs the Url for Redirection to the CAS server. Default implementation relies
+	 * on the CAS client to do the bulk of the work.
+	 *
+	 * @param authcProperties the service url that should be included.
+	 * @return the redirect url. CANNOT be NULL.
+	 */
+	public static String constructFailureRedirectUrl(SecurityCasAuthcProperties authcProperties) {
+		return CommonUtils.constructRedirectUrl(authcProperties.getLoginUrl(),
+				authcProperties.getServiceParameterName(), authcProperties.getFailureUrl(),
 				authcProperties.isRenew(), false);
 	}
 	

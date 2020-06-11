@@ -176,15 +176,20 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
     private String relayStateParameterName = ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getDefaultValue();
 
 
-	/**
-	 * The service URL to send to the CAS server, i.e. https://localhost:8443/yourwebapp/index.html
+    /**
+	 * Represents the service the user is authenticating to.
+	 * <p>
+	 * This service is the callback URL belonging to the local Spring Security System for
+	 * Spring secured application. For example,
+	 *
+	 * <pre>
+	 * https://www.mycompany.com/application/login/cas
+	 * </pre>
+	 *
+	 * The URL of the service the user is authenticating to
+	 * 
 	 */
 	private String serviceUrl;
-	
-	/** 
-	 * The location of the application cas callback URL, i.e. /callback 
-	 */
-	private String serviceCallbackUrl;
 	
 	/**
 	 * Specifies the name of the request parameter on where to find the service
