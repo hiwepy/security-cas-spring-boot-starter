@@ -139,14 +139,6 @@ public class SecurityCasFilterConfiguration {
 		return provider;
 	}
 
-	/**
-	 * 
-	 * TODO
-	 * @author 		： <a href="https://github.com/hiwepy">wandl</a>
-	 * @return
-	 * @throws Exception
-	 * @see org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint
-	 */
 	@Bean
 	public CasAuthenticationEntryPoint casAuthenticationEntryPoint(
 			SecurityCasAuthcProperties authcProperties,
@@ -284,7 +276,7 @@ public class SecurityCasFilterConfiguration {
 
 			CasAuthenticationFilter authenticationFilter = new CasAuthenticationFilter();
 
-			/**
+			/*
 			 * 批量设置参数
 			 */
 			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
@@ -311,7 +303,7 @@ public class SecurityCasFilterConfiguration {
 			return authenticationFilter;
 		}
 		
-		/**
+		/*
 		 * 	单点注销Session监听器
 		 */
 	    @Bean

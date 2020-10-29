@@ -46,17 +46,17 @@ public class CasTicketValidatorConfiguration {
 
 	protected final Logger logger = LoggerFactory.getLogger(CasTicketValidatorConfiguration.class);
 
-    /** The storage location of the proxy granting tickets. */
+    /* The storage location of the proxy granting tickets. */
     private ProxyGrantingTicketStorage proxyGrantingTicketStorage;
 
-    /** Implementation of the proxy retriever. */
+    /* Implementation of the proxy retriever. */
     private ProxyRetriever proxyRetriever;
     
 	public CasTicketValidatorConfiguration(ProxyGrantingTicketStorage proxyGrantingTicketStorage) {
 		this.proxyGrantingTicketStorage = proxyGrantingTicketStorage;
 	}
 
-	/**
+	/*
 	 * Constructs a Cas20ServiceTicketValidator or a Cas20ProxyTicketValidator based on supplied parameters.
 	 */
 	public TicketValidator retrieveTicketValidator(final SecurityCasAuthcProperties casProperties) {
@@ -176,7 +176,7 @@ public class CasTicketValidatorConfiguration {
         return saml11TicketValidator;
     }
 	
-	/**
+	/*
 	 * Gets the ssl config to use for HTTPS connections if one is configured for
 	 * this filter.
 	 * 
