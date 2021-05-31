@@ -28,7 +28,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.boot.biz.authentication.captcha.CaptchaResolver;
-import org.springframework.security.boot.biz.property.SecurityLogoutProperties;
 import org.springframework.security.boot.biz.property.SecuritySessionMgtProperties;
 import org.springframework.security.boot.biz.userdetails.JwtPayloadRepository;
 import org.springframework.security.boot.cas.CasAuthenticationExtProvider;
@@ -49,17 +48,12 @@ import org.springframework.security.cas.web.authentication.ServiceAuthentication
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.logout.ForwardLogoutSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.session.InvalidSessionStrategy;
-import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
@@ -184,22 +178,17 @@ public class SecurityCasFilterConfiguration {
 	    private final CasAuthenticationSuccessHandler authenticationSuccessHandler;
 	    private final AuthenticationFailureHandler authenticationFailureHandler;
 	    private final AuthenticationFailureHandler proxyFailureHandler;
-	    private final InvalidSessionStrategy invalidSessionStrategy;
-	    private final LogoutSuccessHandler logoutSuccessHandler;
-	    private final LogoutHandler logoutHandler;
 	    private final ProxyGrantingTicketStorage proxyGrantingTicketStorage;
-    	private final RequestCache requestCache;
     	private final RememberMeServices rememberMeServices;
     	private final RedirectStrategy redirectStrategy;
-    	private final SessionRegistry sessionRegistry;
     	private final SessionMappingStorage sessionMappingStorage;
 		private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
-		private final SessionInformationExpiredStrategy sessionInformationExpiredStrategy;
 		
 		public CasWebSecurityConfigurerAdapter(
 				
 				SecurityBizProperties bizProperties,
 				SecurityCasAuthcProperties authcProperties,
+   				SecuritySessionMgtProperties sessionMgtProperties,
 				ServiceProperties serviceProperties,
 				
 				ObjectProvider<CasAuthenticationProvider> authenticationProvider,
@@ -208,16 +197,14 @@ public class SecurityCasFilterConfiguration {
    				ObjectProvider<AuthenticationManager> authenticationManagerProvider,
    				ObjectProvider<CasAuthenticationEntryPoint> authenticationEntryPointProvider,
    				ObjectProvider<CaptchaResolver> captchaResolverProvider,
-   				ObjectProvider<LogoutHandler> logoutHandlerProvider,
    				ObjectProvider<ObjectMapper> objectMapperProvider,
    				ObjectProvider<ProxyGrantingTicketStorage> proxyGrantingTicketStorageProvider,
+   				ObjectProvider<RememberMeServices> rememberMeServicesProvider,
    				ObjectProvider<SessionMappingStorage> sessionMappingStorageProvider
    				
    			) {
 			
-			
-			
-			super(bizProperties, authcProperties, authenticationProvider.stream().collect(Collectors.toList()),
+			super(bizProperties, authcProperties, sessionMgtProperties, authenticationProvider.stream().collect(Collectors.toList()),
 					authenticationManagerProvider.getIfAvailable());
 			
    			this.authcProperties = authcProperties;
@@ -228,30 +215,21 @@ public class SecurityCasFilterConfiguration {
    			this.authenticationSuccessHandler = authenticationSuccessHandlerProvider.getIfAvailable();
    			this.authenticationFailureHandler = authenticationFailureHandler();
    			this.proxyFailureHandler = proxyFailureHandler();
-   			this.invalidSessionStrategy = super.invalidSessionStrategy();
-   			this.logoutHandler = super.logoutHandler(logoutHandlerProvider.stream().collect(Collectors.toList()));
-   			this.logoutSuccessHandler = logoutSuccessHandler();
    			this.proxyGrantingTicketStorage = proxyGrantingTicketStorageProvider.getIfAvailable();
-   			this.requestCache = super.requestCache();
-   			this.rememberMeServices = super.rememberMeServices();
    			this.redirectStrategy = super.redirectStrategy();
-   			this.sessionRegistry = super.sessionRegistry();
+   			this.rememberMeServices = rememberMeServicesProvider.getIfAvailable();
    			this.sessionMappingStorage = sessionMappingStorageProvider.getIfAvailable();
    			this.sessionAuthenticationStrategy = super.sessionAuthenticationStrategy();
-   			this.sessionInformationExpiredStrategy = super.sessionInformationExpiredStrategy();
 		}
-		
-
-		
 
 		public AuthenticationFailureHandler authenticationFailureHandler() {
 	    	
 			CasAuthenticationFailureHandler failureHandler = new CasAuthenticationFailureHandler(authcProperties);
 
-	    	failureHandler.setAllowSessionCreation(authcProperties.getSessionMgt().isAllowSessionCreation());
-			failureHandler.setDefaultFailureUrl(authcProperties.getSessionMgt().getFailureUrl());
+	    	failureHandler.setAllowSessionCreation(getSessionMgtProperties().isAllowSessionCreation());
+			failureHandler.setDefaultFailureUrl(authcProperties.getFailureUrl());
 			failureHandler.setRedirectStrategy(redirectStrategy);
-			failureHandler.setUseForward(authcProperties.getSessionMgt().isUseForward());
+			failureHandler.setUseForward(authcProperties.isUseForward());
 			return failureHandler;
 			
 		}
@@ -260,10 +238,10 @@ public class SecurityCasFilterConfiguration {
 	    	
 	    	CasProxyFailureHandler failureHandler = new CasProxyFailureHandler(authcProperties);
 			
-			failureHandler.setAllowSessionCreation(authcProperties.getSessionMgt().isAllowSessionCreation());
-			failureHandler.setDefaultFailureUrl(authcProperties.getSessionMgt().getFailureUrl());
+			failureHandler.setAllowSessionCreation(getSessionMgtProperties().isAllowSessionCreation());
+			failureHandler.setDefaultFailureUrl(authcProperties.getFailureUrl());
 			failureHandler.setRedirectStrategy(redirectStrategy);
-			failureHandler.setUseForward(authcProperties.getSessionMgt().isUseForward());
+			failureHandler.setUseForward(authcProperties.isUseForward());
 			return failureHandler;
 			
 	   	}
@@ -361,47 +339,12 @@ public class SecurityCasFilterConfiguration {
 	    @Override
 		public void configure(HttpSecurity http) throws Exception {
 	    	
-	    	// Session 管理器配置参数
-   	    	SecuritySessionMgtProperties sessionMgt = authcProperties.getSessionMgt();
-   	    	// Session 注销配置参数
-   	    	SecurityLogoutProperties logout = authcProperties.getLogout();
-	    	
-   		    // Session 管理器配置
-   	    	http.sessionManagement()
-   	    		.enableSessionUrlRewriting(sessionMgt.isEnableSessionUrlRewriting())
-   	    		.invalidSessionStrategy(invalidSessionStrategy)
-   	    		.invalidSessionUrl(logout.getLogoutUrl())
-   	    		.maximumSessions(sessionMgt.getMaximumSessions())
-   	    		.maxSessionsPreventsLogin(sessionMgt.isMaxSessionsPreventsLogin())
-   	    		.expiredSessionStrategy(sessionInformationExpiredStrategy)
-   				.expiredUrl(logout.getLogoutUrl())
-   				.sessionRegistry(sessionRegistry)
-   				.and()
-   	    		.sessionAuthenticationErrorUrl(sessionMgt.getFailureUrl())
-   	    		.sessionAuthenticationFailureHandler(authenticationFailureHandler)
-   	    		.sessionAuthenticationStrategy(sessionAuthenticationStrategy)
-   	    		.sessionCreationPolicy(sessionMgt.getCreationPolicy())
-   	    		// Session 注销配置
-   	    		.and()
-   	    		.logout()
-   	    		.logoutUrl(logout.getPathPatterns())
-   	    		.logoutSuccessHandler(logoutSuccessHandler)
-   	    		.addLogoutHandler(logoutHandler)
-   	    		.clearAuthentication(logout.isClearAuthentication())
-   	    		.invalidateHttpSession(logout.isInvalidateHttpSession())
-   	        	// Request 缓存配置
-   	        	.and()
-   	    		.requestCache()
-   	        	.requestCache(requestCache)
-   	        	// 异常处理
-   	        	.and()
-   	        	.exceptionHandling()
+   	    	http.exceptionHandling()
    	        	.authenticationEntryPoint(authenticationEntryPoint)
    	        	.and()
    	        	.httpBasic()
    	        	.authenticationEntryPoint(authenticationEntryPoint)
    	        	.and()
-   	        	.requestMatcher(new OrRequestMatcher(new AntPathRequestMatcher(authcProperties.getPathPattern())))
    	        	.antMatcher(authcProperties.getPathPattern())
 	        	.addFilterAt(authenticationProcessingFilter(), CasAuthenticationFilter.class)
    	            .addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)

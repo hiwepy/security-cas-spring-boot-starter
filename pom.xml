@@ -373,10 +373,10 @@
         <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
         <maven-surefire-plugin.version>2.22.1</maven-surefire-plugin.version>
 		<maven-nexus-staging-plugin.version>1.6.8</maven-nexus-staging-plugin.version>
-		<redisson.version>3.10.6</redisson.version>
-		<spring-security-biz.version>1.0.6.RELEASE</spring-security-biz.version>
+		<redisson.version>3.15.5</redisson.version>
+		<spring-security-biz.version>1.0.9-SNAPSHOT</spring-security-biz.version>
 		<woodstox-asl.version>4.4.1</woodstox-asl.version>
-		<xmemcached.version>2.4.6</xmemcached.version>
+		<xmemcached.version>2.4.7</xmemcached.version>
 	</properties>
 	
 	<dependencyManagement>
