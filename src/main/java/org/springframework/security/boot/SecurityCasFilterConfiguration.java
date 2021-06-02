@@ -54,8 +54,6 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.ForwardLogoutSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -248,10 +246,6 @@ public class SecurityCasFilterConfiguration {
 			return failureHandler;
 			
 	   	}
-
-		public LogoutSuccessHandler logoutSuccessHandler() {
-			return new ForwardLogoutSuccessHandler(authcProperties.getLoginUrl());
-		}
 
 		public CasAuthenticationFilter authenticationProcessingFilter() throws Exception {
 
