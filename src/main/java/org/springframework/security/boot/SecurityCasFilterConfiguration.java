@@ -27,7 +27,6 @@ import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.boot.biz.authentication.captcha.CaptchaResolver;
 import org.springframework.security.boot.biz.property.SecuritySessionMgtProperties;
 import org.springframework.security.boot.biz.userdetails.JwtPayloadRepository;
@@ -37,6 +36,7 @@ import org.springframework.security.boot.cas.CasAuthenticationSuccessHandler;
 import org.springframework.security.boot.cas.CasProxyFailureHandler;
 import org.springframework.security.boot.cas.CasTicketValidatorConfiguration;
 import org.springframework.security.boot.utils.CasUrlUtils;
+import org.springframework.security.boot.utils.WebSecurityUtils;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
 import org.springframework.security.cas.authentication.NullStatelessTicketCache;
@@ -49,6 +49,7 @@ import org.springframework.security.cas.web.authentication.ServiceAuthentication
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
@@ -56,7 +57,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.ForwardLogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.savedrequest.RequestCache;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -149,7 +149,7 @@ public class SecurityCasFilterConfiguration {
 		return entryPoint;
 	}
 	
-	@Bean("casAuthenticationSuccessHandler")
+	@Bean
 	public CasAuthenticationSuccessHandler casAuthenticationSuccessHandler(SecurityCasAuthcProperties authcProperties,
 			@Autowired(required = false) JwtPayloadRepository jwtPayloadRepository) {
 		
@@ -175,15 +175,14 @@ public class SecurityCasFilterConfiguration {
 		private final ServiceProperties serviceProperties;
 
     	private final LocaleContextFilter localeContextFilter;
+	    private final AuthenticationEntryPoint authenticationEntryPoint;
 		private final ServiceAuthenticationDetailsSource authenticationDetailsSource;
-		private final CasAuthenticationEntryPoint authenticationEntryPoint;
 	    private final CasAuthenticationSuccessHandler authenticationSuccessHandler;
 	    private final AuthenticationFailureHandler authenticationFailureHandler;
 	    private final AuthenticationFailureHandler proxyFailureHandler;
 	    private final ProxyGrantingTicketStorage proxyGrantingTicketStorage;
     	private final RememberMeServices rememberMeServices;
     	private final RedirectStrategy redirectStrategy;
-    	private final RequestCache requestCache;
     	private final SessionMappingStorage sessionMappingStorage;
 		private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
 		
@@ -198,18 +197,17 @@ public class SecurityCasFilterConfiguration {
 				ObjectProvider<CasAuthenticationProvider> authenticationProvider,
 				ObjectProvider<CasAuthenticationSuccessHandler> authenticationSuccessHandlerProvider,
 				ObjectProvider<ServiceAuthenticationDetailsSource> authenticationDetailsSourceProvider,
-   				ObjectProvider<AuthenticationManager> authenticationManagerProvider,
    				ObjectProvider<CasAuthenticationEntryPoint> authenticationEntryPointProvider,
    				ObjectProvider<CaptchaResolver> captchaResolverProvider,
    				ObjectProvider<ObjectMapper> objectMapperProvider,
    				ObjectProvider<ProxyGrantingTicketStorage> proxyGrantingTicketStorageProvider,
    				ObjectProvider<RememberMeServices> rememberMeServicesProvider,
-   				ObjectProvider<SessionMappingStorage> sessionMappingStorageProvider
+   				ObjectProvider<SessionMappingStorage> sessionMappingStorageProvider,
+   				ObjectProvider<SessionAuthenticationStrategy> sessionAuthenticationStrategyProvider
    				
    			) {
 			
-			super(bizProperties, authcProperties, sessionMgtProperties, authenticationProvider.stream().collect(Collectors.toList()),
-					authenticationManagerProvider.getIfAvailable());
+			super(bizProperties, sessionMgtProperties, authenticationProvider.stream().collect(Collectors.toList()));
 			
    			this.authcProperties = authcProperties;
    			this.serviceProperties = serviceProperties;
@@ -221,13 +219,12 @@ public class SecurityCasFilterConfiguration {
    			this.authenticationFailureHandler = authenticationFailureHandler();
    			this.proxyFailureHandler = proxyFailureHandler();
    			this.proxyGrantingTicketStorage = proxyGrantingTicketStorageProvider.getIfAvailable();
-   			this.redirectStrategy = super.redirectStrategy();
-   			this.requestCache = super.requestCache();
+   			this.redirectStrategy = WebSecurityUtils.redirectStrategy(authcProperties);
    			this.rememberMeServices = rememberMeServicesProvider.getIfAvailable();
    			this.sessionMappingStorage = sessionMappingStorageProvider.getIfAvailable();
-   			this.sessionAuthenticationStrategy = super.sessionAuthenticationStrategy();
+   			this.sessionAuthenticationStrategy = sessionAuthenticationStrategyProvider.getIfAvailable();
 		}
-
+		
 		public AuthenticationFailureHandler authenticationFailureHandler() {
 	    	
 			CasAuthenticationFailureHandler failureHandler = new CasAuthenticationFailureHandler(authcProperties);
@@ -345,16 +342,12 @@ public class SecurityCasFilterConfiguration {
 	    @Override
 		public void configure(HttpSecurity http) throws Exception {
 	    	
-	    	http.requestCache()
-	        	.requestCache(requestCache)
+	    	http.antMatcher(authcProperties.getPathPattern())
+				.exceptionHandling()
+	        	.authenticationEntryPoint(authenticationEntryPoint)
 	        	.and()
-	   	    	.exceptionHandling()
-   	        	.authenticationEntryPoint(authenticationEntryPoint)
-   	        	.and()
-   	        	.httpBasic()
-   	        	.authenticationEntryPoint(authenticationEntryPoint)
-   	        	.and()
-   	        	.antMatcher(authcProperties.getPathPattern())
+	        	.httpBasic()
+	        	.disable()
 	        	.addFilterBefore(localeContextFilter, UsernamePasswordAuthenticationFilter.class)
 	        	.addFilterAt(authenticationProcessingFilter(), CasAuthenticationFilter.class)
    	            .addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)
