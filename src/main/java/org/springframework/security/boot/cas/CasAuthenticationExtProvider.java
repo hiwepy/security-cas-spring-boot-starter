@@ -40,6 +40,7 @@ public class CasAuthenticationExtProvider extends CasAuthenticationProvider {
 	private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
 	private ServiceProperties serviceProperties;
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+	@Override
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
 		if (!supports(authentication.getClass())) {
@@ -144,19 +145,19 @@ public class CasAuthenticationExtProvider extends CasAuthenticationProvider {
 		}
 		return serviceUrl;
 	}
-	
-	
+
+
 	@Override
 	public void setServiceProperties(ServiceProperties serviceProperties) {
 		super.setServiceProperties(serviceProperties);
 		this.serviceProperties = serviceProperties;
 	}
-	
+
 	@Override
 	public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		super.setAuthoritiesMapper(authoritiesMapper);
 		this.authoritiesMapper = authoritiesMapper;
 	}
-	
-	
+
+
 }

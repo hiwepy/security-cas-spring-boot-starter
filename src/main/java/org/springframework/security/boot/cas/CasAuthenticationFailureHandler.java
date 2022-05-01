@@ -20,45 +20,43 @@ import org.springframework.security.core.AuthenticationException;
  * Cas认证请求失败后的处理实现
  */
 public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailureHandler {
-	
+
 	private Logger logger = LoggerFactory.getLogger(CasAuthenticationFailureHandler.class);
 	private SecurityCasAuthcProperties authcProperties;
-	
+
 	public CasAuthenticationFailureHandler(SecurityCasAuthcProperties authcProperties) {
 		super(authcProperties.getLoginUrl());
 		this.authcProperties = authcProperties;
 	}
-	
+
 	public CasAuthenticationFailureHandler(List<AuthenticationListener> authenticationListeners, SecurityCasAuthcProperties authcProperties) {
 		super(authenticationListeners, authcProperties.getLoginUrl());
 		this.authcProperties = authcProperties;
 	}
-	
+
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException e) throws IOException, ServletException {
 
 		// 没有票据
 		if(e instanceof BadCredentialsException) {
-			
+
 			// 重新登录
 			String redirectUrl = CasUrlUtils.constructRedirectUrl(authcProperties);
-			
-			logger.debug(redirectUrl);
-			logger.error("Failure");
+
+			logger.error("Cas Authentication Failure, redirectUrl : {}", redirectUrl);
 			response.sendRedirect(redirectUrl);
-			
+
 			return;
 		}
-		
+
 		String redirectUrl = CasUrlUtils.constructFailureRedirectUrl(authcProperties);
-		
-		logger.debug(redirectUrl);
-		logger.error("Failure");
+
+		logger.error("Cas Authentication Failure, redirectUrl : {}", redirectUrl);
 		response.sendRedirect(redirectUrl);
-		
+
 		//super.onAuthenticationFailure(request, response, e);
-		
+
 	}
 
 
