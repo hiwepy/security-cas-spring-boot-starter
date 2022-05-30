@@ -77,7 +77,10 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 			// 重定向
 	        String targetUrl = CasUrlUtils.addParameter(authcProperties.getFrontendTargetUrl(), "token", tokenString);
 	        	   targetUrl = CasUrlUtils.addParameter(targetUrl, getTargetUrlParameter(), determineTargetUrl(request, response));
-	       
+	       String jsessionid = request.getSession(false).getId();
+			//返回sessionid ,前端统一会话用
+			targetUrl = CasUrlUtils.addParameter(targetUrl, "jsessionid", jsessionid);
+			logger.debug("jsessionid :" + jsessionid);
 	        logger.debug("redirect :" + targetUrl);
 	        logger.debug("token : " + tokenString);
 	        	   
