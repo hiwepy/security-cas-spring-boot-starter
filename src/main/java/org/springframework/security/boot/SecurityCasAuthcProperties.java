@@ -44,13 +44,13 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 
 	/** Authorization Path Pattern */
 	private String pathPattern = "/login/cas";
-	
+
 	/** Authorization Path Pattern */
 	private String[] ssoPathPatterns = new String[] {"/*"};
-	
+
 	/** Authorization Path Pattern */
 	private String[] assertionPathPatterns = new String[] {"/*"};
-	
+
 	/**
 	 * The location of the CAS server login URL, i.e. https://localhost:8443/cas/login
 	 */
@@ -63,12 +63,12 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 * The location of the CAS server rest URL, i.e. https://localhost:8443/cas/v1/tickets
 	 */
 	private String restUrl;
-	/** 
-	 * The prefix url of the CAS server. i.e.https://localhost:8443/cas 
+	/**
+	 * The prefix url of the CAS server. i.e.https://localhost:8443/cas
 	 */
 	private String prefixUrl;
-	/** 
-	 * The url where the application is redirected if the CAS service ticket validation failed (example : /mycontextpatch/cas_error.jsp) 
+	/**
+	 * The url where the application is redirected if the CAS service ticket validation failed (example : /mycontextpatch/cas_error.jsp)
 	 */
 	private String failureUrl;
 
@@ -89,28 +89,28 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	private boolean authenticateAllArtifacts = false;
 
 	private boolean artifactParameterOverPost = false;
-	
-	/** 
-     * Specifies whether any proxy is OK. Defaults to false. 
+
+	/**
+     * Specifies whether any proxy is OK. Defaults to false.
      */
 	private boolean acceptAnyProxy = false;
 	/**
-	 * Specifies the proxy chain. 
-	 * Each acceptable proxy chain should include a space-separated list of URLs (for exact match) or regular expressions of URLs (starting by the ^ character). 
+	 * Specifies the proxy chain.
+	 * Each acceptable proxy chain should include a space-separated list of URLs (for exact match) or regular expressions of URLs (starting by the ^ character).
 	 * Each acceptable proxy chain should appear on its own line.
 	 */
 	private String allowedProxyChains;
-	/* 
-	 * Map containing user defined parameters 
+	/*
+	 * Map containing user defined parameters
 	 */
 	private Map<String, String> customParams = new HashMap<>();
-	
-	/** 
-	 * Specifies the encoding charset the client should use 
+
+	/**
+	 * Specifies the encoding charset the client should use
 	 */
 	private String encoding = "UTF-8";
-	/** 
-	 * Whether the client should auto encode the service url. Defaults to true 
+	/**
+	 * Whether the client should auto encode the service url. Defaults to true
 	 */
 	private boolean encodeServiceUrl = true;
 	/**
@@ -124,18 +124,18 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 * By default, encoding is enabled.
 	 */
 	private boolean encodeServiceUrlWithSessionId = true;
-	/** 
-	 * Defaults to true 
+	/**
+	 * Defaults to true
 	 */
 	private boolean eagerlyCreateSessions = true;
 
 	/**
-	 * Whether Enable Front-end Authorization Proxy. 
+	 * Whether Enable Front-end Authorization Proxy.
 	 */
 	private boolean frontendProxy = false;
-	
+
 	private String frontendTargetUrl = "/";
-	
+
 	/**
 	 * Specifies whether gateway=true should be sent to the CAS server. Valid values
 	 * are either true/false (or no value at all)
@@ -144,9 +144,9 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 
     /** Parameter name that stores logout request for SLO */
     private String logoutParameterName = ConfigurationKeys.LOGOUT_PARAMETER_NAME.getDefaultValue();
-    
+
 	private boolean ignoreInitConfiguration = false;
-	
+
 	/** The protocol of the CAS Client. */
 	private CasProtocol protocol = CasProtocol.CAS20;
 
@@ -158,9 +158,9 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 * /my/receptor.
 	 */
 	private String proxyReceptorUrl = "/login/cas-proxy";
-	
+
 	/**
-	 * The callback URL to provide the CAS server to accept Proxy Granting Tickets. i.e. /proxyCallback 
+	 * The callback URL to provide the CAS server to accept Proxy Granting Tickets. i.e. /proxyCallback
 	 */
 	private String proxyCallbackUrl;
 
@@ -170,7 +170,7 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 * specified as local init-param setting..
 	 */
 	private boolean renew = false;
-	
+
 
     /** Parameter name that stores the state of the CAS server webflow for the callback */
     private String relayStateParameterName = ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getDefaultValue();
@@ -187,17 +187,17 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 * </pre>
 	 *
 	 * The URL of the service the user is authenticating to
-	 * 
+	 *
 	 */
 	private String serviceUrl;
-	
+
 	/**
 	 * Specifies the name of the request parameter on where to find the service
 	 * (i.e. service).
 	 */
 	private String serviceParameterName = ServiceProperties.DEFAULT_CAS_SERVICE_PARAMETER;
 
-	
+
 	/**
 	 * A reference to a properties file that includes SSL settings for client-side
 	 * SSL config, used during back-channel calls. The configuration includes keys
@@ -212,9 +212,8 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 */
 	private long tolerance = 5000L;
 	/**
-	 * time, in milliseconds, before a {@link ProxyGrantingTicketHolder} is
-	 * considered expired and ready for removal.
-	 * 
+	 * time, in milliseconds, before a is considered expired and ready for removal.
+	 *
 	 * @see ProxyGrantingTicketStorageImpl#DEFAULT_TIMEOUT
 	 */
 	private long timeout = DEFAULT_TIMEOUT;
@@ -224,16 +223,19 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 */
 	private boolean useSession = true;
 
+	 /** The logout callback path configured at the CAS server, if there is one */
+	private String logoutCallbackPath;
+
 	@NestedConfigurationProperty
 	private SecurityHeaderCorsProperties cors = new SecurityHeaderCorsProperties();
-	
+
 	@NestedConfigurationProperty
 	private SecurityHeaderCsrfProperties csrf = new SecurityHeaderCsrfProperties();
-	
+
 	@NestedConfigurationProperty
 	private SecurityHeadersProperties headers = new SecurityHeadersProperties();
-	
+
 	@NestedConfigurationProperty
 	private SecurityLogoutProperties logout = new SecurityLogoutProperties();
-	
+
 }
