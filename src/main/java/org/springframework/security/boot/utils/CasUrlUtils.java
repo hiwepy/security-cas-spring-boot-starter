@@ -19,8 +19,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.client.util.CommonUtils;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class CasUrlUtils {
 
@@ -41,9 +44,15 @@ public class CasUrlUtils {
 	 * @param authcProperties the service url that should be included.
 	 * @return the redirect url. CANNOT be NULL.
 	 */
-	public static String constructRedirectUrl(SecurityCasAuthcProperties authcProperties) {
+	public static String constructRedirectUrl(HttpServletRequest request,SecurityCasAuthcProperties authcProperties) {
+		//追加重定向路由
+		String targetUrl = request.getParameter(authcProperties.getTargetUrlParameter());
+		String serviceUrl = authcProperties.getServiceUrl();
+		if(StringUtils.isNotBlank(targetUrl)){
+			serviceUrl = CasUrlUtils.addParameter(serviceUrl,authcProperties.getTargetUrlParameter(),targetUrl,false);
+		}
 		return CommonUtils.constructRedirectUrl(authcProperties.getLoginUrl(),
-				authcProperties.getServiceParameterName(), authcProperties.getServiceUrl(),
+				authcProperties.getServiceParameterName(), serviceUrl,
 				authcProperties.isRenew(), false);
 	}
 	
@@ -68,7 +77,7 @@ public class CasUrlUtils {
      * @param value value of the parameter
      * @return the new url with the parameter appended
      */
-    public static String addParameter(final String url, final String name, final String value) {
+    public static String addParameter(final String url, final String name, final String value,final Boolean encodeFlag) {
         if (url != null) {
             final StringBuilder sb = new StringBuilder();
             sb.append(url);
@@ -81,7 +90,12 @@ public class CasUrlUtils {
                 sb.append(name);
                 sb.append("=");
                 if (value != null) {
-                    sb.append(urlEncode(value));
+					if(encodeFlag){
+						sb.append(urlEncode(value));
+					}else{
+						sb.append(value);
+					}
+
                 }
             }
             return sb.toString();

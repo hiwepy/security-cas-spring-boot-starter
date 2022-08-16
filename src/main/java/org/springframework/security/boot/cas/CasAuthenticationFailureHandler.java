@@ -42,7 +42,7 @@ public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailu
 		if(e instanceof BadCredentialsException) {
 
 			// 重新登录
-			String redirectUrl = CasUrlUtils.constructRedirectUrl(authcProperties);
+			String redirectUrl = CasUrlUtils.constructRedirectUrl(request,authcProperties);
 
 			logger.error("Cas Authentication Failure, redirectUrl : {}", redirectUrl);
 			response.sendRedirect(redirectUrl);

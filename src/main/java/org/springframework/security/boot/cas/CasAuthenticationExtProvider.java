@@ -15,6 +15,7 @@
  */
 package org.springframework.security.boot.cas;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jasig.cas.client.validation.Assertion;
@@ -22,6 +23,7 @@ import org.jasig.cas.client.validation.TicketValidationException;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.boot.utils.CasUrlUtils;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
@@ -34,12 +36,21 @@ import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 
+import javax.servlet.http.HttpServletRequest;
+import java.net.URL;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class CasAuthenticationExtProvider extends CasAuthenticationProvider {
 
 	private static final Log logger = LogFactory.getLog(CasAuthenticationExtProvider.class);
 	private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
 	private ServiceProperties serviceProperties;
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+
+	private static final String TARGET_PARAMETER_NAME="target";
+
 	@Override
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
@@ -139,6 +150,13 @@ public class CasAuthenticationExtProvider extends CasAuthenticationProvider {
 		}
 		else {
 			serviceUrl = serviceProperties.getService();
+			//动态处理serviceUrl
+			ServiceAuthenticationDetails serviceAuthenticationDetails = (ServiceAuthenticationDetails) authentication.getDetails();
+			String targetParams = getFieldValue(serviceAuthenticationDetails.getServiceUrl(), TARGET_PARAMETER_NAME);
+			if(StringUtils.isNotBlank(targetParams)){
+				serviceUrl = CasUrlUtils.addParameter(serviceUrl, TARGET_PARAMETER_NAME, targetParams,false);
+
+			}
 		}
 		if (logger.isDebugEnabled()) {
 			logger.debug("serviceUrl = " + serviceUrl);
@@ -158,6 +176,25 @@ public class CasAuthenticationExtProvider extends CasAuthenticationProvider {
 		super.setAuthoritiesMapper(authoritiesMapper);
 		this.authoritiesMapper = authoritiesMapper;
 	}
+	/**
+	 * 获取字段值
+	 *
+	 * @param urlStr
+	 * @param field
+	 * @return
+	 */
+	private static String getFieldValue(String urlStr, String field) {
+		String result = "";
+		Pattern pXM = Pattern.compile(field + "=([^&]*)");
+		Matcher mXM = pXM.matcher(urlStr);
+		while (mXM.find()) {
+			result += mXM.group(1);
+		}
+		return result;
+	}
 
-
+	public static void main(String[] args) {
+		String aa = "http://192.168.3.27:30847/apis-authz/authz/login/cas?target=http://192.168.30.71/#/index";
+		System.out.println(getFieldValue(aa,"target"));
+	}
 }

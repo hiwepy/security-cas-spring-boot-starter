@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -72,13 +73,21 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 
 		// 前端跳转代理
 		if(authcProperties.isFrontendProxy()) {
-
+			//追加重定向路由
+			String parameterUrl = request.getParameter(authcProperties.getTargetUrlParameter());
+			String frontendTargetUrl = authcProperties.getFrontendTargetUrl();
+			if(StringUtils.isNotBlank(parameterUrl)){
+				frontendTargetUrl = parameterUrl;
+			}
 			// 签发jwt
 	    	String tokenString = getJwtPayloadRepository().issueJwt((AbstractAuthenticationToken) authentication);
 			// 重定向
-	        String targetUrl = CasUrlUtils.addParameter(authcProperties.getFrontendTargetUrl(), "token", tokenString);
-	        	   targetUrl = CasUrlUtils.addParameter(targetUrl, getTargetUrlParameter(), determineTargetUrl(request, response));
-
+	        String targetUrl = CasUrlUtils.addParameter(frontendTargetUrl, "token", tokenString,true);
+	        	   targetUrl = CasUrlUtils.addParameter(targetUrl, getTargetUrlParameter(), determineTargetUrl(request, response),true);
+			String jsessionid = request.getSession(false).getId();
+			//返回sessionid ,前端统一会话用
+			targetUrl = CasUrlUtils.addParameter(targetUrl, "jsessionid", jsessionid,true);
+			logger.debug("jsessionid :" + jsessionid);
 	        log.debug("redirect :" + targetUrl);
 	        log.debug("token : " + tokenString);
 
