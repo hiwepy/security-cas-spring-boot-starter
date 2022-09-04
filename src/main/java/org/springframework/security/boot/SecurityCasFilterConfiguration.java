@@ -167,7 +167,6 @@ public class SecurityCasFilterConfiguration {
 	@Configuration
 	@ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
 	@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class })
-	@Order(SecurityProperties.DEFAULT_FILTER_ORDER + 60)
 	static class CasWebSecurityConfigurerAdapter extends SecurityFilterChainConfigurer {
 
 		private final SecurityCasAuthcProperties authcProperties;
@@ -345,6 +344,7 @@ public class SecurityCasFilterConfiguration {
 		}
 
 		@Bean
+		@Order(SecurityProperties.DEFAULT_FILTER_ORDER + 60)
 		public SecurityFilterChain casSecurityFilterChain(HttpSecurity http) throws Exception {
 			// new DefaultSecurityFilterChain(new AntPathRequestMatcher(authcProperties.getPathPattern()), localeContextFilter, authenticationProcessingFilter());
 			http.antMatcher(authcProperties.getPathPattern())
