@@ -28,6 +28,8 @@ import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.boot.biz.authentication.AuthenticationListener;
 import org.springframework.security.boot.biz.userdetails.JwtPayloadRepository;
 import org.springframework.security.boot.cas.CasAuthenticationExtProvider;
 import org.springframework.security.boot.cas.CasAuthenticationFailureHandler;
@@ -169,6 +171,7 @@ public class SecurityCasFilterConfiguration {
 	@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class })
 	static class CasWebSecurityConfigurerAdapter extends SecurityFilterChainConfigurer {
 
+		private final SecurityBizProperties bizProperties;
 		private final SecurityCasAuthcProperties authcProperties;
 		private final ServiceProperties serviceProperties;
 
@@ -176,16 +179,15 @@ public class SecurityCasFilterConfiguration {
 		private final CasAuthenticationEntryPoint authenticationEntryPoint;
 	    private final CasAuthenticationSuccessHandler authenticationSuccessHandler;
 	    private final AuthenticationFailureHandler authenticationFailureHandler;
+		private final AuthenticationManager authenticationManager;
 	    private final AuthenticationFailureHandler proxyFailureHandler;
 	    private final InvalidSessionStrategy invalidSessionStrategy;
 		private final LocaleContextFilter localeContextFilter;
 	    private final LogoutHandler logoutHandler;
 		private final LogoutSuccessHandler logoutSuccessHandler;
 	    private final ProxyGrantingTicketStorage proxyGrantingTicketStorage;
-    	private final RequestCache requestCache;
     	private final RememberMeServices rememberMeServices;
-    	private final RedirectStrategy redirectStrategy;
-    	private final SessionRegistry sessionRegistry;
+		private final SessionRegistry sessionRegistry;
     	private final SessionMappingStorage sessionMappingStorage;
 		private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
 		private final SessionInformationExpiredStrategy sessionInformationExpiredStrategy;
@@ -199,37 +201,45 @@ public class SecurityCasFilterConfiguration {
 				ObjectProvider<CasAuthenticationProvider> authenticationProvider,
 				ObjectProvider<CasAuthenticationEntryPoint> authenticationEntryPointProvider,
 				ObjectProvider<CasAuthenticationSuccessHandler> authenticationSuccessHandlerProvider,
+				ObjectProvider<AuthenticationManager> authenticationManagerProvider,
 				ObjectProvider<ServiceAuthenticationDetailsSource> authenticationDetailsSourceProvider,
 				ObjectProvider<LocaleContextFilter> localeContextProvider,
    				ObjectProvider<LogoutHandler> logoutHandlerProvider,
 				ObjectProvider<LogoutSuccessHandler> logoutSuccessHandlerProvider,
    				ObjectProvider<ProxyGrantingTicketStorage> proxyGrantingTicketStorageProvider,
+
+				ObjectProvider<InvalidSessionStrategy> invalidSessionStrategyProvider,
+				ObjectProvider<RedirectStrategy> redirectStrategyProvider,
+				ObjectProvider<RequestCache> requestCacheProvider,
 				ObjectProvider<RememberMeServices> rememberMeServicesProvider,
-   				ObjectProvider<SessionMappingStorage> sessionMappingStorageProvider
+				ObjectProvider<SessionRegistry> sessionRegistryProvider,
+				ObjectProvider<SessionAuthenticationStrategy> sessionAuthenticationStrategyProvider,
+   				ObjectProvider<SessionMappingStorage> sessionMappingStorageProvider,
+				ObjectProvider<SessionInformationExpiredStrategy> sessionInformationExpiredStrategyProvider
 
    			) {
 
-			super(bizProperties, authcProperties, authenticationProvider.stream().collect(Collectors.toList()));
+			super(bizProperties, redirectStrategyProvider.getIfAvailable(), requestCacheProvider.getIfAvailable());
 
    			this.authcProperties = authcProperties;
+			this.bizProperties = bizProperties;
    			this.serviceProperties = serviceProperties;
 
 			this.authenticationEntryPoint = authenticationEntryPointProvider.getIfAvailable();
 			this.authenticationSuccessHandler = authenticationSuccessHandlerProvider.getIfAvailable();
 			this.authenticationFailureHandler = authenticationFailureHandler();
+			this.authenticationManager = authenticationManagerProvider.getIfAvailable();
 			this.authenticationDetailsSource = authenticationDetailsSourceProvider.getIfAvailable();
-			this.invalidSessionStrategy = super.invalidSessionStrategy();
+			this.invalidSessionStrategy = invalidSessionStrategyProvider.getIfAvailable();
 			this.localeContextFilter = localeContextProvider.getIfAvailable();
 			this.logoutHandler = super.logoutHandler(logoutHandlerProvider.stream().collect(Collectors.toList()));
 			this.logoutSuccessHandler = logoutSuccessHandlerProvider.getIfAvailable();
 			this.proxyFailureHandler = proxyFailureHandler();
 			this.proxyGrantingTicketStorage = proxyGrantingTicketStorageProvider.getIfAvailable();
-			this.redirectStrategy = super.redirectStrategy();
-			this.requestCache = super.requestCache();
 			this.rememberMeServices = rememberMeServicesProvider.getIfAvailable();
-			this.sessionRegistry = super.sessionRegistry();
-			this.sessionAuthenticationStrategy = super.sessionAuthenticationStrategy();
-			this.sessionInformationExpiredStrategy = super.sessionInformationExpiredStrategy();
+			this.sessionRegistry = sessionRegistryProvider.getIfAvailable();
+			this.sessionAuthenticationStrategy = sessionAuthenticationStrategyProvider.getIfAvailable();
+			this.sessionInformationExpiredStrategy = sessionInformationExpiredStrategyProvider.getIfAvailable();
 			this.sessionMappingStorage = sessionMappingStorageProvider.getIfAvailable();
 		}
 
@@ -237,10 +247,10 @@ public class SecurityCasFilterConfiguration {
 
 			CasAuthenticationFailureHandler failureHandler = new CasAuthenticationFailureHandler(authcProperties);
 
-	    	failureHandler.setAllowSessionCreation(authcProperties.getSessionMgt().isAllowSessionCreation());
-			failureHandler.setDefaultFailureUrl(authcProperties.getSessionMgt().getFailureUrl());
+	    	failureHandler.setAllowSessionCreation(bizProperties.getSession().isAllowSessionCreation());
+			failureHandler.setDefaultFailureUrl(bizProperties.getSession().getFailureUrl());
 			failureHandler.setRedirectStrategy(redirectStrategy);
-			failureHandler.setUseForward(authcProperties.getSessionMgt().isUseForward());
+			failureHandler.setUseForward(bizProperties.getSession().isUseForward());
 			return failureHandler;
 
 		}
@@ -249,10 +259,10 @@ public class SecurityCasFilterConfiguration {
 
 	    	CasProxyFailureHandler failureHandler = new CasProxyFailureHandler(authcProperties);
 
-			failureHandler.setAllowSessionCreation(authcProperties.getSessionMgt().isAllowSessionCreation());
-			failureHandler.setDefaultFailureUrl(authcProperties.getSessionMgt().getFailureUrl());
+			failureHandler.setAllowSessionCreation(bizProperties.getSession().isAllowSessionCreation());
+			failureHandler.setDefaultFailureUrl(bizProperties.getSession().getFailureUrl());
 			failureHandler.setRedirectStrategy(redirectStrategy);
-			failureHandler.setUseForward(authcProperties.getSessionMgt().isUseForward());
+			failureHandler.setUseForward(bizProperties.getSession().isUseForward());
 			return failureHandler;
 
 	   	}
@@ -268,7 +278,7 @@ public class SecurityCasFilterConfiguration {
 
 			authenticationSuccessHandler.setRedirectStrategy(redirectStrategy);
 
-			map.from(authenticationManagerBean()).to(authenticationFilter::setAuthenticationManager);
+			map.from(authenticationManager).to(authenticationFilter::setAuthenticationManager);
 			map.from(authenticationSuccessHandler).to(authenticationFilter::setAuthenticationSuccessHandler);
 			map.from(authenticationFailureHandler).to(authenticationFilter::setAuthenticationFailureHandler);
 			map.from(authenticationDetailsSource).to(authenticationFilter::setAuthenticationDetailsSource);
@@ -350,27 +360,23 @@ public class SecurityCasFilterConfiguration {
 			http.antMatcher(authcProperties.getPathPattern())
 					// 请求鉴权配置
 					.authorizeRequests(this.authorizeRequestsCustomizer())
-					// 跨站请求配置
-					.csrf(this.csrfCustomizer(authcProperties.getCsrf()))
-					// 跨域配置
-					.cors(this.corsCustomizer(authcProperties.getCors()))
 					// 异常处理
 					.exceptionHandling((configurer) -> configurer.authenticationEntryPoint(authenticationEntryPoint))
 					// 请求头配置
-					.headers(this.headersCustomizer(authcProperties.getHeaders()))
+					.headers(this.headersCustomizer(bizProperties.getHeaders()))
 					// Request 缓存配置
-					.requestCache((request) -> request.requestCache(requestCache))
+					.requestCache(this.requestCacheCustomizer())
 					// Session 管理器配置参数
-					.sessionManagement(this.sessionManagementCustomizer(authcProperties.getSessionMgt(), authcProperties.getLogout(),
+					.sessionManagement(this.sessionManagementCustomizer(
 							invalidSessionStrategy, sessionRegistry, sessionInformationExpiredStrategy,
 							authenticationFailureHandler, sessionAuthenticationStrategy))
 					// Session 注销配置
-					.logout(this.logoutCustomizer(authcProperties.getLogout(), logoutHandler, logoutSuccessHandler))
+					.logout(this.logoutCustomizer(bizProperties.getLogout(), logoutHandler, logoutSuccessHandler))
 					// 禁用 Http Basic
 					.httpBasic((basic) -> basic.disable())
 					// Filter 配置
 					.addFilterBefore(localeContextFilter, UsernamePasswordAuthenticationFilter.class)
-					.addFilterAt(authenticationProcessingFilter(), CasAuthenticationFilter.class)
+					.addFilterAt(authenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
 					.addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)
 					.addFilterAfter(assertionThreadLocalFilter(), CasAuthenticationFilter.class)
 					.addFilterAfter(requestWrapperFilter(), AssertionThreadLocalFilter.class);

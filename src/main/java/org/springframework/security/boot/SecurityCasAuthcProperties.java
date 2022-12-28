@@ -226,16 +226,4 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 /** The logout callback path configured at the CAS server, if there is one */
 	private String logoutCallbackPath;
 
-	@NestedConfigurationProperty
-	private SecurityHeaderCorsProperties cors = new SecurityHeaderCorsProperties();
-
-	@NestedConfigurationProperty
-	private SecurityHeaderCsrfProperties csrf = new SecurityHeaderCsrfProperties();
-
-	@NestedConfigurationProperty
-	private SecurityHeadersProperties headers = new SecurityHeadersProperties();
-
-	@NestedConfigurationProperty
-	private SecurityLogoutProperties logout = new SecurityLogoutProperties();
-
 }
