@@ -133,6 +133,7 @@ public class SecurityCasFilterConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean(name = "casAuthenticationEntryPoint")
 	public CasAuthenticationEntryPoint casAuthenticationEntryPoint(
 			SecurityCasAuthcProperties authcProperties,
 			ServerProperties serverProperties,
@@ -148,6 +149,7 @@ public class SecurityCasFilterConfiguration {
 	}
 	
 	@Bean
+	@ConditionalOnMissingBean(name = "casAuthenticationSuccessHandler")
 	public CasAuthenticationSuccessHandler casAuthenticationSuccessHandler(SecurityCasAuthcProperties authcProperties,
 			@Autowired(required = false) JwtPayloadRepository jwtPayloadRepository) {
 		
@@ -305,7 +307,7 @@ public class SecurityCasFilterConfiguration {
 			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
 			map.from(authcProperties.getArtifactParameterName()).to(singleSignOutFilter::setArtifactParameterName);
 			map.from(true).to(singleSignOutFilter::setIgnoreInitConfiguration);
-			map.from("").to(singleSignOutFilter::setLogoutCallbackPath);
+			map.from(authcProperties.getLogoutCallbackPath()).to(singleSignOutFilter::setLogoutCallbackPath);
 			map.from(authcProperties.getLogoutParameterName()).to(singleSignOutFilter::setLogoutParameterName);
 			map.from(authcProperties.getRelayStateParameterName()).to(singleSignOutFilter::setRelayStateParameterName);
 			map.from(sessionMappingStorage).to(singleSignOutFilter::setSessionMappingStorage);

@@ -144,7 +144,10 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 
     /** Parameter name that stores logout request for SLO */
     private String logoutParameterName = ConfigurationKeys.LOGOUT_PARAMETER_NAME.getDefaultValue();
-    
+
+	/** The logout callback path configured at the CAS server, if there is one */
+	private String logoutCallbackPath;
+
 	private boolean ignoreInitConfiguration = false;
 	
 	/** The protocol of the CAS Client. */
