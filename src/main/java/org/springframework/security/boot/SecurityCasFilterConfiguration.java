@@ -1,5 +1,7 @@
 package org.springframework.security.boot;
 
+import java.io.IOException;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -57,6 +59,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Configuration
 @AutoConfigureBefore({ SecurityFilterAutoConfiguration.class })
@@ -251,7 +262,20 @@ public class SecurityCasFilterConfiguration {
 
 		public CasAuthenticationFilter authenticationProcessingFilter() throws Exception {
 
-			CasAuthenticationFilter authenticationFilter = new CasAuthenticationFilter();
+			CasAuthenticationFilter authenticationFilter = new CasAuthenticationFilter() {
+
+				@Override
+				public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+						throws IOException, ServletException {
+
+					HttpServletRequest request = (HttpServletRequest) req;
+					HttpServletResponse response = (HttpServletResponse) res;
+					if (Objects.isNull(RequestContextHolder.getRequestAttributes())){
+						RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
+					}
+					super.doFilter(request, response, chain);
+				}
+			};
 
 			/*
 			 * 批量设置参数
