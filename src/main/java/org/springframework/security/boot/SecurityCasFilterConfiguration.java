@@ -127,6 +127,7 @@ public class SecurityCasFilterConfiguration {
 	}
 	
 	@Bean
+	@ConditionalOnMissingBean
 	public CasAuthenticationProvider casAuthenticationProvider(
 			AbstractCasAssertionUserDetailsService casAssertionUserDetailsService,
 			GrantedAuthoritiesMapper authoritiesMapper,
@@ -330,7 +331,7 @@ public class SecurityCasFilterConfiguration {
 			 */
 			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
 			map.from(authcProperties.getArtifactParameterName()).to(singleSignOutFilter::setArtifactParameterName);
-			map.from(true).to(singleSignOutFilter::setIgnoreInitConfiguration);
+			map.from(authcProperties.isIgnoreInitConfiguration()).to(singleSignOutFilter::setIgnoreInitConfiguration);
 			map.from(authcProperties.getLogoutCallbackPath()).to(singleSignOutFilter::setLogoutCallbackPath);
 			map.from(authcProperties.getLogoutParameterName()).to(singleSignOutFilter::setLogoutParameterName);
 			map.from(authcProperties.getRelayStateParameterName()).to(singleSignOutFilter::setRelayStateParameterName);

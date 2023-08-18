@@ -148,7 +148,7 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	/** The logout callback path configured at the CAS server, if there is one */
 	private String logoutCallbackPath;
 
-	private boolean ignoreInitConfiguration = false;
+	private boolean ignoreInitConfiguration = true;
 	
 	/** The protocol of the CAS Client. */
 	private CasProtocol protocol = CasProtocol.CAS20;
