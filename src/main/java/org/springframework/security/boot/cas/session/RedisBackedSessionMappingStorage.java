@@ -44,11 +44,8 @@ public final class RedisBackedSessionMappingStorage implements SessionMappingSto
 	public synchronized void addSessionById(String mappingId, HttpSession session) {
 		try {
 
-			redisTemplate.opsForValue().set(ID_TO_SESSION_KEY_MAPPING + session.getId(), mappingId);
-			redisTemplate.expire(ID_TO_SESSION_KEY_MAPPING + session.getId(), TIMEOUT, TimeUnit.SECONDS);
-
-			redisTemplate.opsForValue().set(MANAGED_SESSIONS + mappingId, session);
-			redisTemplate.expire(MANAGED_SESSIONS + mappingId, TIMEOUT, TimeUnit.SECONDS);
+			redisTemplate.opsForValue().set(ID_TO_SESSION_KEY_MAPPING + session.getId(), mappingId, TIMEOUT, TimeUnit.SECONDS);
+			redisTemplate.opsForValue().set(MANAGED_SESSIONS + mappingId, session, TIMEOUT, TimeUnit.SECONDS);
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
