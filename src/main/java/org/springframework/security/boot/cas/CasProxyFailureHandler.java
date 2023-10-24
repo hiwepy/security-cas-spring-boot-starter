@@ -23,12 +23,12 @@ public class CasProxyFailureHandler extends ListenedAuthenticationFailureHandler
 	private SecurityCasAuthcProperties authcProperties;
 	
 	public CasProxyFailureHandler(SecurityCasAuthcProperties authcProperties) {
-		super(authcProperties.getLoginUrl());
+		super(authcProperties.getServerLoginUrl());
 		this.authcProperties = authcProperties;
 	}
 	
 	public CasProxyFailureHandler(List<AuthenticationListener> authenticationListeners, SecurityCasAuthcProperties authcProperties) {
-		super(authenticationListeners, authcProperties.getLoginUrl());
+		super(authenticationListeners, authcProperties.getServerLoginUrl());
 		this.authcProperties = authcProperties;
 	}
 	

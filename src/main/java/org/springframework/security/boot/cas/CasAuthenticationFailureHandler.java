@@ -25,12 +25,12 @@ public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailu
 	private SecurityCasAuthcProperties authcProperties;
 
 	public CasAuthenticationFailureHandler(SecurityCasAuthcProperties authcProperties) {
-		super(authcProperties.getLoginUrl());
+		super(authcProperties.getServerLoginUrl());
 		this.authcProperties = authcProperties;
 	}
 
 	public CasAuthenticationFailureHandler(List<AuthenticationListener> authenticationListeners, SecurityCasAuthcProperties authcProperties) {
-		super(authenticationListeners, authcProperties.getLoginUrl());
+		super(authenticationListeners, authcProperties.getServerLoginUrl());
 		this.authcProperties = authcProperties;
 	}
 

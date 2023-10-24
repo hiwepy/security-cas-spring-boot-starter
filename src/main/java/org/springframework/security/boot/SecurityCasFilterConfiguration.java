@@ -81,7 +81,7 @@ public class SecurityCasFilterConfiguration {
 		ServiceProperties serviceProperties = new ServiceProperties();
 		serviceProperties.setArtifactParameter(authcProperties.getArtifactParameterName());
 		serviceProperties.setAuthenticateAllArtifacts(authcProperties.isAuthenticateAllArtifacts());
-		serviceProperties.setSendRenew(authcProperties.isRenew());
+		serviceProperties.setSendRenew(authcProperties.getRenew());
 		serviceProperties.setService(authcProperties.getServiceUrl());
 		serviceProperties.setServiceParameter(authcProperties.getServiceParameterName());
 		return serviceProperties;

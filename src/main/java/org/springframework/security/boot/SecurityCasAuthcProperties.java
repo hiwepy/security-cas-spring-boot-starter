@@ -7,6 +7,7 @@ import org.jasig.cas.client.configuration.ConfigurationKeys;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.lang.NonNull;
 import org.springframework.security.boot.biz.property.SecurityAuthcProperties;
 import org.springframework.security.boot.biz.property.SecurityHeaderCorsProperties;
 import org.springframework.security.boot.biz.property.SecurityHeaderCsrfProperties;
@@ -50,28 +51,23 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	
 	/** Authorization Path Pattern */
 	private String[] assertionPathPatterns = new String[] {"/*"};
-	
+
 	/**
-	 * The location of the CAS server login URL, i.e. https://localhost:8443/cas/login
+	 * CAS server URL E.g. https://example.com/cas or https://cas.example. Required.
 	 */
-	private String loginUrl;
+	private String serverUrlPrefix;
+	/**
+	 * CAS server login URL E.g. https://example.com/cas/login or https://cas.example/login. Required.
+	 */
+	private String serverLoginUrl;
 	/**
 	 * The location of the CAS server logout URL, i.e. https://localhost:8443/cas/logout
 	 */
-	private String logoutUrl;
+	private String serverLogoutUrl;
 	/**
-	 * The location of the CAS server rest URL, i.e. https://localhost:8443/cas/v1/tickets
-	 */
-	private String restUrl;
-	/** 
-	 * The prefix url of the CAS server. i.e.https://localhost:8443/cas 
-	 */
-	private String prefixUrl;
-	/** 
-	 * The url where the application is redirected if the CAS service ticket validation failed (example : /mycontextpatch/cas_error.jsp) 
+	 * The url where the application is redirected if the CAS service ticket validation failed (example : /mycontextpatch/cas_error.jsp)
 	 */
 	private String failureUrl;
-
 	/**
 	 *  The Map of key/value pairs associated with this principal.
 	 */
@@ -140,7 +136,7 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 * Specifies whether gateway=true should be sent to the CAS server. Valid values
 	 * are either true/false (or no value at all)
 	 */
-	private boolean gateway = false;
+	private Boolean gateway = Boolean.FALSE;
 
     /** Parameter name that stores logout request for SLO */
     private String logoutParameterName = ConfigurationKeys.LOGOUT_PARAMETER_NAME.getDefaultValue();
@@ -172,7 +168,7 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 * are either true/false (or no value at all). Note that renew cannot be
 	 * specified as local init-param setting..
 	 */
-	private boolean renew = false;
+	private Boolean renew = Boolean.FALSE;
 	
 
     /** Parameter name that stores the state of the CAS server webflow for the callback */
@@ -193,14 +189,13 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 * 
 	 */
 	private String serviceUrl;
-	
+
 	/**
 	 * Specifies the name of the request parameter on where to find the service
 	 * (i.e. service).
 	 */
 	private String serviceParameterName = ServiceProperties.DEFAULT_CAS_SERVICE_PARAMETER;
 
-	
 	/**
 	 * A reference to a properties file that includes SSL settings for client-side
 	 * SSL config, used during back-channel calls. The configuration includes keys
