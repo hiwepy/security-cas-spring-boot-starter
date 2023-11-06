@@ -28,12 +28,12 @@ import javax.servlet.http.HttpServletRequest;
 public class CasUrlUtils {
 
 	public static String constructLogoutRedirectUrl(SecurityCasAuthcProperties authcProperties) {
-		return CommonUtils.constructRedirectUrl(authcProperties.getLogoutUrl(), authcProperties.getServiceParameterName(),
+		return CommonUtils.constructRedirectUrl(authcProperties.getServerLogoutUrl(), authcProperties.getServiceParameterName(),
 				authcProperties.getServiceUrl(), authcProperties.getRenew(), authcProperties.getGateway());
 	}
 
 	public static String constructLoginRedirectUrl(SecurityCasAuthcProperties authcProperties) {
-		return CommonUtils.constructRedirectUrl(authcProperties.getLoginUrl(), authcProperties.getServiceParameterName(),
+		return CommonUtils.constructRedirectUrl(authcProperties.getServerLoginUrl(), authcProperties.getServiceParameterName(),
 				authcProperties.getServiceUrl(), authcProperties.getRenew(), authcProperties.getGateway());
 	}
 
@@ -51,7 +51,7 @@ public class CasUrlUtils {
 		if(StringUtils.isNotBlank(targetUrl)){
 			serviceUrl = CasUrlUtils.addParameter(serviceUrl,authcProperties.getTargetUrlParameter(),targetUrl,false);
 		}
-		return CommonUtils.constructRedirectUrl(authcProperties.getLoginUrl(),
+		return CommonUtils.constructRedirectUrl(authcProperties.getServerLoginUrl(),
 				authcProperties.getServiceParameterName(), serviceUrl,
 				authcProperties.getRenew(), false);
 	}
@@ -64,7 +64,7 @@ public class CasUrlUtils {
 	 * @return the redirect url. CANNOT be NULL.
 	 */
 	public static String constructFailureRedirectUrl(SecurityCasAuthcProperties authcProperties) {
-		return CommonUtils.constructRedirectUrl(authcProperties.getLoginUrl(),
+		return CommonUtils.constructRedirectUrl(authcProperties.getServerLoginUrl(),
 				authcProperties.getServiceParameterName(), authcProperties.getFailureUrl(),
 				authcProperties.getRenew(), false);
 	}

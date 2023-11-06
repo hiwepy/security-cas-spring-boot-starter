@@ -62,10 +62,10 @@ spring:
         always-use-default-target-url: true
         default-target-url: /portal  
         gateway: false
-        login-url: http://10.30.186.104/sso/login
-        logout-url: http://10.30.186.104/sso/logout
-        prefix-url: http://10.30.186.104/sso/
-        protocol: cas20-proxy
+        server-login-url: http://10.30.186.104/sso/login
+        server-logout-url: http://10.30.186.104/sso/logout
+        server-url-prefix: http://10.30.186.104/sso/
+        protocol: cas30
         proxy-receptor-url: /authz/login/cas-proxy
         proxy-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas-proxy
         renew: false

@@ -30,12 +30,12 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 	private JwtPayloadRepository jwtPayloadRepository;
 
 	public CasAuthenticationSuccessHandler(SecurityCasAuthcProperties authcProperties) {
-		super(authcProperties.getLoginUrl());
+		super(authcProperties.getServerLoginUrl());
 		this.authcProperties = authcProperties;
 	}
 
 	public CasAuthenticationSuccessHandler(List<AuthenticationListener> authenticationListeners, SecurityCasAuthcProperties authcProperties) {
-		super(authenticationListeners, authcProperties.getLoginUrl());
+		super(authenticationListeners, authcProperties.getServerLoginUrl());
 		this.authcProperties = authcProperties;
 	}
 

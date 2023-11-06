@@ -78,7 +78,7 @@ public class CasTicketValidatorConfiguration {
     }
 
     protected TicketValidator buildCas10TicketValidator(final SecurityCasAuthcProperties casProperties) {
-        final Cas10TicketValidator cas10TicketValidator = new Cas10TicketValidator(casProperties.getPrefixUrl());
+        final Cas10TicketValidator cas10TicketValidator = new Cas10TicketValidator(casProperties.getServerUrlPrefix());
         cas10TicketValidator.setEncoding(casProperties.getEncoding());
         cas10TicketValidator.setRenew(casProperties.getRenew());
         return cas10TicketValidator;
@@ -86,7 +86,7 @@ public class CasTicketValidatorConfiguration {
 
     protected TicketValidator buildCas20TicketValidator(final SecurityCasAuthcProperties casProperties) {
         
-    	final Cas20ServiceTicketValidator cas20ServiceTicketValidator = new Cas20ServiceTicketValidator(casProperties.getPrefixUrl());
+    	final Cas20ServiceTicketValidator cas20ServiceTicketValidator = new Cas20ServiceTicketValidator(casProperties.getServerUrlPrefix());
         cas20ServiceTicketValidator.setEncoding(casProperties.getEncoding());
         cas20ServiceTicketValidator.setRenew(casProperties.getRenew());
        
@@ -94,7 +94,7 @@ public class CasTicketValidatorConfiguration {
         	
         	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(casProperties));
         	if(proxyRetriever == null) {
-        		proxyRetriever = new Cas20ProxyRetriever(casProperties.getPrefixUrl(), casProperties.getEncoding(), urlConnectionFactory);
+        		proxyRetriever = new Cas20ProxyRetriever(casProperties.getServerUrlPrefix(), casProperties.getEncoding(), urlConnectionFactory);
         	}
         	cas20ServiceTicketValidator.setProxyRetriever(proxyRetriever);
         	cas20ServiceTicketValidator.setProxyCallbackUrl(casProperties.getProxyCallbackUrl());
@@ -105,7 +105,7 @@ public class CasTicketValidatorConfiguration {
     }
 
     protected TicketValidator buildCas20ProxyTicketValidator(final SecurityCasAuthcProperties casProperties) {
-        final Cas20ProxyTicketValidator cas20ProxyTicketValidator = new Cas20ProxyTicketValidator(casProperties.getPrefixUrl());
+        final Cas20ProxyTicketValidator cas20ProxyTicketValidator = new Cas20ProxyTicketValidator(casProperties.getServerUrlPrefix());
         cas20ProxyTicketValidator.setEncoding(casProperties.getEncoding());
         cas20ProxyTicketValidator.setRenew(casProperties.getRenew());
         cas20ProxyTicketValidator.setAcceptAnyProxy(casProperties.isAcceptAnyProxy());
@@ -115,7 +115,7 @@ public class CasTicketValidatorConfiguration {
         	
         	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(casProperties));
         	if(proxyRetriever == null) {
-        		proxyRetriever = new Cas20ProxyRetriever(casProperties.getPrefixUrl(), casProperties.getEncoding(), urlConnectionFactory);
+        		proxyRetriever = new Cas20ProxyRetriever(casProperties.getServerUrlPrefix(), casProperties.getEncoding(), urlConnectionFactory);
         	}
         	cas20ProxyTicketValidator.setProxyRetriever(proxyRetriever);
         	cas20ProxyTicketValidator.setProxyCallbackUrl(casProperties.getProxyCallbackUrl());
@@ -127,7 +127,7 @@ public class CasTicketValidatorConfiguration {
     }
 
     protected TicketValidator buildCas30TicketValidator(final SecurityCasAuthcProperties casProperties) {
-        final Cas30ServiceTicketValidator cas30ServiceTicketValidator = new Cas30ServiceTicketValidator(casProperties.getPrefixUrl());
+        final Cas30ServiceTicketValidator cas30ServiceTicketValidator = new Cas30ServiceTicketValidator(casProperties.getServerUrlPrefix());
         
         cas30ServiceTicketValidator.setEncoding(casProperties.getEncoding());
         cas30ServiceTicketValidator.setRenew(casProperties.getRenew());
@@ -136,7 +136,7 @@ public class CasTicketValidatorConfiguration {
         	
         	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(casProperties));
         	if(proxyRetriever == null) {
-        		proxyRetriever = new Cas20ProxyRetriever(casProperties.getPrefixUrl(), casProperties.getEncoding(), urlConnectionFactory);
+        		proxyRetriever = new Cas20ProxyRetriever(casProperties.getServerUrlPrefix(), casProperties.getEncoding(), urlConnectionFactory);
         	}
         	cas30ServiceTicketValidator.setProxyRetriever(proxyRetriever);
         	cas30ServiceTicketValidator.setProxyCallbackUrl(casProperties.getProxyCallbackUrl());
@@ -147,7 +147,7 @@ public class CasTicketValidatorConfiguration {
     }
 
     protected TicketValidator buildCas30ProxyTicketValidator(final SecurityCasAuthcProperties casProperties) {
-        final Cas30ProxyTicketValidator cas30ProxyTicketValidator = new Cas30ProxyTicketValidator(casProperties.getPrefixUrl());
+        final Cas30ProxyTicketValidator cas30ProxyTicketValidator = new Cas30ProxyTicketValidator(casProperties.getServerUrlPrefix());
         cas30ProxyTicketValidator.setEncoding(casProperties.getEncoding());
         cas30ProxyTicketValidator.setRenew(casProperties.getRenew());
         cas30ProxyTicketValidator.setAcceptAnyProxy(casProperties.isAcceptAnyProxy());
@@ -157,7 +157,7 @@ public class CasTicketValidatorConfiguration {
         	
         	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(casProperties));
         	if(proxyRetriever == null) {
-        		proxyRetriever = new Cas20ProxyRetriever(casProperties.getPrefixUrl(), casProperties.getEncoding(), urlConnectionFactory);
+        		proxyRetriever = new Cas20ProxyRetriever(casProperties.getServerUrlPrefix(), casProperties.getEncoding(), urlConnectionFactory);
         	}
         	cas30ProxyTicketValidator.setProxyRetriever(proxyRetriever);
         	cas30ProxyTicketValidator.setProxyCallbackUrl(casProperties.getProxyCallbackUrl());
@@ -168,7 +168,7 @@ public class CasTicketValidatorConfiguration {
     }
     
     protected TicketValidator buildSAMLTicketValidator(final SecurityCasAuthcProperties casProperties) {
-    	 final Saml11TicketValidator saml11TicketValidator = new Saml11TicketValidator(casProperties.getPrefixUrl());
+    	 final Saml11TicketValidator saml11TicketValidator = new Saml11TicketValidator(casProperties.getServerUrlPrefix());
          saml11TicketValidator.setTolerance(casProperties.getTolerance());
          saml11TicketValidator.setEncoding(casProperties.getEncoding());
          saml11TicketValidator.setRenew(casProperties.getRenew());

@@ -13,7 +13,7 @@
 	<groupId>com.github.hiwepy</groupId>
 	<artifactId>security-cas-spring-boot-starter</artifactId>
 	<description>Spring Boot Starter For Spring Security With Cas</description>
-	<version>1.0.5-SNAPSHOT</version>
+	<version>1.0.6-SNAPSHOT</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<url>https://github.com/hiwepy/${project.artifactId}</url>
 	<packaging>jar</packaging>
@@ -50,10 +50,11 @@
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 		<repository>
-		    <id>ossrh</id>
-			<name>Maven Central Staging Repository</name>
-		    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-		  </repository>
+			<!--必须与 settings.xml 的 id 一致-->
+			<id>aiban-tianyin-core</id>
+			<name>core</name>
+			<url>https://aiban-maven.pkg.coding.net/repository/tianyin/core/</url>
+		</repository>
 	</distributionManagement>
 
 	<build>
