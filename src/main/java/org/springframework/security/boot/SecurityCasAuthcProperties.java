@@ -55,15 +55,15 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	/**
 	 * CAS server URL E.g. https://example.com/cas or https://cas.example. Required.
 	 */
-	private String serverUrlPrefix;
+	private String prefixUrl;
 	/**
 	 * CAS server login URL E.g. https://example.com/cas/login or https://cas.example/login. Required.
 	 */
-	private String serverLoginUrl;
+	private String loginUrl;
 	/**
 	 * The location of the CAS server logout URL, i.e. https://localhost:8443/cas/logout
 	 */
-	private String serverLogoutUrl;
+	private String logoutUrl;
 	/**
 	 * The url where the application is redirected if the CAS service ticket validation failed (example : /mycontextpatch/cas_error.jsp)
 	 */
