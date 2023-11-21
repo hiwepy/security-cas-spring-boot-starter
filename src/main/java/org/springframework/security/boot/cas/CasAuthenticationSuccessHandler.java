@@ -1,16 +1,6 @@
 package org.springframework.security.boot.cas;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.biz.ListenedAuthenticationSuccessHandler;
@@ -18,6 +8,12 @@ import org.springframework.security.boot.biz.authentication.AuthenticationListen
 import org.springframework.security.boot.biz.userdetails.JwtPayloadRepository;
 import org.springframework.security.boot.utils.CasUrlUtils;
 import org.springframework.security.core.Authentication;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Cas认证请求成功后的处理实现
@@ -71,37 +67,30 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 	protected void handle(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
 
-		// 前端跳转代理
-		if(authcProperties.isFrontendProxy()) {
-			//追加重定向路由
-			String parameterUrl = request.getParameter(authcProperties.getTargetUrlParameter());
-			String frontendTargetUrl = authcProperties.getFrontendTargetUrl();
-			if(StringUtils.isNotBlank(parameterUrl)){
-				frontendTargetUrl = parameterUrl;
-			}
-			// 签发jwt
-	    	String tokenString = getJwtPayloadRepository().issueJwt((AbstractAuthenticationToken) authentication);
-			// 重定向
-	        String targetUrl = CasUrlUtils.addParameter(frontendTargetUrl, "token", tokenString,true);
-	        	   targetUrl = CasUrlUtils.addParameter(targetUrl, getTargetUrlParameter(), determineTargetUrl(request, response),true);
-			String jsessionid = request.getSession(false).getId();
-			//返回sessionid ,前端统一会话用
-			targetUrl = CasUrlUtils.addParameter(targetUrl, "jsessionid", jsessionid,true);
-			logger.debug("jsessionid :" + jsessionid);
-	        log.debug("redirect :" + targetUrl);
-	        log.debug("token : " + tokenString);
+		// get target Url
+		String targetUrl = determineTargetUrl(request, response, authentication);
 
-			if (response.isCommitted()) {
-				log.debug("Response has already been committed. Unable to redirect to " + targetUrl);
-				return;
-			}
-			response.sendRedirect(targetUrl);
-			//getRedirectStrategy().sendRedirect(request, response, targetUrl);
-
-		} else {
-			super.handle(request, response, authentication);
+		if (response.isCommitted()) {
+			log.debug("Response has already been committed. Unable to redirect to "
+					+ targetUrl);
+			return;
 		}
+
+		// 签发jwt
+		String tokenString = getJwtPayloadRepository().issueJwt((AbstractAuthenticationToken) authentication);
+		// 地址添加token参数
+		targetUrl = CasUrlUtils.addParameter(targetUrl, "token", tokenString,true);
+		// 地址添加sessionid参数 ,前端统一会话用
+		String jsessionid = request.getSession(false).getId();
+		targetUrl = CasUrlUtils.addParameter(targetUrl, "jsessionid", jsessionid,true);
+		log.debug("token : " + tokenString);
+		log.debug("jsessionid :" + jsessionid);
+		log.debug("redirect :" + targetUrl);
+
+		getRedirectStrategy().sendRedirect(request, response, targetUrl);
+
 	}
+
 
 	public JwtPayloadRepository getJwtPayloadRepository() {
 		return jwtPayloadRepository;
