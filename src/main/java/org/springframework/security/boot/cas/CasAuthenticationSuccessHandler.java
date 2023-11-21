@@ -8,6 +8,7 @@ import org.springframework.security.boot.biz.authentication.AuthenticationListen
 import org.springframework.security.boot.biz.userdetails.JwtPayloadRepository;
 import org.springframework.security.boot.utils.CasUrlUtils;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -75,7 +76,6 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 					+ targetUrl);
 			return;
 		}
-
 		// 签发jwt
 		String tokenString = getJwtPayloadRepository().issueJwt((AbstractAuthenticationToken) authentication);
 		// 地址添加token参数
@@ -83,12 +83,18 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 		// 地址添加sessionid参数 ,前端统一会话用
 		String jsessionid = request.getSession(false).getId();
 		targetUrl = CasUrlUtils.addParameter(targetUrl, "jsessionid", jsessionid,true);
+
+		// 前端跳转代理
+		if(authcProperties.isFrontendProxy() && StringUtils.hasText(authcProperties.getFrontendTargetUrl())) {
+			// 追加重定向路由
+			targetUrl = CasUrlUtils.addParameter(targetUrl, authcProperties.getTargetUrlParameter(), authcProperties.getFrontendTargetUrl(),true);
+		}
+
 		log.debug("token : " + tokenString);
 		log.debug("jsessionid :" + jsessionid);
 		log.debug("redirect :" + targetUrl);
 
 		getRedirectStrategy().sendRedirect(request, response, targetUrl);
-
 	}
 
 

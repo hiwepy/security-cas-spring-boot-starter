@@ -58,9 +58,9 @@ spring:
         - comsys_teaching_number
         continue-chain-before-successful-authentication: false
         frontend-proxy: true
-        frontend-target-url: http://10.30.186.134:8089/#/client
+        frontend-target-url: /portal
         always-use-default-target-url: true
-        default-target-url: /portal  
+        default-target-url: http://10.30.186.134:8089/#/client
         gateway: false
         server-login-url: http://10.30.186.104/sso/login
         server-logout-url: http://10.30.186.104/sso/logout
