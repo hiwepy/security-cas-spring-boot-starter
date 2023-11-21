@@ -145,7 +145,7 @@ public class SecurityCasFilterConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean(name = "casAuthenticationEntryPoint")
+	@ConditionalOnMissingBean
 	public CasAuthenticationEntryPoint casAuthenticationEntryPoint(
 			SecurityCasAuthcProperties authcProperties,
 			ServerProperties serverProperties,
@@ -161,7 +161,7 @@ public class SecurityCasFilterConfiguration {
 	}
 	
 	@Bean
-	@ConditionalOnMissingBean(name = "casAuthenticationSuccessHandler")
+	@ConditionalOnMissingBean
 	public CasAuthenticationSuccessHandler casAuthenticationSuccessHandler(SecurityCasAuthcProperties authcProperties,
 			@Autowired(required = false) JwtPayloadRepository jwtPayloadRepository) {
 		
