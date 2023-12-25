@@ -176,7 +176,7 @@ public class SecurityCasFilterConfiguration {
 		return successHandler;
 		
 	}
-	
+
 	@Configuration
 	@ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
 	@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityBizProperties.class })
@@ -190,8 +190,8 @@ public class SecurityCasFilterConfiguration {
 	    private final AuthenticationEntryPoint authenticationEntryPoint;
 		private final ServiceAuthenticationDetailsSource authenticationDetailsSource;
 	    private final CasAuthenticationSuccessHandler authenticationSuccessHandler;
-	    private final AuthenticationFailureHandler authenticationFailureHandler;
-	    private final AuthenticationFailureHandler proxyFailureHandler;
+	    private final CasAuthenticationFailureHandler authenticationFailureHandler;
+	    private final CasProxyFailureHandler proxyFailureHandler;
 	    private final ProxyGrantingTicketStorage proxyGrantingTicketStorage;
     	private final RememberMeServices rememberMeServices;
     	private final RedirectStrategy redirectStrategy;
@@ -208,11 +208,13 @@ public class SecurityCasFilterConfiguration {
 				ObjectProvider<LocaleContextFilter> localeContextProvider,
 				ObjectProvider<CasAuthenticationProvider> authenticationProvider,
 				ObjectProvider<CasAuthenticationSuccessHandler> authenticationSuccessHandlerProvider,
+				ObjectProvider<CasAuthenticationFailureHandler> authenticationFailureHandlerProvider,
 				ObjectProvider<ServiceAuthenticationDetailsSource> authenticationDetailsSourceProvider,
    				ObjectProvider<CasAuthenticationEntryPoint> authenticationEntryPointProvider,
    				ObjectProvider<CaptchaResolver> captchaResolverProvider,
    				ObjectProvider<ObjectMapper> objectMapperProvider,
-   				ObjectProvider<ProxyGrantingTicketStorage> proxyGrantingTicketStorageProvider,
+   				ObjectProvider<CasProxyFailureHandler> proxyFailureHandlerProvider,
+				ObjectProvider<ProxyGrantingTicketStorage> proxyGrantingTicketStorageProvider,
    				ObjectProvider<RememberMeServices> rememberMeServicesProvider,
    				ObjectProvider<SessionMappingStorage> sessionMappingStorageProvider,
    				ObjectProvider<SessionAuthenticationStrategy> sessionAuthenticationStrategyProvider
@@ -228,8 +230,8 @@ public class SecurityCasFilterConfiguration {
    			this.authenticationDetailsSource = authenticationDetailsSourceProvider.getIfAvailable();
    			this.authenticationEntryPoint =  authenticationEntryPointProvider.getIfAvailable();
    			this.authenticationSuccessHandler = authenticationSuccessHandlerProvider.getIfAvailable();
-   			this.authenticationFailureHandler = authenticationFailureHandler();
-   			this.proxyFailureHandler = proxyFailureHandler();
+   			this.authenticationFailureHandler = authenticationFailureHandlerProvider.getIfAvailable( () -> authenticationFailureHandler());
+   			this.proxyFailureHandler = proxyFailureHandlerProvider.getIfAvailable( () -> proxyFailureHandler());
    			this.proxyGrantingTicketStorage = proxyGrantingTicketStorageProvider.getIfAvailable();
    			this.redirectStrategy = WebSecurityUtils.redirectStrategy(authcProperties);
    			this.rememberMeServices = rememberMeServicesProvider.getIfAvailable();
@@ -237,7 +239,7 @@ public class SecurityCasFilterConfiguration {
    			this.sessionAuthenticationStrategy = sessionAuthenticationStrategyProvider.getIfAvailable();
 		}
 		
-		public AuthenticationFailureHandler authenticationFailureHandler() {
+		public CasAuthenticationFailureHandler authenticationFailureHandler() {
 	    	
 			CasAuthenticationFailureHandler failureHandler = new CasAuthenticationFailureHandler(authcProperties);
 
@@ -249,7 +251,7 @@ public class SecurityCasFilterConfiguration {
 			
 		}
 	    
-	   	public AuthenticationFailureHandler proxyFailureHandler() {
+	   	public CasProxyFailureHandler proxyFailureHandler() {
 	    	
 	    	CasProxyFailureHandler failureHandler = new CasProxyFailureHandler(authcProperties);
 			
