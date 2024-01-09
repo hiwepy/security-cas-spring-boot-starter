@@ -24,9 +24,10 @@ import org.jasig.cas.client.ssl.HttpURLConnectionFactory;
 import org.jasig.cas.client.ssl.HttpsURLConnectionFactory;
 import org.jasig.cas.client.util.CommonUtils;
 import org.jasig.cas.client.validation.*;
-import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasAuthcProperties.CasProtocol;
+import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.cas.exception.CasAuthenticationServiceException;
+import org.springframework.security.boot.cas.ticket.ProxyGrantingTicketStorageProvider;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.FileInputStream;
@@ -37,132 +38,132 @@ import java.util.Properties;
 public class CasTicketValidatorConfiguration {
 
     /* The storage location of the proxy granting tickets. */
-    private ProxyGrantingTicketStorage proxyGrantingTicketStorage;
+    private ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider;
 
     /* Implementation of the proxy retriever. */
     private ProxyRetriever proxyRetriever;
     
-	public CasTicketValidatorConfiguration(ProxyGrantingTicketStorage proxyGrantingTicketStorage) {
-		this.proxyGrantingTicketStorage = proxyGrantingTicketStorage;
+	public CasTicketValidatorConfiguration(ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider) {
+		this.proxyGrantingTicketStorageProvider = proxyGrantingTicketStorageProvider;
 	}
 
 	/*
 	 * Constructs a Cas20ServiceTicketValidator or a Cas20ProxyTicketValidator based on supplied parameters.
 	 */
-	public TicketValidator retrieveTicketValidator(final SecurityCasAuthcProperties casProperties) {
-        if (casProperties.getProtocol() == CasProtocol.CAS10) {
-            return buildCas10TicketValidator(casProperties);
-        } else if (casProperties.getProtocol() == CasProtocol.CAS20) {
-            return buildCas20TicketValidator(casProperties);
-        } else if (casProperties.getProtocol() == CasProtocol.CAS20_PROXY) {
-            return buildCas20ProxyTicketValidator(casProperties);
-        } else if (casProperties.getProtocol() == CasProtocol.CAS30) {
-            return buildCas30TicketValidator(casProperties);
-        } else if (casProperties.getProtocol() == CasProtocol.CAS30_PROXY) {
-            return buildCas30ProxyTicketValidator(casProperties);
-        } else if (casProperties.getProtocol() == CasProtocol.SAML) {
-            return buildSAMLTicketValidator(casProperties);
+	public TicketValidator retrieveTicketValidator(final SecurityCasServerProperties serverProperties) {
+        if (serverProperties.getProtocol() == CasProtocol.CAS10) {
+            return buildCas10TicketValidator(serverProperties);
+        } else if (serverProperties.getProtocol() == CasProtocol.CAS20) {
+            return buildCas20TicketValidator(serverProperties);
+        } else if (serverProperties.getProtocol() == CasProtocol.CAS20_PROXY) {
+            return buildCas20ProxyTicketValidator(serverProperties);
+        } else if (serverProperties.getProtocol() == CasProtocol.CAS30) {
+            return buildCas30TicketValidator(serverProperties);
+        } else if (serverProperties.getProtocol() == CasProtocol.CAS30_PROXY) {
+            return buildCas30ProxyTicketValidator(serverProperties);
+        } else if (serverProperties.getProtocol() == CasProtocol.SAML) {
+            return buildSAMLTicketValidator(serverProperties);
         } else {
-            throw new CasAuthenticationServiceException("Unable to initialize the TicketValidator for protocol: " + casProperties.getProtocol());
+            throw new CasAuthenticationServiceException("Unable to initialize the TicketValidator for protocol: " + serverProperties.getProtocol());
         }
     }
 
-    protected TicketValidator buildCas10TicketValidator(final SecurityCasAuthcProperties casProperties) {
-        final Cas10TicketValidator cas10TicketValidator = new Cas10TicketValidator(casProperties.getServerUrlPrefix());
-        cas10TicketValidator.setEncoding(casProperties.getEncoding());
-        cas10TicketValidator.setRenew(casProperties.getRenew());
+    protected TicketValidator buildCas10TicketValidator(final SecurityCasServerProperties serverProperties) {
+        final Cas10TicketValidator cas10TicketValidator = new Cas10TicketValidator(serverProperties.getServerUrlPrefix());
+        cas10TicketValidator.setEncoding(serverProperties.getEncoding());
+        cas10TicketValidator.setRenew(serverProperties.getRenew());
         return cas10TicketValidator;
     }
 
-    protected TicketValidator buildCas20TicketValidator(final SecurityCasAuthcProperties casProperties) {
+    protected TicketValidator buildCas20TicketValidator(final SecurityCasServerProperties serverProperties) {
         
-    	final Cas20ServiceTicketValidator cas20ServiceTicketValidator = new Cas20ServiceTicketValidator(casProperties.getServerUrlPrefix());
-        cas20ServiceTicketValidator.setEncoding(casProperties.getEncoding());
-        cas20ServiceTicketValidator.setRenew(casProperties.getRenew());
+    	final Cas20ServiceTicketValidator cas20ServiceTicketValidator = new Cas20ServiceTicketValidator(serverProperties.getServerUrlPrefix());
+        cas20ServiceTicketValidator.setEncoding(serverProperties.getEncoding());
+        cas20ServiceTicketValidator.setRenew(serverProperties.getRenew());
        
-        if( casProperties.isAcceptAnyProxy()) {
+        if( serverProperties.isAcceptAnyProxy()) {
         	
-        	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(casProperties));
+        	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(serverProperties));
         	if(proxyRetriever == null) {
-        		proxyRetriever = new Cas20ProxyRetriever(casProperties.getServerUrlPrefix(), casProperties.getEncoding(), urlConnectionFactory);
+        		proxyRetriever = new Cas20ProxyRetriever(serverProperties.getServerUrlPrefix(), serverProperties.getEncoding(), urlConnectionFactory);
         	}
         	cas20ServiceTicketValidator.setProxyRetriever(proxyRetriever);
-        	cas20ServiceTicketValidator.setProxyCallbackUrl(casProperties.getProxyCallbackUrl());
-        	cas20ServiceTicketValidator.setProxyGrantingTicketStorage(proxyGrantingTicketStorage);
+        	cas20ServiceTicketValidator.setProxyCallbackUrl(serverProperties.getProxyCallbackUrl());
+        	cas20ServiceTicketValidator.setProxyGrantingTicketStorage(proxyGrantingTicketStorageProvider.getProxyGrantingTicketStorage(serverProperties));
         	cas20ServiceTicketValidator.setURLConnectionFactory(urlConnectionFactory);
         }
         return cas20ServiceTicketValidator;
     }
 
-    protected TicketValidator buildCas20ProxyTicketValidator(final SecurityCasAuthcProperties casProperties) {
-        final Cas20ProxyTicketValidator cas20ProxyTicketValidator = new Cas20ProxyTicketValidator(casProperties.getServerUrlPrefix());
-        cas20ProxyTicketValidator.setEncoding(casProperties.getEncoding());
-        cas20ProxyTicketValidator.setRenew(casProperties.getRenew());
-        cas20ProxyTicketValidator.setAcceptAnyProxy(casProperties.isAcceptAnyProxy());
-        cas20ProxyTicketValidator.setAllowedProxyChains(CommonUtils.createProxyList(casProperties.getAllowedProxyChains()));
+    protected TicketValidator buildCas20ProxyTicketValidator(final SecurityCasServerProperties serverProperties) {
+        final Cas20ProxyTicketValidator cas20ProxyTicketValidator = new Cas20ProxyTicketValidator(serverProperties.getServerUrlPrefix());
+        cas20ProxyTicketValidator.setEncoding(serverProperties.getEncoding());
+        cas20ProxyTicketValidator.setRenew(serverProperties.getRenew());
+        cas20ProxyTicketValidator.setAcceptAnyProxy(serverProperties.isAcceptAnyProxy());
+        cas20ProxyTicketValidator.setAllowedProxyChains(CommonUtils.createProxyList(serverProperties.getAllowedProxyChains()));
         
-        if( casProperties.isAcceptAnyProxy()) {
+        if( serverProperties.isAcceptAnyProxy()) {
         	
-        	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(casProperties));
+        	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(serverProperties));
         	if(proxyRetriever == null) {
-        		proxyRetriever = new Cas20ProxyRetriever(casProperties.getServerUrlPrefix(), casProperties.getEncoding(), urlConnectionFactory);
+        		proxyRetriever = new Cas20ProxyRetriever(serverProperties.getServerUrlPrefix(), serverProperties.getEncoding(), urlConnectionFactory);
         	}
         	cas20ProxyTicketValidator.setProxyRetriever(proxyRetriever);
-        	cas20ProxyTicketValidator.setProxyCallbackUrl(casProperties.getProxyCallbackUrl());
-        	cas20ProxyTicketValidator.setProxyGrantingTicketStorage(proxyGrantingTicketStorage);
+        	cas20ProxyTicketValidator.setProxyCallbackUrl(serverProperties.getProxyCallbackUrl());
+        	cas20ProxyTicketValidator.setProxyGrantingTicketStorage(proxyGrantingTicketStorageProvider.getProxyGrantingTicketStorage(serverProperties));
         	cas20ProxyTicketValidator.setURLConnectionFactory(urlConnectionFactory);
         }
  
         return cas20ProxyTicketValidator;
     }
 
-    protected TicketValidator buildCas30TicketValidator(final SecurityCasAuthcProperties casProperties) {
-        final Cas30ServiceTicketValidator cas30ServiceTicketValidator = new Cas30ServiceTicketValidator(casProperties.getServerUrlPrefix());
+    protected TicketValidator buildCas30TicketValidator(final SecurityCasServerProperties serverProperties) {
+        final Cas30ServiceTicketValidator cas30ServiceTicketValidator = new Cas30ServiceTicketValidator(serverProperties.getServerUrlPrefix());
         
-        cas30ServiceTicketValidator.setEncoding(casProperties.getEncoding());
-        cas30ServiceTicketValidator.setRenew(casProperties.getRenew());
+        cas30ServiceTicketValidator.setEncoding(serverProperties.getEncoding());
+        cas30ServiceTicketValidator.setRenew(serverProperties.getRenew());
        
-        if( casProperties.isAcceptAnyProxy()) {
+        if( serverProperties.isAcceptAnyProxy()) {
         	
-        	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(casProperties));
+        	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(serverProperties));
         	if(proxyRetriever == null) {
-        		proxyRetriever = new Cas20ProxyRetriever(casProperties.getServerUrlPrefix(), casProperties.getEncoding(), urlConnectionFactory);
+        		proxyRetriever = new Cas20ProxyRetriever(serverProperties.getServerUrlPrefix(), serverProperties.getEncoding(), urlConnectionFactory);
         	}
         	cas30ServiceTicketValidator.setProxyRetriever(proxyRetriever);
-        	cas30ServiceTicketValidator.setProxyCallbackUrl(casProperties.getProxyCallbackUrl());
-        	cas30ServiceTicketValidator.setProxyGrantingTicketStorage(proxyGrantingTicketStorage);
+        	cas30ServiceTicketValidator.setProxyCallbackUrl(serverProperties.getProxyCallbackUrl());
+        	cas30ServiceTicketValidator.setProxyGrantingTicketStorage(proxyGrantingTicketStorageProvider.getProxyGrantingTicketStorage(serverProperties));
         	cas30ServiceTicketValidator.setURLConnectionFactory(urlConnectionFactory);
         }
         return cas30ServiceTicketValidator;
     }
 
-    protected TicketValidator buildCas30ProxyTicketValidator(final SecurityCasAuthcProperties casProperties) {
-        final Cas30ProxyTicketValidator cas30ProxyTicketValidator = new Cas30ProxyTicketValidator(casProperties.getServerUrlPrefix());
-        cas30ProxyTicketValidator.setEncoding(casProperties.getEncoding());
-        cas30ProxyTicketValidator.setRenew(casProperties.getRenew());
-        cas30ProxyTicketValidator.setAcceptAnyProxy(casProperties.isAcceptAnyProxy());
-        cas30ProxyTicketValidator.setAllowedProxyChains(CommonUtils.createProxyList(casProperties.getAllowedProxyChains()));
+    protected TicketValidator buildCas30ProxyTicketValidator(final SecurityCasServerProperties serverProperties) {
+        final Cas30ProxyTicketValidator cas30ProxyTicketValidator = new Cas30ProxyTicketValidator(serverProperties.getServerUrlPrefix());
+        cas30ProxyTicketValidator.setEncoding(serverProperties.getEncoding());
+        cas30ProxyTicketValidator.setRenew(serverProperties.getRenew());
+        cas30ProxyTicketValidator.setAcceptAnyProxy(serverProperties.isAcceptAnyProxy());
+        cas30ProxyTicketValidator.setAllowedProxyChains(CommonUtils.createProxyList(serverProperties.getAllowedProxyChains()));
         
-        if( casProperties.isAcceptAnyProxy()) {
+        if( serverProperties.isAcceptAnyProxy()) {
         	
-        	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(casProperties));
+        	HttpURLConnectionFactory urlConnectionFactory = new HttpsURLConnectionFactory( HttpsURLConnection.getDefaultHostnameVerifier(), getSSLConfig(serverProperties));
         	if(proxyRetriever == null) {
-        		proxyRetriever = new Cas20ProxyRetriever(casProperties.getServerUrlPrefix(), casProperties.getEncoding(), urlConnectionFactory);
+        		proxyRetriever = new Cas20ProxyRetriever(serverProperties.getServerUrlPrefix(), serverProperties.getEncoding(), urlConnectionFactory);
         	}
         	cas30ProxyTicketValidator.setProxyRetriever(proxyRetriever);
-        	cas30ProxyTicketValidator.setProxyCallbackUrl(casProperties.getProxyCallbackUrl());
-        	cas30ProxyTicketValidator.setProxyGrantingTicketStorage(proxyGrantingTicketStorage);
+        	cas30ProxyTicketValidator.setProxyCallbackUrl(serverProperties.getProxyCallbackUrl());
+        	cas30ProxyTicketValidator.setProxyGrantingTicketStorage(proxyGrantingTicketStorageProvider.getProxyGrantingTicketStorage(serverProperties));
         	cas30ProxyTicketValidator.setURLConnectionFactory(urlConnectionFactory);
         }
         return cas30ProxyTicketValidator;
     }
     
-    protected TicketValidator buildSAMLTicketValidator(final SecurityCasAuthcProperties casProperties) {
-    	 final Saml11TicketValidator saml11TicketValidator = new Saml11TicketValidator(casProperties.getServerUrlPrefix());
-         saml11TicketValidator.setTolerance(casProperties.getTolerance());
-         saml11TicketValidator.setEncoding(casProperties.getEncoding());
-         saml11TicketValidator.setRenew(casProperties.getRenew());
-         saml11TicketValidator.setCustomParameters(casProperties.getCustomParams());
+    protected TicketValidator buildSAMLTicketValidator(final SecurityCasServerProperties serverProperties) {
+    	 final Saml11TicketValidator saml11TicketValidator = new Saml11TicketValidator(serverProperties.getServerUrlPrefix());
+         saml11TicketValidator.setTolerance(serverProperties.getTolerance());
+         saml11TicketValidator.setEncoding(serverProperties.getEncoding());
+         saml11TicketValidator.setRenew(serverProperties.getRenew());
+         saml11TicketValidator.setCustomParameters(serverProperties.getCustomParams());
         return saml11TicketValidator;
     }
 	
@@ -173,9 +174,9 @@ public class CasTicketValidatorConfiguration {
 	 * @return Properties that can contains key/trust info for Client Side
 	 *         Certificates
 	 */
-	protected Properties getSSLConfig(SecurityCasAuthcProperties casProperties) {
+	protected Properties getSSLConfig(SecurityCasServerProperties serverProperties) {
 		final Properties properties = new Properties();
-		final String fileName = casProperties.getSslConfigFile();
+		final String fileName = serverProperties.getSslConfigFile();
 
 		if (fileName != null) {
 			FileInputStream fis = null;

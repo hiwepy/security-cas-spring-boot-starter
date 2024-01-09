@@ -15,58 +15,76 @@
  */
 package org.springframework.security.boot.utils;
 
+import org.apache.commons.lang3.StringUtils;
+import org.jasig.cas.client.util.CommonUtils;
+import org.springframework.security.boot.SecurityCasServerProperties;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-
-import org.apache.commons.lang3.StringUtils;
-import org.jasig.cas.client.util.CommonUtils;
-import org.springframework.security.boot.SecurityCasAuthcProperties;
-
-import javax.servlet.http.HttpServletRequest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CasUrlUtils {
 
-	public static String constructLogoutRedirectUrl(SecurityCasAuthcProperties authcProperties) {
-		return CommonUtils.constructRedirectUrl(authcProperties.getServerLogoutUrl(), authcProperties.getServiceParameterName(),
-				authcProperties.getServiceUrl(), authcProperties.getRenew(), authcProperties.getGateway());
+	/**
+	 * 获取字段值
+	 *
+	 * @param urlStr
+	 * @param field
+	 * @return
+	 */
+	public static String getFieldValue(String urlStr, String field) {
+		String result = "";
+		Pattern pXM = Pattern.compile(field + "=([^&]*)");
+		Matcher mXM = pXM.matcher(urlStr);
+		while (mXM.find()) {
+			result += mXM.group(1);
+		}
+		return result;
 	}
 
-	public static String constructLoginRedirectUrl(SecurityCasAuthcProperties authcProperties) {
-		return CommonUtils.constructRedirectUrl(authcProperties.getServerLoginUrl(), authcProperties.getServiceParameterName(),
-				authcProperties.getServiceUrl(), authcProperties.getRenew(), authcProperties.getGateway());
+	public static String constructLogoutRedirectUrl(SecurityCasServerProperties serverProperties) {
+		return CommonUtils.constructRedirectUrl(serverProperties.getServerLogoutUrl(), serverProperties.getServiceParameterName(),
+				serverProperties.getServiceUrl(), serverProperties.getRenew(), serverProperties.getGateway());
+	}
+
+	public static String constructLoginRedirectUrl(SecurityCasServerProperties serverProperties) {
+		return CommonUtils.constructRedirectUrl(serverProperties.getServerLoginUrl(), serverProperties.getServiceParameterName(),
+				serverProperties.getServiceUrl(), serverProperties.getRenew(), serverProperties.getGateway());
 	}
 
 	/**
 	 * Constructs the Url for Redirection to the CAS server. Default implementation relies
 	 * on the CAS client to do the bulk of the work.
 	 *
-	 * @param authcProperties the service url that should be included.
+	 * @param serverProperties the service url that should be included.
 	 * @return the redirect url. CANNOT be NULL.
 	 */
-	public static String constructRedirectUrl(HttpServletRequest request,SecurityCasAuthcProperties authcProperties) {
+	public static String constructRedirectUrl(HttpServletRequest request, SecurityCasServerProperties serverProperties) {
 		//追加重定向路由
-		String targetUrl = request.getParameter(authcProperties.getTargetUrlParameter());
-		String serviceUrl = authcProperties.getServiceUrl();
+		String targetUrl = request.getParameter(serverProperties.getTargetUrlParameter());
+		String serviceUrl = serverProperties.getServiceUrl();
 		if(StringUtils.isNotBlank(targetUrl)){
-			serviceUrl = CasUrlUtils.addParameter(serviceUrl,authcProperties.getTargetUrlParameter(),targetUrl,false);
+			serviceUrl = CasUrlUtils.addParameter(serviceUrl,serverProperties.getTargetUrlParameter(),targetUrl,false);
 		}
-		return CommonUtils.constructRedirectUrl(authcProperties.getServerLoginUrl(),
-				authcProperties.getServiceParameterName(), serviceUrl,
-				authcProperties.getRenew(), false);
+		return CommonUtils.constructRedirectUrl(serverProperties.getServerLoginUrl(),
+				serverProperties.getServiceParameterName(), serviceUrl,
+				serverProperties.getRenew(), false);
 	}
 	
 	/**
 	 * Constructs the Url for Redirection to the CAS server. Default implementation relies
 	 * on the CAS client to do the bulk of the work.
 	 *
-	 * @param authcProperties the service url that should be included.
+	 * @param serverProperties the service url that should be included.
 	 * @return the redirect url. CANNOT be NULL.
 	 */
-	public static String constructFailureRedirectUrl(SecurityCasAuthcProperties authcProperties) {
-		return CommonUtils.constructRedirectUrl(authcProperties.getServerLoginUrl(),
-				authcProperties.getServiceParameterName(), authcProperties.getFailureUrl(),
-				authcProperties.getRenew(), false);
+	public static String constructFailureRedirectUrl(SecurityCasServerProperties serverProperties) {
+		return CommonUtils.constructRedirectUrl(serverProperties.getServerLoginUrl(),
+				serverProperties.getServiceParameterName(), serverProperties.getFailureUrl(),
+				serverProperties.getRenew(), false);
 	}
 	
     /**

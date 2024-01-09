@@ -1,8 +1,10 @@
 package org.springframework.security.boot.cas;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
+import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.biz.ListenedAuthenticationSuccessHandler;
 import org.springframework.security.boot.biz.authentication.AuthenticationListener;
 import org.springframework.security.boot.biz.userdetails.JwtPayloadRepository;
@@ -27,12 +29,12 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 	private JwtPayloadRepository jwtPayloadRepository;
 
 	public CasAuthenticationSuccessHandler(SecurityCasAuthcProperties authcProperties) {
-		super(authcProperties.getServerLoginUrl());
+		super("");
 		this.authcProperties = authcProperties;
 	}
 
 	public CasAuthenticationSuccessHandler(List<AuthenticationListener> authenticationListeners, SecurityCasAuthcProperties authcProperties) {
-		super(authenticationListeners, authcProperties.getServerLoginUrl());
+		super(authenticationListeners, "");
 		this.authcProperties = authcProperties;
 	}
 
@@ -84,12 +86,6 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 		String jsessionid = request.getSession(false).getId();
 		targetUrl = CasUrlUtils.addParameter(targetUrl, "jsessionid", jsessionid,true);
 
-		// 前端跳转代理
-		if(authcProperties.isFrontendProxy() && StringUtils.hasText(authcProperties.getFrontendTargetUrl())) {
-			// 追加重定向路由
-			targetUrl = CasUrlUtils.addParameter(targetUrl, authcProperties.getTargetUrlParameter(), authcProperties.getFrontendTargetUrl(),true);
-		}
-
 		log.debug("token : " + tokenString);
 		log.debug("jsessionid :" + jsessionid);
 		log.debug("redirect :" + targetUrl);
@@ -97,6 +93,43 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 		getRedirectStrategy().sendRedirect(request, response, targetUrl);
 	}
 
+	@Override
+	/**
+	 * Builds the target URL according to the logic defined in the main class Javadoc.
+	 */
+	protected String determineTargetUrl(HttpServletRequest request,
+										HttpServletResponse response) {
+		// 1. 获取请求匹配的CasServerProperties
+		SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
+		if (serverProperties.isAlwaysUseDefaultTargetUrl()) {
+			return serverProperties.getDefaultTargetUrl();
+		}
+
+		// Check for the parameter and use that if available
+		String targetUrl = null;
+
+		if (serverProperties.getTargetUrlParameter() != null) {
+			targetUrl = request.getParameter(serverProperties.getTargetUrlParameter());
+
+			if (StringUtils.hasText(targetUrl)) {
+				logger.debug("Found targetUrlParameter in request: " + targetUrl);
+
+				return targetUrl;
+			}
+		}
+
+		if (serverProperties.isUseReferer() && !StringUtils.hasLength(targetUrl)) {
+			targetUrl = request.getHeader(HttpHeaders.REFERER);
+			logger.debug("Using Referer header: " + targetUrl);
+		}
+
+		if (!StringUtils.hasText(targetUrl)) {
+			targetUrl = serverProperties.getDefaultTargetUrl();
+			logger.debug("Using default Url: " + targetUrl);
+		}
+
+		return targetUrl;
+	}
 
 	public JwtPayloadRepository getJwtPayloadRepository() {
 		return jwtPayloadRepository;

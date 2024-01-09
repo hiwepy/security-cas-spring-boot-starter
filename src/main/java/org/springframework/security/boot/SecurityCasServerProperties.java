@@ -21,7 +21,6 @@ import lombok.ToString;
 import org.jasig.cas.client.configuration.ConfigurationKeys;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
 import org.springframework.security.cas.ServiceProperties;
-import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +51,27 @@ public class SecurityCasServerProperties {
 	 * CAS server Match Referer. Required.
 	 */
 	private String referer;
+
+	private String defaultTargetUrl = "/";
+
+	private boolean alwaysUseDefaultTargetUrl = false;
+
+	private boolean useReferer = false;
+
+	private boolean alwaysUseDefaultFailureUrl = false;
+	private String defaultFailureUrl;
+	private boolean forwardToDestination = false;
+	private boolean allowSessionCreation = true;
+
+
+	/**
+	 * If this property is set, the current request will be checked for this a parameter
+	 * with this name and the value used as the target URL if present.
+	 *
+	 * @param targetUrlParameter the name of the parameter containing the encoded target
+	 * URL. Defaults to null.
+	 */
+	private String targetUrlParameter = "target";
 	/**
 	 * CAS server URL E.g. https://example.com/cas or https://cas.example. Required.
 	 */
@@ -64,6 +84,15 @@ public class SecurityCasServerProperties {
 	 * The location of the CAS server logout URL, i.e. https://localhost:8443/cas/logout
 	 */
 	private String serverLogoutUrl;
+
+	/**
+	 * time, in milliseconds, before a {@link ProxyGrantingTicketHolder} is
+	 * considered expired and ready for removal.
+	 *
+	 * @see ProxyGrantingTicketStorageImpl#DEFAULT_TIMEOUT
+	 */
+	private long ticketTimeout = DEFAULT_TIMEOUT;
+
 	/**
 	 * The url where the application is redirected if the CAS service ticket validation failed (example : /mycontextpatch/cas_error.jsp)
 	 */
@@ -72,6 +101,11 @@ public class SecurityCasServerProperties {
 	 *  The Map of key/value pairs associated with this principal.
 	 */
 	private String[] attributes = new String[] {};
+	/**
+	 * Converts the returned attribute values to uppercase values.
+	 * true if it should convert, false otherwise.
+	 */
+	private boolean attributeConvertToUpperCase = false;
 
 	/**
 	 * Specifies the name of the request parameter on where to find the artifact (i.e. ticket).
@@ -86,10 +120,6 @@ public class SecurityCasServerProperties {
 
 	private boolean artifactParameterOverPost = false;
 
-	/**
-	 * Specifies whether any proxy is OK. Defaults to false.
-	 */
-	private boolean acceptAnyProxy = false;
 	/**
 	 * Specifies the proxy chain.
 	 * Each acceptable proxy chain should include a space-separated list of URLs (for exact match) or regular expressions of URLs (starting by the ^ character).
@@ -120,10 +150,6 @@ public class SecurityCasServerProperties {
 	 * By default, encoding is enabled.
 	 */
 	private boolean encodeServiceUrlWithSessionId = true;
-	/**
-	 * Defaults to true
-	 */
-	private boolean eagerlyCreateSessions = true;
 
 	/**
 	 * Whether Enable Front-end Authorization Proxy.
@@ -144,10 +170,13 @@ public class SecurityCasServerProperties {
 	/** The logout callback path configured at the CAS server, if there is one */
 	private String logoutCallbackPath;
 
-	private boolean ignoreInitConfiguration = true;
-
 	/** The protocol of the CAS Client. */
 	private SecurityCasAuthcProperties.CasProtocol protocol = SecurityCasAuthcProperties.CasProtocol.CAS20;
+
+	/**
+	 * Specifies whether any proxy is OK. Defaults to false.
+	 */
+	private boolean acceptAnyProxy = false;
 
 	/**
 	 * The URL to watch for PGTIOU/PGT responses from the CAS server. Should be
@@ -209,13 +238,6 @@ public class SecurityCasServerProperties {
 	 * synchronization. Defaults to 1000 msec
 	 */
 	private long tolerance = 5000L;
-	/**
-	 * time, in milliseconds, before a {@link ProxyGrantingTicketHolder} is
-	 * considered expired and ready for removal.
-	 *
-	 * @see ProxyGrantingTicketStorageImpl#DEFAULT_TIMEOUT
-	 */
-	private long timeout = DEFAULT_TIMEOUT;
 	/**
 	 * Whether to store the Assertion in session or not. If sessions are not used,
 	 * tickets will be required for each request. Defaults to true.

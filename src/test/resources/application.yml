@@ -1,8 +1,8 @@
 server:
   port: 8080
 
-################################################################################################################  
-###Spring Boot 相关组件（SpringMVC、Freemarker、Session、Cache、DataSource）配置：  
+################################################################################################################
+###Spring Boot 相关组件（SpringMVC、Freemarker、Session、Cache、DataSource）配置：
 ################################################################################################################
 spring:
   # 权限控制
@@ -41,42 +41,68 @@ spring:
       authc:
         path-pattern: /authz/login/cas
         accept-any-proxy: true
-        attributes:
-          - comsys_department
-          - comsys_post
-          - comsys_cardid
-          - comsys_post_type
-          - comsys_educational
-          - comsys_phone
-          - comsys_genders
-          - comsys_name
-          - comsys_loginid
-          - comsys_email
-          - comsys_role
-          - comsys_other_post
-          - comsys_usertype
-          - comsys_teaching_number
-        continue-chain-before-successful-authentication: false
-        frontend-proxy: true
-        frontend-target-url: /portal
-        always-use-default-target-url: true
-        default-target-url: http://10.30.186.134:8089/#/client
-        gateway: false
-        server-login-url: http://10.30.186.104/sso/login
-        server-logout-url: http://10.30.186.104/sso/logout
-        server-url-prefix: http://10.30.186.104/sso/
-        protocol: cas30
-        proxy-receptor-url: /authz/login/cas-proxy
-        proxy-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas-proxy
-        renew: false
-        service-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
-        service-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
         session-mgt:
           allow-session-creation: true
           creation-policy: if-required
+        server-tag-parameter-name: platform
         servers:
-          server-login-url: http://10.30.186.104/sso/login
-          server-logout-url: http://10.30.186.104/sso/logout
-          server-url-prefix: http://10.30.186.104/sso/
-        multi-server-tag:
-        multi-server-parameter-name: pgtIou
+          - name: cas1
+            attributes:
+              - comsys_department
+              - comsys_post
+              - comsys_cardid
+              - comsys_post_type
+              - comsys_educational
+              - comsys_phone
+              - comsys_genders
+              - comsys_name
+              - comsys_loginid
+              - comsys_email
+              - comsys_role
+              - comsys_other_post
+              - comsys_usertype
+              - comsys_teaching_number
+            frontend-proxy: true
+            frontend-target-url: /portal
+            always-use-default-target-url: true
+            default-target-url: http://10.30.186.134:8089/#/client
+            gateway: false
+            server-login-url: http://10.30.186.104/sso/login
+            server-logout-url: http://10.30.186.104/sso/logout
+            server-url-prefix: http://10.30.186.104/sso/
+            protocol: cas30
+            proxy-receptor-url: /authz/login/cas-proxy
+            proxy-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas-proxy
+            renew: false
+            service-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
+            service-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
+          - name: cas2
+            attributes:
+              - comsys_department
+              - comsys_post
+              - comsys_cardid
+              - comsys_post_type
+              - comsys_educational
+              - comsys_phone
+              - comsys_genders
+              - comsys_name
+              - comsys_loginid
+              - comsys_email
+              - comsys_role
+              - comsys_other_post
+              - comsys_usertype
+              - comsys_teaching_number
+            frontend-proxy: true
+            frontend-target-url: /portal
+            always-use-default-target-url: true
+            default-target-url: http://10.30.186.134:8089/#/client
+            gateway: false
+            server-login-url: http://10.30.186.104/sso/login
+            server-logout-url: http://10.30.186.104/sso/logout
+            server-url-prefix: http://10.30.186.104/sso/
+            protocol: cas30
+            proxy-receptor-url: /authz/login/cas-proxy
+            proxy-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas-proxy
+            renew: false
+            service-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
+            service-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas

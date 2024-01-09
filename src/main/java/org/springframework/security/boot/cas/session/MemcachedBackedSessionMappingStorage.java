@@ -15,13 +15,12 @@
  */
 package org.springframework.security.boot.cas.session;
 
-import javax.servlet.http.HttpSession;
-
+import net.rubyeye.xmemcached.XMemcachedClient;
 import org.jasig.cas.client.session.SessionMappingStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.rubyeye.xmemcached.XMemcachedClient;
+import javax.servlet.http.HttpSession;
 
 /**
  * For Session Storage With Memcached

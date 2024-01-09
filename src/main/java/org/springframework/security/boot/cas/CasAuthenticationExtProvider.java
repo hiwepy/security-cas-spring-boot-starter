@@ -15,6 +15,7 @@
  */
 package org.springframework.security.boot.cas;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,7 +25,10 @@ import org.jasig.cas.client.validation.TicketValidator;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.boot.SecurityCasAuthcProperties;
+import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.utils.CasUrlUtils;
+import org.springframework.security.boot.utils.WebUtils;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
@@ -36,21 +40,23 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
+import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.URL;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+@Slf4j
 public class CasAuthenticationExtProvider extends CasAuthenticationProvider {
 
 	private static final Log logger = LogFactory.getLog(CasAuthenticationExtProvider.class);
 	private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
-	private ServiceProperties serviceProperties;
+	private SecurityCasAuthcProperties authcProperties;
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
-	private static final String TARGET_PARAMETER_NAME="target";
+	private static final String TARGET_PARAMETER_NAME = "target";
+
+	public CasAuthenticationExtProvider(SecurityCasAuthcProperties authcProperties) {
+		this.authcProperties = authcProperties;
+	}
 
 	@Override
 	public Authentication authenticate(Authentication authentication)
@@ -150,16 +156,24 @@ public class CasAuthenticationExtProvider extends CasAuthenticationProvider {
 	 * @return
 	 */
 	private String getServiceUrl(Authentication authentication) {
+
+		// 1. 根据referer获取TicketValidator
+		HttpServletRequest request = WebUtils.getHttpServletRequest();
+		Assert.isTrue(request != null, "request cannot be null");
+
+		// 1. 获取请求匹配的CasServerProperties
+		SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
+
 		String serviceUrl;
-		if (serviceProperties.getService() == null) {
+		if (serverProperties.getServiceUrl() == null) {
 			throw new IllegalStateException(
 					"serviceProperties.getService() cannot be null unless Authentication.getDetails() implements ServiceAuthenticationDetails.");
 		}
 		else {
-			serviceUrl = serviceProperties.getService();
+			serviceUrl = serverProperties.getServiceUrl();
 			// 动态处理 serviceUrl
 			ServiceAuthenticationDetails serviceAuthenticationDetails = (ServiceAuthenticationDetails) authentication.getDetails();
-			String targetParams = getFieldValue(serviceAuthenticationDetails.getServiceUrl(), TARGET_PARAMETER_NAME);
+			String targetParams = CasUrlUtils.getFieldValue(serviceAuthenticationDetails.getServiceUrl(), TARGET_PARAMETER_NAME);
 			if(StringUtils.isNotBlank(targetParams)){
 				serviceUrl = CasUrlUtils.addParameter(serviceUrl, TARGET_PARAMETER_NAME, targetParams,false);
 
@@ -172,10 +186,8 @@ public class CasAuthenticationExtProvider extends CasAuthenticationProvider {
 	}
 
 
-	@Override
-	public void setServiceProperties(ServiceProperties serviceProperties) {
-		super.setServiceProperties(serviceProperties);
-		this.serviceProperties = serviceProperties;
+	public void setAuthcProperties(SecurityCasAuthcProperties authcProperties) {
+		this.authcProperties = authcProperties;
 	}
 
 	@Override
@@ -183,31 +195,5 @@ public class CasAuthenticationExtProvider extends CasAuthenticationProvider {
 		super.setAuthoritiesMapper(authoritiesMapper);
 		this.authoritiesMapper = authoritiesMapper;
 	}
-	/**
-	 * 获取字段值
-	 *
-	 * @param urlStr
-	 * @param field
-	 * @return
-	 */
-	private static String getFieldValue(String urlStr, String field) {
-		String result = "";
-		Pattern pXM = Pattern.compile(field + "=([^&]*)");
-		Matcher mXM = pXM.matcher(urlStr);
-		while (mXM.find()) {
-			result += mXM.group(1);
-		}
-		return result;
-	}
 
-	private TicketValidator switchValidator(String targetUrl, String serverUrlPrefix) {
-		String platform= UrlUtil.getFieldValue(targetUrl,UrlUtil.TARGET_PLATFORM_NAME);
-		//根据请求中的参数选择不同的验证器
-		Map<String,CustomCas30ServiceTicketValidator> validatorMap = CustomCas30ServiceTicketValidator.getInstance(serverUrlPrefix);
-		TicketValidator validator = validatorMap.get(platform);
-		if(validator==null){
-			validator = validatorMap.values().stream().findFirst().get();
-		}
-		return validator;
-	}
 }

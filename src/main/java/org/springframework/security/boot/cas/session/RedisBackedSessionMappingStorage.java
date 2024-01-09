@@ -15,14 +15,13 @@
  */
 package org.springframework.security.boot.cas.session;
 
-import java.util.concurrent.TimeUnit;
-
-import javax.servlet.http.HttpSession;
-
 import org.jasig.cas.client.session.SessionMappingStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+
+import javax.servlet.http.HttpSession;
+import java.util.concurrent.TimeUnit;
 
 /**
  * For Session Storage With Redis

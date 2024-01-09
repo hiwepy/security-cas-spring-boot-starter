@@ -1,16 +1,9 @@
 package org.springframework.security.boot;
 
-import java.io.IOException;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.ArrayUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
-import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
 import org.jasig.cas.client.session.HashMapBackedSessionMappingStorage;
 import org.jasig.cas.client.session.SessionMappingStorage;
-import org.jasig.cas.client.session.SingleSignOutFilter;
-import org.jasig.cas.client.session.SingleSignOutHttpSessionListener;
 import org.jasig.cas.client.util.AssertionThreadLocalFilter;
 import org.jasig.cas.client.util.HttpServletRequestWrapperFilter;
 import org.jasig.cas.client.validation.TicketValidator;
@@ -32,33 +25,27 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.boot.biz.authentication.captcha.CaptchaResolver;
 import org.springframework.security.boot.biz.property.SecuritySessionMgtProperties;
 import org.springframework.security.boot.biz.userdetails.JwtPayloadRepository;
-import org.springframework.security.boot.cas.CasAuthenticationExtProvider;
-import org.springframework.security.boot.cas.CasAuthenticationFailureHandler;
-import org.springframework.security.boot.cas.CasAuthenticationSuccessHandler;
-import org.springframework.security.boot.cas.CasProxyFailureHandler;
-import org.springframework.security.boot.cas.CasTicketValidatorConfiguration;
-import org.springframework.security.boot.utils.CasUrlUtils;
+import org.springframework.security.boot.cas.*;
+import org.springframework.security.boot.cas.ticket.DefaultProxyGrantingTicketStorageProvider;
+import org.springframework.security.boot.cas.ticket.ProxyGrantingTicketStorageProvider;
 import org.springframework.security.boot.utils.WebSecurityUtils;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
 import org.springframework.security.cas.authentication.NullStatelessTicketCache;
 import org.springframework.security.cas.authentication.StatelessTicketCache;
 import org.springframework.security.cas.userdetails.AbstractCasAssertionUserDetailsService;
-import org.springframework.security.cas.userdetails.GrantedAuthorityFromAssertionAttributesUserDetailsService;
 import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
 import org.springframework.security.cas.web.CasAuthenticationFilter;
+import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsExtSource;
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.RedirectStrategy;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -68,6 +55,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Configuration
 @AutoConfigureBefore({ SecurityFilterAutoConfiguration.class })
@@ -76,35 +66,21 @@ import javax.servlet.http.HttpServletResponse;
 public class SecurityCasFilterConfiguration {
 	
 	@Bean
-	public ServiceProperties serviceProperties(SecurityCasProperties casProperties,
-			SecurityCasAuthcProperties authcProperties) {
-		ServiceProperties serviceProperties = new ServiceProperties();
-		serviceProperties.setArtifactParameter(authcProperties.getArtifactParameterName());
-		serviceProperties.setAuthenticateAllArtifacts(authcProperties.isAuthenticateAllArtifacts());
-		serviceProperties.setSendRenew(authcProperties.getRenew());
-		serviceProperties.setService(authcProperties.getServiceUrl());
-		serviceProperties.setServiceParameter(authcProperties.getServiceParameterName());
-		return serviceProperties;
-	}
-	
-	@Bean
 	@ConditionalOnMissingBean
 	public AbstractCasAssertionUserDetailsService casAssertionUserDetailsService(SecurityCasAuthcProperties authcProperties) {
-		String[] attributes = ArrayUtils.isEmpty(authcProperties.getAttributes()) ? new String[] {} : authcProperties.getAttributes();
-		return new GrantedAuthorityFromAssertionAttributesUserDetailsService(attributes);
+		return new GrantedAuthorityFromAssertionAttributesUserDetailsExtService(authcProperties);
 	}
 	
 	@Bean
 	@ConditionalOnMissingBean
-	public ProxyGrantingTicketStorage proxyGrantingTicketStorage(
-			SecurityCasAuthcProperties authcProperties) {
-		return new ProxyGrantingTicketStorageImpl(authcProperties.getTimeout());
+	public ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider(SecurityCasAuthcProperties authcProperties) {
+		return new DefaultProxyGrantingTicketStorageProvider(authcProperties);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	public ServiceAuthenticationDetailsSource authenticationDetailsSource(ServiceProperties serviceProperties) {
-		return new ServiceAuthenticationDetailsSource(serviceProperties);
+	public ServiceAuthenticationDetailsSource authenticationDetailsSource(SecurityCasAuthcProperties authcProperties) {
+		return new ServiceAuthenticationDetailsExtSource(authcProperties);
 	}
 	
 	@Bean
@@ -121,9 +97,8 @@ public class SecurityCasFilterConfiguration {
 	
 	@Bean
 	@ConditionalOnMissingBean
-	public TicketValidator ticketValidator(SecurityCasAuthcProperties casProperties, ProxyGrantingTicketStorage proxyGrantingTicketStorage) {
-		CasTicketValidatorConfiguration ticketValidatorConfig = new CasTicketValidatorConfiguration(proxyGrantingTicketStorage);
-		return ticketValidatorConfig.retrieveTicketValidator(casProperties);
+	public TicketValidator ticketValidator(SecurityCasAuthcProperties casProperties, ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider) {
+		return new CasTicketValidator(casProperties, proxyGrantingTicketStorageProvider);
 	}
 	
 	@Bean
@@ -131,13 +106,12 @@ public class SecurityCasFilterConfiguration {
 	public CasAuthenticationProvider casAuthenticationProvider(
 			AbstractCasAssertionUserDetailsService casAssertionUserDetailsService,
 			GrantedAuthoritiesMapper authoritiesMapper,
-			ServiceProperties serviceProperties, 
+			SecurityCasAuthcProperties authcProperties,
 			TicketValidator ticketValidator) {
 
-		CasAuthenticationExtProvider provider = new CasAuthenticationExtProvider();
+		CasAuthenticationExtProvider provider = new CasAuthenticationExtProvider(authcProperties);
 		provider.setKey("casProvider");
 		provider.setAuthoritiesMapper(authoritiesMapper);
-		provider.setServiceProperties(serviceProperties);
 		provider.setTicketValidator(ticketValidator);
 		provider.setAuthenticationUserDetailsService(casAssertionUserDetailsService);
 
@@ -146,16 +120,13 @@ public class SecurityCasFilterConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public CasAuthenticationEntryPoint casAuthenticationEntryPoint(
-			SecurityCasAuthcProperties authcProperties,
-			ServerProperties serverProperties,
-			ServiceProperties serviceProperties) {
+	public CasAuthenticationEntryPoint casAuthenticationEntryPoint(SecurityCasAuthcProperties authcProperties) {
 
-		CasAuthenticationEntryPoint entryPoint = new CasAuthenticationEntryPoint();
-
+		CasAuthenticationExtEntryPoint entryPoint = new CasAuthenticationExtEntryPoint(authcProperties);
+/*
 		entryPoint.setEncodeServiceUrlWithSessionId(authcProperties.isEncodeServiceUrlWithSessionId());
 		entryPoint.setLoginUrl(CasUrlUtils.constructLoginRedirectUrl(authcProperties));
-		entryPoint.setServiceProperties(serviceProperties);
+		entryPoint.setServiceProperties(serviceProperties);*/
 
 		return entryPoint;
 	}
@@ -298,12 +269,10 @@ public class SecurityCasFilterConfiguration {
 			map.from(sessionAuthenticationStrategy).to(authenticationFilter::setSessionAuthenticationStrategy);
 			map.from(authcProperties.isContinueChainBeforeSuccessfulAuthentication()).to(authenticationFilter::setContinueChainBeforeSuccessfulAuthentication);
 			map.from(authcProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
-			
-			if (authcProperties.isAcceptAnyProxy()) {
-				map.from(proxyFailureHandler).to(authenticationFilter::setProxyAuthenticationFailureHandler);
-				map.from(proxyGrantingTicketStorage).to(authenticationFilter::setProxyGrantingTicketStorage);
-				map.from(authcProperties.getProxyReceptorUrl()).to(authenticationFilter::setProxyReceptorUrl); 
-			}
+
+			map.from(proxyFailureHandler).to(authenticationFilter::setProxyAuthenticationFailureHandler);
+			//map.from(proxyGrantingTicketStorage).to(authenticationFilter::setProxyGrantingTicketStorage);
+			//map.from(authcProperties.getProxyReceptorUrl()).to(authenticationFilter::setProxyReceptorUrl);
 			return authenticationFilter;
 		}
 		
@@ -311,10 +280,11 @@ public class SecurityCasFilterConfiguration {
 		 * 	单点注销Session监听器
 		 */
 	    @Bean
-	    public ServletListenerRegistrationBean<SingleSignOutHttpSessionListener> singleSignOutHttpSessionListener(){
-	        ServletListenerRegistrationBean<SingleSignOutHttpSessionListener> servletListenerRegistrationBean =
-	                new ServletListenerRegistrationBean<SingleSignOutHttpSessionListener>();
-	        servletListenerRegistrationBean.setListener(new SingleSignOutHttpSessionListener());
+	    public ServletListenerRegistrationBean<CasSingleSignOutHttpSessionListener> singleSignOutHttpSessionListener(){
+	        ServletListenerRegistrationBean<CasSingleSignOutHttpSessionListener> servletListenerRegistrationBean =
+	                new ServletListenerRegistrationBean<>();
+			CasSingleSignOutHttpSessionListener listener = new CasSingleSignOutHttpSessionListener(sessionMappingStorage);
+	        servletListenerRegistrationBean.setListener(listener);
 	        servletListenerRegistrationBean.setEnabled(true);
 	        servletListenerRegistrationBean.setOrder(1);
 	        return servletListenerRegistrationBean;
@@ -324,21 +294,8 @@ public class SecurityCasFilterConfiguration {
 		 * 	CAS SignOut Filter
 		 * 	该过滤器用于实现单点登出功能，单点退出配置，一定要放在其他filter之前
 		 */
-		public SingleSignOutFilter singleSignOutFilter() {
-			
-			SingleSignOutFilter singleSignOutFilter = new SingleSignOutFilter();
-			
-			/**
-			 * 批量设置参数
-			 */
-			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-			map.from(authcProperties.getArtifactParameterName()).to(singleSignOutFilter::setArtifactParameterName);
-			map.from(authcProperties.isIgnoreInitConfiguration()).to(singleSignOutFilter::setIgnoreInitConfiguration);
-			map.from(authcProperties.getLogoutCallbackPath()).to(singleSignOutFilter::setLogoutCallbackPath);
-			map.from(authcProperties.getLogoutParameterName()).to(singleSignOutFilter::setLogoutParameterName);
-			map.from(authcProperties.getRelayStateParameterName()).to(singleSignOutFilter::setRelayStateParameterName);
-			map.from(sessionMappingStorage).to(singleSignOutFilter::setSessionMappingStorage);
-			
+		public CasSingleSignOutFilter singleSignOutFilter() {
+			CasSingleSignOutFilter singleSignOutFilter = new CasSingleSignOutFilter(authcProperties, sessionMappingStorage);
 			return singleSignOutFilter;
 		}
 		
