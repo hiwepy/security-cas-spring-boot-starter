@@ -3,6 +3,9 @@ package org.springframework.security.boot.cas;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.jasig.cas.client.util.CommonUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.boot.SecurityCasAuthcProperties;
+import org.springframework.security.boot.SecurityCasServerProperties;
+import org.springframework.security.boot.cas.ticket.ProxyGrantingTicketStorageProvider;
 import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -22,22 +25,27 @@ public class CasAuthenticationExtFilter extends CasAuthenticationFilter {
     /**
      * The backing storage to store ProxyGrantingTicket requests.
      */
-    private ProxyGrantingTicketStorage proxyGrantingTicketStorage;
+    private final ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider;
+    private final SecurityCasAuthcProperties authcProperties;
 
-    public CasAuthenticationExtFilter() {
+    public CasAuthenticationExtFilter(SecurityCasAuthcProperties authcProperties, ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider) {
         super();
+        this.authcProperties = authcProperties;
+        this.proxyGrantingTicketStorageProvider = proxyGrantingTicketStorageProvider;
     }
 
     @Override
     public Authentication attemptAuthentication(final HttpServletRequest request,
                                                 final HttpServletResponse response) throws AuthenticationException,
             IOException {
+
+        SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
+        ProxyGrantingTicketStorage proxyGrantingTicketStorage = this.proxyGrantingTicketStorageProvider.getProxyGrantingTicketStorage(serverProperties);
         // if the request is a proxy request process it and return null to indicate the
         // request has been processed
-        if (proxyReceptorRequest(request)) {
+        if (proxyReceptorRequest(request, proxyGrantingTicketStorage)) {
             logger.debug("Responding to proxy receptor request");
-            CommonUtils.readAndRespondToProxyReceptorRequest(request, response,
-                    this.proxyGrantingTicketStorage);
+            CommonUtils.readAndRespondToProxyReceptorRequest(request, response, proxyGrantingTicketStorage);
             return null;
         }
 
@@ -65,9 +73,8 @@ public class CasAuthenticationExtFilter extends CasAuthenticationFilter {
      *
      * @return
      */
-    protected boolean proxyReceptorConfigured() {
-        final boolean result = this.proxyGrantingTicketStorage != null
-                && proxyReceptorMatcher != null;
+    protected boolean proxyReceptorConfigured(final ProxyGrantingTicketStorage proxyGrantingTicketStorage) {
+        final boolean result = proxyGrantingTicketStorage != null && proxyReceptorMatcher != null;
         if (logger.isDebugEnabled()) {
             logger.debug("proxyReceptorConfigured = " + result);
         }
@@ -79,8 +86,8 @@ public class CasAuthenticationExtFilter extends CasAuthenticationFilter {
      * @param request
      * @return
      */
-    protected boolean proxyReceptorRequest(final HttpServletRequest request) {
-        final boolean result = proxyReceptorConfigured()
+    protected boolean proxyReceptorRequest(final HttpServletRequest request, final ProxyGrantingTicketStorage proxyGrantingTicketStorage) {
+        final boolean result = proxyReceptorConfigured(proxyGrantingTicketStorage)
                 && proxyReceptorMatcher.matches(request);
         if (logger.isDebugEnabled()) {
             logger.debug("proxyReceptorRequest = " + result);

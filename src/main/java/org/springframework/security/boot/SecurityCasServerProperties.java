@@ -173,24 +173,6 @@ public class SecurityCasServerProperties {
 	/** The protocol of the CAS Client. */
 	private SecurityCasAuthcProperties.CasProtocol protocol = SecurityCasAuthcProperties.CasProtocol.CAS20;
 
-	/**
-	 * Specifies whether any proxy is OK. Defaults to false.
-	 */
-	private boolean acceptAnyProxy = false;
-
-	/**
-	 * The URL to watch for PGTIOU/PGT responses from the CAS server. Should be
-	 * defined from the root of the context. For example, if your application is
-	 * deployed in /cas-client-app and you want the proxy receptor URL to be
-	 * /cas-client-app/my/receptor you need to configure proxyReceptorUrl to be
-	 * /my/receptor.
-	 */
-	private String proxyReceptorUrl = "/login/cas-proxy";
-
-	/**
-	 * The callback URL to provide the CAS server to accept Proxy Granting Tickets. i.e. /proxyCallback
-	 */
-	private String proxyCallbackUrl;
 
 	/**
 	 * Specifies whether renew=true should be sent to the CAS server. Valid values
