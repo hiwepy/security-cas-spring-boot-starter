@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.TicketValidationException;
+import org.jasig.cas.client.validation.TicketValidator;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -116,10 +117,10 @@ public class CasAuthenticationExtProvider extends CasAuthenticationProvider {
 		return result;
 	}
 
-	private CasAuthenticationToken authenticateNow(final Authentication authentication)
+	protected CasAuthenticationToken authenticateNow(final Authentication authentication)
 			throws AuthenticationException {
 		try {
-			final Assertion assertion = this.getTicketValidator().validate(authentication
+			final Assertion assertion = this.getTicketValidator(authentication).validate(authentication
 					.getCredentials().toString(), this.getServiceUrl(authentication));
 			final UserDetails userDetails = loadUserByAssertion(assertion);
 			userDetailsChecker.check(userDetails);
@@ -131,6 +132,12 @@ public class CasAuthenticationExtProvider extends CasAuthenticationProvider {
 		catch (final TicketValidationException e) {
 			throw new BadCredentialsException(e.getMessage(), e);
 		}
+	}
+
+	protected TicketValidator getTicketValidator(final Authentication authentication) {
+		String targetUrl = getServiceUrl(authentication);
+
+		return super.getTicketValidator();
 	}
 
 	/**
@@ -150,7 +157,7 @@ public class CasAuthenticationExtProvider extends CasAuthenticationProvider {
 		}
 		else {
 			serviceUrl = serviceProperties.getService();
-			//动态处理serviceUrl
+			// 动态处理 serviceUrl
 			ServiceAuthenticationDetails serviceAuthenticationDetails = (ServiceAuthenticationDetails) authentication.getDetails();
 			String targetParams = getFieldValue(serviceAuthenticationDetails.getServiceUrl(), TARGET_PARAMETER_NAME);
 			if(StringUtils.isNotBlank(targetParams)){
@@ -193,8 +200,14 @@ public class CasAuthenticationExtProvider extends CasAuthenticationProvider {
 		return result;
 	}
 
-	public static void main(String[] args) {
-		String aa = "http://192.168.3.27:30847/apis-authz/authz/login/cas?target=http://192.168.30.71/#/index";
-		System.out.println(getFieldValue(aa,"target"));
+	private TicketValidator switchValidator(String targetUrl, String serverUrlPrefix) {
+		String platform= UrlUtil.getFieldValue(targetUrl,UrlUtil.TARGET_PLATFORM_NAME);
+		//根据请求中的参数选择不同的验证器
+		Map<String,CustomCas30ServiceTicketValidator> validatorMap = CustomCas30ServiceTicketValidator.getInstance(serverUrlPrefix);
+		TicketValidator validator = validatorMap.get(platform);
+		if(validator==null){
+			validator = validatorMap.values().stream().findFirst().get();
+		}
+		return validator;
 	}
 }

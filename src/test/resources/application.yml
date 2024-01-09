@@ -42,20 +42,20 @@ spring:
         path-pattern: /authz/login/cas
         accept-any-proxy: true
         attributes:
-        - comsys_department
-        - comsys_post
-        - comsys_cardid
-        - comsys_post_type
-        - comsys_educational
-        - comsys_phone
-        - comsys_genders
-        - comsys_name
-        - comsys_loginid
-        - comsys_email
-        - comsys_role
-        - comsys_other_post
-        - comsys_usertype
-        - comsys_teaching_number
+          - comsys_department
+          - comsys_post
+          - comsys_cardid
+          - comsys_post_type
+          - comsys_educational
+          - comsys_phone
+          - comsys_genders
+          - comsys_name
+          - comsys_loginid
+          - comsys_email
+          - comsys_role
+          - comsys_other_post
+          - comsys_usertype
+          - comsys_teaching_number
         continue-chain-before-successful-authentication: false
         frontend-proxy: true
         frontend-target-url: /portal
@@ -74,3 +74,9 @@ spring:
         session-mgt:
           allow-session-creation: true
           creation-policy: if-required
+        servers:
+          server-login-url: http://10.30.186.104/sso/login
+          server-logout-url: http://10.30.186.104/sso/logout
+          server-url-prefix: http://10.30.186.104/sso/
+        multi-server-tag:
+        multi-server-parameter-name: pgtIou

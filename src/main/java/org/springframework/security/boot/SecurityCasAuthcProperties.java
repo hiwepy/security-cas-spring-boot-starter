@@ -1,6 +1,8 @@
 package org.springframework.security.boot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jasig.cas.client.configuration.ConfigurationKeys;
@@ -13,6 +15,7 @@ import org.springframework.security.boot.biz.property.SecurityHeaderCorsProperti
 import org.springframework.security.boot.biz.property.SecurityHeaderCsrfProperties;
 import org.springframework.security.boot.biz.property.SecurityHeadersProperties;
 import org.springframework.security.boot.biz.property.SecurityLogoutProperties;
+import org.springframework.security.boot.cas.MultiCasServerTicketValidator;
 import org.springframework.security.cas.ServiceProperties;
 
 import lombok.Getter;
@@ -39,7 +42,7 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	/**
 	 * CAS protocol.
 	 */
-	public static enum CasProtocol {
+	public enum CasProtocol {
 		CAS10, CAS20, CAS20_PROXY, CAS30, CAS30_PROXY, SAML
 	}
 
@@ -230,8 +233,17 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	
 	@NestedConfigurationProperty
 	private SecurityHeadersProperties headers = new SecurityHeadersProperties();
-	
+
+	/**
+	 * Whether Multi Cas Server Mode is enabled.
+	 */
+	private boolean multiServer = false;
+	/**
+	 * Specifies the name of the request parameter on where to find the multiServer (i.e. tag).
+	 */
+	private String multiServerParameterName = MultiCasServerTicketValidator.DEFAULT_CAS_SERVICE_TAG_PARAMETER;
+
 	@NestedConfigurationProperty
-	private SecurityLogoutProperties logout = new SecurityLogoutProperties();
+	private List<SecurityCasServerProperties> multiServers = new ArrayList<>();
 	
 }

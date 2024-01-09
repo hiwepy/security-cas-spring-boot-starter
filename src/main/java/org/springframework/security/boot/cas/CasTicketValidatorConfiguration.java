@@ -16,35 +16,25 @@
 package org.springframework.security.boot.cas;
 
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
-
-import javax.net.ssl.HttpsURLConnection;
-
+import lombok.extern.slf4j.Slf4j;
 import org.jasig.cas.client.proxy.Cas20ProxyRetriever;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.jasig.cas.client.proxy.ProxyRetriever;
 import org.jasig.cas.client.ssl.HttpURLConnectionFactory;
 import org.jasig.cas.client.ssl.HttpsURLConnectionFactory;
 import org.jasig.cas.client.util.CommonUtils;
-import org.jasig.cas.client.validation.Cas10TicketValidator;
-import org.jasig.cas.client.validation.Cas20ProxyTicketValidator;
-import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
-import org.jasig.cas.client.validation.Cas30ProxyTicketValidator;
-import org.jasig.cas.client.validation.Cas30ServiceTicketValidator;
-import org.jasig.cas.client.validation.Saml11TicketValidator;
-import org.jasig.cas.client.validation.TicketValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jasig.cas.client.validation.*;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasAuthcProperties.CasProtocol;
 import org.springframework.security.boot.cas.exception.CasAuthenticationServiceException;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
+@Slf4j
 public class CasTicketValidatorConfiguration {
-
-	protected final Logger logger = LoggerFactory.getLogger(CasTicketValidatorConfiguration.class);
 
     /* The storage location of the proxy granting tickets. */
     private ProxyGrantingTicketStorage proxyGrantingTicketStorage;
@@ -192,9 +182,9 @@ public class CasTicketValidatorConfiguration {
 			try {
 				fis = new FileInputStream(fileName);
 				properties.load(fis);
-				logger.trace("Loaded {} entries from {}", properties.size(), fileName);
+				log.trace("Loaded {} entries from {}", properties.size(), fileName);
 			} catch (final IOException ioe) {
-				logger.error(ioe.getMessage(), ioe);
+				log.error(ioe.getMessage(), ioe);
 			} finally {
 				CommonUtils.closeQuietly(fis);
 			}
