@@ -1,7 +1,6 @@
 package org.springframework.security.boot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.jasig.cas.client.session.HashMapBackedSessionMappingStorage;
 import org.jasig.cas.client.session.SessionMappingStorage;
 import org.jasig.cas.client.util.AssertionThreadLocalFilter;
@@ -46,17 +45,7 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -155,15 +144,13 @@ public class SecurityCasFilterConfiguration {
 	static class CasWebSecurityConfigurerAdapter extends WebSecurityBizConfigurerAdapter {
 
 		private final SecurityCasAuthcProperties authcProperties;
-		private final ServiceProperties serviceProperties;
-
     	private final LocaleContextFilter localeContextFilter;
 	    private final AuthenticationEntryPoint authenticationEntryPoint;
 		private final ServiceAuthenticationDetailsSource authenticationDetailsSource;
 	    private final CasAuthenticationSuccessHandler authenticationSuccessHandler;
 	    private final CasAuthenticationFailureHandler authenticationFailureHandler;
 	    private final CasProxyFailureHandler proxyFailureHandler;
-	    private final ProxyGrantingTicketStorage proxyGrantingTicketStorage;
+	    private final ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider;
     	private final RememberMeServices rememberMeServices;
     	private final RedirectStrategy redirectStrategy;
     	private final SessionMappingStorage sessionMappingStorage;
@@ -174,7 +161,6 @@ public class SecurityCasFilterConfiguration {
 				SecurityBizProperties bizProperties,
 				SecurityCasAuthcProperties authcProperties,
    				SecuritySessionMgtProperties sessionMgtProperties,
-				ServiceProperties serviceProperties,
 
 				ObjectProvider<LocaleContextFilter> localeContextProvider,
 				ObjectProvider<CasAuthenticationProvider> authenticationProvider,
@@ -185,7 +171,7 @@ public class SecurityCasFilterConfiguration {
    				ObjectProvider<CaptchaResolver> captchaResolverProvider,
    				ObjectProvider<ObjectMapper> objectMapperProvider,
    				ObjectProvider<CasProxyFailureHandler> proxyFailureHandlerProvider,
-				ObjectProvider<ProxyGrantingTicketStorage> proxyGrantingTicketStorageProvider,
+				ObjectProvider<ProxyGrantingTicketStorageProvider> proxyGrantingTicketStorageProvider,
    				ObjectProvider<RememberMeServices> rememberMeServicesProvider,
    				ObjectProvider<SessionMappingStorage> sessionMappingStorageProvider,
    				ObjectProvider<SessionAuthenticationStrategy> sessionAuthenticationStrategyProvider
@@ -195,7 +181,6 @@ public class SecurityCasFilterConfiguration {
 			super(bizProperties, sessionMgtProperties, authenticationProvider.stream().collect(Collectors.toList()));
 			
    			this.authcProperties = authcProperties;
-   			this.serviceProperties = serviceProperties;
 
 			this.localeContextFilter = localeContextProvider.getIfAvailable();
    			this.authenticationDetailsSource = authenticationDetailsSourceProvider.getIfAvailable();
@@ -203,7 +188,7 @@ public class SecurityCasFilterConfiguration {
    			this.authenticationSuccessHandler = authenticationSuccessHandlerProvider.getIfAvailable();
    			this.authenticationFailureHandler = authenticationFailureHandlerProvider.getIfAvailable( () -> authenticationFailureHandler());
    			this.proxyFailureHandler = proxyFailureHandlerProvider.getIfAvailable( () -> proxyFailureHandler());
-   			this.proxyGrantingTicketStorage = proxyGrantingTicketStorageProvider.getIfAvailable();
+   			this.proxyGrantingTicketStorageProvider = proxyGrantingTicketStorageProvider.getIfAvailable();
    			this.redirectStrategy = WebSecurityUtils.redirectStrategy(authcProperties);
    			this.rememberMeServices = rememberMeServicesProvider.getIfAvailable();
    			this.sessionMappingStorage = sessionMappingStorageProvider.getIfAvailable();
@@ -236,20 +221,7 @@ public class SecurityCasFilterConfiguration {
 
 		public CasAuthenticationFilter authenticationProcessingFilter() throws Exception {
 
-			CasAuthenticationFilter authenticationFilter = new CasAuthenticationFilter() {
-
-				@Override
-				public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
-						throws IOException, ServletException {
-
-					HttpServletRequest request = (HttpServletRequest) req;
-					HttpServletResponse response = (HttpServletResponse) res;
-					if (Objects.isNull(RequestContextHolder.getRequestAttributes())){
-						RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
-					}
-					super.doFilter(request, response, chain);
-				}
-			};
+			CasAuthenticationExtFilter authenticationFilter = new CasAuthenticationExtFilter(authcProperties);
 
 			/*
 			 * 批量设置参数
@@ -262,17 +234,19 @@ public class SecurityCasFilterConfiguration {
 			map.from(authenticationSuccessHandler).to(authenticationFilter::setAuthenticationSuccessHandler);
 			map.from(authenticationFailureHandler).to(authenticationFilter::setAuthenticationFailureHandler);
 			map.from(authenticationDetailsSource).to(authenticationFilter::setAuthenticationDetailsSource);
+			map.from(rememberMeServices).to(authenticationFilter::setRememberMeServices);
+			map.from(sessionAuthenticationStrategy).to(authenticationFilter::setSessionAuthenticationStrategy);
 			
 			map.from(authcProperties.getPathPattern()).to(authenticationFilter::setFilterProcessesUrl);
-			map.from(rememberMeServices).to(authenticationFilter::setRememberMeServices);
-			map.from(serviceProperties).to(authenticationFilter::setServiceProperties);
-			map.from(sessionAuthenticationStrategy).to(authenticationFilter::setSessionAuthenticationStrategy);
 			map.from(authcProperties.isContinueChainBeforeSuccessfulAuthentication()).to(authenticationFilter::setContinueChainBeforeSuccessfulAuthentication);
 			map.from(authcProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
 
-			map.from(proxyFailureHandler).to(authenticationFilter::setProxyAuthenticationFailureHandler);
-			//map.from(proxyGrantingTicketStorage).to(authenticationFilter::setProxyGrantingTicketStorage);
-			//map.from(authcProperties.getProxyReceptorUrl()).to(authenticationFilter::setProxyReceptorUrl);
+			if(authcProperties.isAcceptAnyProxy()){
+				map.from(proxyGrantingTicketStorageProvider).to(authenticationFilter::setProxyGrantingTicketStorageProvider);
+				map.from(proxyFailureHandler).to(authenticationFilter::setProxyAuthenticationFailureHandler);
+				map.from(authcProperties.getProxyReceptorUrl()).to(authenticationFilter::setProxyReceptorUrl2);
+			}
+
 			return authenticationFilter;
 		}
 		

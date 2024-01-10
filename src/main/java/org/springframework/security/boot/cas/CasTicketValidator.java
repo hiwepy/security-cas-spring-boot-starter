@@ -32,11 +32,13 @@ public class CasTicketValidator implements TicketValidator {
                               ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider) {
         this.authcProperties = casProperties;
         this.ticketValidatorConfig = new CasTicketValidatorConfiguration(proxyGrantingTicketStorageProvider);
+        this.ticketValidatorConfig.setAcceptAnyProxy(casProperties.isAcceptAnyProxy());
+        this.ticketValidatorConfig.setProxyReceptorUrl(casProperties.getProxyReceptorUrl());
+        this.ticketValidatorConfig.setProxyCallbackUrl(casProperties.getProxyCallbackUrl());
         this.defaultTicketValidator = ticketValidatorConfig.retrieveTicketValidator(CollectionUtils.firstElement(casProperties.getServers()));
         this.initTicketValidatorByReferer(casProperties.getServers());
         this.initTicketValidatorByTag(casProperties.getServers());
     }
-
 
     private void initTicketValidatorByReferer(List<SecurityCasServerProperties> servers) {
         if (Objects.isNull(servers)) {
