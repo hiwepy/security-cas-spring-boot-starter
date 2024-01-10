@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-public class CasSingleSignOutFilter extends AbstractConfigurationFilter {
+public class SingleSignOutRoutingFilter extends AbstractConfigurationFilter {
 
     private final AtomicBoolean handlerInitialized = new AtomicBoolean(false);
     private final SecurityCasAuthcProperties authcProperties;
@@ -28,7 +28,7 @@ public class CasSingleSignOutFilter extends AbstractConfigurationFilter {
     private SessionMappingStorage sessionMappingStorage;
     private boolean eagerlyCreateSessions = true;
 
-    public CasSingleSignOutFilter(SecurityCasAuthcProperties authcProperties, SessionMappingStorage sessionMappingStorage) {
+    public SingleSignOutRoutingFilter(SecurityCasAuthcProperties authcProperties, SessionMappingStorage sessionMappingStorage) {
         this.authcProperties = authcProperties;
         this.sessionMappingStorage = sessionMappingStorage;
         this.initSingleSignOutHandler(authcProperties.getServers());
@@ -84,7 +84,6 @@ public class CasSingleSignOutFilter extends AbstractConfigurationFilter {
         if (!this.handlerInitialized.getAndSet(true)) {
             this.initSingleSignOutHandler(authcProperties.getServers());
         }
-
 
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
         SingleSignOutHandler singleSignOutHandler = stringSingleSignOutHandlerMap.get(serverProperties.getServerUrlPrefix());

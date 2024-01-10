@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
 
-public class CasAuthenticationExtFilter extends CasAuthenticationFilter {
+public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
 
     /**
      * The last portion of the receptor url, i.e. /proxy/receptor
@@ -36,7 +36,7 @@ public class CasAuthenticationExtFilter extends CasAuthenticationFilter {
     private ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider;
     private final SecurityCasAuthcProperties authcProperties;
 
-    public CasAuthenticationExtFilter(SecurityCasAuthcProperties authcProperties) {
+    public CasAuthenticationRoutingFilter(SecurityCasAuthcProperties authcProperties) {
         super();
         this.authcProperties = authcProperties;
     }
@@ -76,8 +76,7 @@ public class CasAuthenticationExtFilter extends CasAuthenticationFilter {
      */
     @Override
     public Authentication attemptAuthentication(final HttpServletRequest request,
-                                                final HttpServletResponse response) throws AuthenticationException,
-            IOException {
+                                                final HttpServletResponse response) throws AuthenticationException, IOException {
 
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
         ProxyGrantingTicketStorage proxyGrantingTicketStorage = this.proxyGrantingTicketStorageProvider.getProxyGrantingTicketStorage(serverProperties);

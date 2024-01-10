@@ -7,11 +7,11 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 import java.util.Objects;
 
-public class CasSingleSignOutHttpSessionListener implements HttpSessionListener {
+public class SingleSignOutHttpSessionCasListener implements HttpSessionListener {
 
     private final SessionMappingStorage sessionMappingStorage;
 
-    public CasSingleSignOutHttpSessionListener(SessionMappingStorage sessionMappingStorage) {
+    public SingleSignOutHttpSessionCasListener(SessionMappingStorage sessionMappingStorage) {
         this.sessionMappingStorage = sessionMappingStorage;
     }
 

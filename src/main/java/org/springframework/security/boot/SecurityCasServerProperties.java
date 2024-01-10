@@ -20,9 +20,12 @@ import lombok.Setter;
 import lombok.ToString;
 import org.jasig.cas.client.configuration.ConfigurationKeys;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
+import org.jasig.cas.client.util.AbstractCasFilter;
 import org.springframework.security.cas.ServiceProperties;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,13 +43,27 @@ public class SecurityCasServerProperties {
 	public static final long DEFAULT_TIMEOUT = 60000;
 
 	/**
+	 * CAS Validation Type.
+	 */
+	public enum ValidationType {
+		CAS10, CAS20, CAS20_PROXY, CAS30, CAS30_PROXY, SAML
+	}
+
+	/**
+	 * CAS Validation Response.
+	 */
+	public enum ValidationResponse {
+		JSON, XML
+	}
+
+	/**
 	 * Whether Enable This Cas Server.
 	 */
 	private boolean enabled = true;
 	/**
-	 * CAS server Match Tag Name. Required.
+	 * CAS server Name. Required.
 	 */
-	private String name;
+	private String serverName;
 	/**
 	 * CAS server Match Referer. Required.
 	 */
@@ -85,13 +102,6 @@ public class SecurityCasServerProperties {
 	 */
 	private String serverLogoutUrl;
 
-	/**
-	 * time, in milliseconds, before a {@link ProxyGrantingTicketHolder} is
-	 * considered expired and ready for removal.
-	 *
-	 * @see ProxyGrantingTicketStorageImpl#DEFAULT_TIMEOUT
-	 */
-	private long ticketTimeout = DEFAULT_TIMEOUT;
 
 	/**
 	 * The url where the application is redirected if the CAS service ticket validation failed (example : /mycontextpatch/cas_error.jsp)
@@ -108,6 +118,11 @@ public class SecurityCasServerProperties {
 	private boolean attributeConvertToUpperCase = false;
 
 	/**
+	 * Name of attributes to fetch from assertion to use when populating spring security context.
+	 */
+	private List<String> attributeAuthorities = new ArrayList<>();
+
+	/**
 	 * Specifies the name of the request parameter on where to find the artifact (i.e. ticket).
 	 */
 	private String artifactParameterName = ServiceProperties.DEFAULT_CAS_ARTIFACT_PARAMETER;
@@ -120,12 +135,6 @@ public class SecurityCasServerProperties {
 
 	private boolean artifactParameterOverPost = false;
 
-	/**
-	 * Specifies the proxy chain.
-	 * Each acceptable proxy chain should include a space-separated list of URLs (for exact match) or regular expressions of URLs (starting by the ^ character).
-	 * Each acceptable proxy chain should appear on its own line.
-	 */
-	private String allowedProxyChains;
 	/*
 	 * Map containing user defined parameters
 	 */
@@ -170,9 +179,13 @@ public class SecurityCasServerProperties {
 	/** The logout callback path configured at the CAS server, if there is one */
 	private String logoutCallbackPath;
 
-	/** The protocol of the CAS Client. */
-	private SecurityCasAuthcProperties.CasProtocol protocol = SecurityCasAuthcProperties.CasProtocol.CAS20;
 
+	/**
+	 * Specifies the proxy chain.
+	 * Each acceptable proxy chain should include a space-separated list of URLs (for exact match) or regular expressions of URLs (starting by the ^ character).
+	 * Each acceptable proxy chain should appear on its own line.
+	 */
+	private String allowedProxyChains;
 
 	/**
 	 * Specifies whether renew=true should be sent to the CAS server. Valid values
@@ -208,6 +221,15 @@ public class SecurityCasServerProperties {
 	private String serviceParameterName = ServiceProperties.DEFAULT_CAS_SERVICE_PARAMETER;
 
 	/**
+	 * Whether to store the Assertion in session or not. If sessions are not used,
+	 * tickets will be required for each request. Defaults to true.
+	 */
+	private boolean useSession = true;
+
+
+	private String hostnameVerifier;
+
+	/**
 	 * A reference to a properties file that includes SSL settings for client-side
 	 * SSL config, used during back-channel calls. The configuration includes keys
 	 * for protocol which defaults to SSL,keyStoreType, keyStorePath,
@@ -220,10 +242,55 @@ public class SecurityCasServerProperties {
 	 * synchronization. Defaults to 1000 msec
 	 */
 	private long tolerance = 5000L;
+
 	/**
-	 * Whether to store the Assertion in session or not. If sessions are not used,
-	 * tickets will be required for each request. Defaults to true.
+	 * time, in milliseconds, before a {@link ProxyGrantingTicketHolder} is
+	 * considered expired and ready for removal.
+	 *
+	 * @see ProxyGrantingTicketStorageImpl#DEFAULT_TIMEOUT
 	 */
-	private boolean useSession = true;
+	private long ticketTimeout = DEFAULT_TIMEOUT;
+
+	/**
+	 * ValidationType the CAS protocol validation type. Defaults to CAS3 if not explicitly set.
+	 */
+	private ValidationType validationType = ValidationType.CAS30;
+
+	private ValidationResponse validationResponse = ValidationResponse.XML;
+
+	/**
+	 * Specify whether the filter should redirect the user agent after a
+	 * successful validation to remove the ticket parameter from the query
+	 * string.
+	 */
+	private boolean redirectAfterValidation = true;
+
+	/** Determines whether an exception is thrown when there is a ticket validation failure. */
+	private boolean exceptionOnValidationFailure = false;
+
+	private int millisBetweenCleanUps = 60000;
+
+	private SingleLogout singleLogout;
+
+	public static class TicketValidation {
+
+
+
+	}
+
+	public static class SingleLogout{
+		/**
+		 * whether to receive the single logout request from cas server.
+		 */
+		private boolean enabled = false;
+
+		public boolean isEnabled() {
+			return enabled;
+		}
+
+		public void setEnabled(boolean enabled) {
+			this.enabled = enabled;
+		}
+	}
 	
 }

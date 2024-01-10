@@ -37,15 +37,12 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 
 	public static final String PREFIX = "spring.security.cas.authc";
 
-	/**
-	 * CAS protocol.
-	 */
-	public enum CasProtocol {
-		CAS10, CAS20, CAS20_PROXY, CAS30, CAS30_PROXY, SAML
-	}
-
 	/** Authorization Path Pattern */
 	private String pathPattern = "/login/cas";
+
+
+	/** Authorization Path Pattern */
+	private String pathSaml11Pattern = "/login/cas-saml11";
 
 	/**
 	 * Defaults to true
@@ -71,6 +68,8 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	 */
 	private String proxyCallbackUrl;
 
+
+
 	@NestedConfigurationProperty
 	private SecurityHeaderCorsProperties cors = new SecurityHeaderCorsProperties();
 	
@@ -95,7 +94,7 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 		String tag = request.getParameter(this.serverTagParameterName);
 		if (StringUtils.hasText(tag)) {
 			for (SecurityCasServerProperties server : this.servers) {
-				if (tag.equals(server.getName())) {
+				if (tag.equals(server.getServerName())) {
 					return server;
 				}
 			}

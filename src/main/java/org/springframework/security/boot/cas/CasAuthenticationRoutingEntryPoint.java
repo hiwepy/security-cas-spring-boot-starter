@@ -13,11 +13,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
-public class CasAuthenticationExtEntryPoint extends CasAuthenticationEntryPoint {
+public class CasAuthenticationRoutingEntryPoint extends CasAuthenticationEntryPoint {
 
     private final SecurityCasAuthcProperties authcProperties;
 
-    public CasAuthenticationExtEntryPoint(SecurityCasAuthcProperties authcProperties) {
+    public CasAuthenticationRoutingEntryPoint(SecurityCasAuthcProperties authcProperties) {
         super();
         this.authcProperties = authcProperties;
     }

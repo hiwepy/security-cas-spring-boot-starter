@@ -1,4 +1,4 @@
-package org.springframework.security.boot.cas;
+package org.springframework.security.boot.cas.userdetails;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.jasig.cas.client.validation.Assertion;
@@ -16,14 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class GrantedAuthorityFromAssertionAttributesUserDetailsExtService extends
+public class GrantedAuthorityFromAssertionAttributesUserDetailsRoutingService extends
         AbstractCasAssertionUserDetailsService {
 
     private static final String NON_EXISTENT_PASSWORD_VALUE = "NO_PASSWORD";
 
     private SecurityCasAuthcProperties authcProperties;
 
-    public GrantedAuthorityFromAssertionAttributesUserDetailsExtService(SecurityCasAuthcProperties authcProperties) {
+    public GrantedAuthorityFromAssertionAttributesUserDetailsRoutingService(SecurityCasAuthcProperties authcProperties) {
         this.authcProperties = authcProperties;
     }
 

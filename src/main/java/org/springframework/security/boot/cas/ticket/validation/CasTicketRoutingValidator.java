@@ -1,4 +1,4 @@
-package org.springframework.security.boot.cas;
+package org.springframework.security.boot.cas.ticket.validation;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jasig.cas.client.validation.Assertion;
@@ -20,24 +20,21 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-public class CasTicketValidator implements TicketValidator {
+public class CasTicketRoutingValidator implements TicketValidator {
 
-    private SecurityCasAuthcProperties authcProperties;
-    private TicketValidator defaultTicketValidator;
-    private Map<String, TicketValidator> ticketValidatorByReferer = new ConcurrentHashMap<>();
-    private Map<String, TicketValidator> ticketValidatorByTag = new ConcurrentHashMap<>();
-    private CasTicketValidatorConfiguration ticketValidatorConfig;
+    private final SecurityCasAuthcProperties authcProperties;
+    private final CasTicketValidatorConfiguration ticketValidatorConfig;
+    private final TicketValidator defaultTicketValidator;
+    private final Map<String, TicketValidator> ticketValidatorByReferer = new ConcurrentHashMap<>();
+    private final Map<String, TicketValidator> ticketValidatorByTag = new ConcurrentHashMap<>();
 
-    public CasTicketValidator(SecurityCasAuthcProperties casProperties,
-                              ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider) {
-        this.authcProperties = casProperties;
-        this.ticketValidatorConfig = new CasTicketValidatorConfiguration(proxyGrantingTicketStorageProvider);
-        this.ticketValidatorConfig.setAcceptAnyProxy(casProperties.isAcceptAnyProxy());
-        this.ticketValidatorConfig.setProxyReceptorUrl(casProperties.getProxyReceptorUrl());
-        this.ticketValidatorConfig.setProxyCallbackUrl(casProperties.getProxyCallbackUrl());
-        this.defaultTicketValidator = ticketValidatorConfig.retrieveTicketValidator(CollectionUtils.firstElement(casProperties.getServers()));
-        this.initTicketValidatorByReferer(casProperties.getServers());
-        this.initTicketValidatorByTag(casProperties.getServers());
+    public CasTicketRoutingValidator(SecurityCasAuthcProperties authcProperties,
+                                     CasTicketValidatorConfiguration ticketValidatorConfig) {
+        this.authcProperties = authcProperties;
+        this.ticketValidatorConfig = ticketValidatorConfig;
+        this.defaultTicketValidator = ticketValidatorConfig.retrieveTicketValidator(CollectionUtils.firstElement(authcProperties.getServers()));
+        this.initTicketValidatorByReferer(authcProperties.getServers());
+        this.initTicketValidatorByTag(authcProperties.getServers());
     }
 
     private void initTicketValidatorByReferer(List<SecurityCasServerProperties> servers) {
@@ -64,12 +61,12 @@ public class CasTicketValidator implements TicketValidator {
             return;
         }
         for (SecurityCasServerProperties serverProperties : servers) {
-            if (!StringUtils.hasText(serverProperties.getName())
-                    || ticketValidatorByTag.containsKey(serverProperties.getName())) {
+            if (!StringUtils.hasText(serverProperties.getServerName())
+                    || ticketValidatorByTag.containsKey(serverProperties.getServerName())) {
                 continue;
             }
             try {
-                ticketValidatorByTag.put(serverProperties.getName(), this.ticketValidatorConfig.retrieveTicketValidator(serverProperties));
+                ticketValidatorByTag.put(serverProperties.getServerName(), this.ticketValidatorConfig.retrieveTicketValidator(serverProperties));
             } catch (Exception e) {
                 log.error("initTicketValidatorByTag error", e);
                 // ignore
@@ -81,9 +78,17 @@ public class CasTicketValidator implements TicketValidator {
     public Assertion validate(String ticket, String service) throws TicketValidationException {
         // 1. 根据referer获取TicketValidator
         HttpServletRequest request = WebUtils.getHttpServletRequest();
+        return this.getTicketValidatorByRequest(request).validate(ticket, service);
+    }
+
+    public Assertion validate(HttpServletRequest request, String ticket, String service) throws TicketValidationException {
+        return this.getTicketValidatorByRequest(request).validate(ticket, service);
+    }
+
+    public TicketValidator getTicketValidatorByRequest(HttpServletRequest request) {
         if (Objects.isNull(request)) {
-           log.debug("Using Default TicketValidator: " + this.getDefaultTicketValidator().getClass().getName());
-           return this.getDefaultTicketValidator().validate(ticket, service);
+            log.debug("Using Default TicketValidator: " + this.getDefaultTicketValidator().getClass().getName());
+            return this.getDefaultTicketValidator();
         }
         // 2. 根据serverTag获取TicketValidator
         String tag = request.getParameter(authcProperties.getServerTagParameterName());
@@ -92,7 +97,7 @@ public class CasTicketValidator implements TicketValidator {
             try {
                 TicketValidator ticketValidator = this.getTicketValidatorByTag().get(tag);
                 if (Objects.nonNull(ticketValidator)) {
-                    return ticketValidator.validate(ticket, service);
+                    return ticketValidator;
                 }
             } catch (Exception e) {
                 log.error("validate error", e);
@@ -107,7 +112,7 @@ public class CasTicketValidator implements TicketValidator {
                 URL url = new URL(referer);
                 TicketValidator ticketValidator = this.getTicketValidatorByReferer().get(url.getHost());
                 if (Objects.nonNull(ticketValidator)) {
-                    return ticketValidator.validate(ticket, service);
+                    return ticketValidator;
                 }
             } catch (Exception e) {
                 log.error("validate error", e);
@@ -115,16 +120,13 @@ public class CasTicketValidator implements TicketValidator {
             }
         }
         log.debug("Using Default TicketValidator: " + this.getDefaultTicketValidator().getClass().getName());
-        return this.getDefaultTicketValidator().validate(ticket, service);
-    }
-
-    public void setDefaultTicketValidator(TicketValidator defaultTicketValidator) {
-        this.defaultTicketValidator = defaultTicketValidator;
+        return this.getDefaultTicketValidator();
     }
 
     public TicketValidator getDefaultTicketValidator() {
         return defaultTicketValidator;
     }
+
     public Map<String, TicketValidator> getTicketValidatorByReferer() {
         return ticketValidatorByReferer;
     }
