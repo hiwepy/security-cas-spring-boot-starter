@@ -94,7 +94,7 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 		String tag = request.getParameter(this.serverTagParameterName);
 		if (StringUtils.hasText(tag)) {
 			for (SecurityCasServerProperties server : this.servers) {
-				if (tag.equals(server.getServerName())) {
+				if (tag.equals(server.getServerTag())) {
 					return server;
 				}
 			}

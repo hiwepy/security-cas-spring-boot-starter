@@ -45,7 +45,7 @@ public class CasAuthenticationRoutingEntryPoint extends CasAuthenticationEntryPo
 
         return CommonUtils.constructServiceUrl(null, response,
                 serverProperties.getServiceUrl(), null,
-                serverProperties.getArtifactParameterName(),
+                serverProperties.getValidationType().getProtocol().getArtifactParameterName(),
                 this.getEncodeServiceUrlWithSessionId());
     }
 
@@ -68,7 +68,7 @@ public class CasAuthenticationRoutingEntryPoint extends CasAuthenticationEntryPo
         // 3. 构建重定向URL
         String loginUrl = CasUrlUtils.constructLoginRedirectUrl(serverProperties);
         return CommonUtils.constructRedirectUrl(loginUrl,
-                serverProperties.getServiceParameterName(), serviceUrl,
+                serverProperties.getValidationType().getProtocol().getServiceParameterName(), serviceUrl,
                 serverProperties.getRenew(), false);
     }
 

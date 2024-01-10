@@ -38,7 +38,7 @@ public class ServiceAuthenticationDetailsExtSource extends ServiceAuthentication
             }
             try {
                 artifactPatternMap.put(serverProperties.getServerUrlPrefix(), DefaultServiceAuthenticationDetails
-                        .createArtifactPattern(serverProperties.getArtifactParameterName()));
+                        .createArtifactPattern(serverProperties.getValidationType().getProtocol().getArtifactParameterName()));
             } catch (Exception e) {
                 log.error("initArtifactPatternMap error", e);
                 // ignore

@@ -51,7 +51,7 @@ public class SingleSignOutRoutingFilter extends AbstractConfigurationFilter {
 
                 map.from(sessionMappingStorage).whenNonNull().to(singleSignOutHandler::setSessionMappingStorage);
                 map.from(serverProperties.isArtifactParameterOverPost()).to(singleSignOutHandler::setArtifactParameterOverPost);
-                map.from(serverProperties.getArtifactParameterName()).whenHasText().to(singleSignOutHandler::setArtifactParameterName);
+                map.from(serverProperties.getValidationType().getProtocol().getArtifactParameterName()).whenHasText().to(singleSignOutHandler::setArtifactParameterName);
                 map.from(serverProperties.getLogoutCallbackPath()).to(singleSignOutHandler::setLogoutCallbackPath);
                 map.from(serverProperties.getLogoutParameterName()).to(singleSignOutHandler::setLogoutParameterName);
                 map.from(serverProperties.getRelayStateParameterName()).to(singleSignOutHandler::setRelayStateParameterName);
