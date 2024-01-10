@@ -18,9 +18,10 @@ package org.springframework.security.boot;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jasig.cas.client.Protocol;
 import org.jasig.cas.client.configuration.ConfigurationKeys;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
-import org.jasig.cas.client.util.AbstractCasFilter;
+import org.springframework.lang.NonNull;
 import org.springframework.security.cas.ServiceProperties;
 
 import java.util.ArrayList;
@@ -46,7 +47,24 @@ public class SecurityCasServerProperties {
 	 * CAS Validation Type.
 	 */
 	public enum ValidationType {
-		CAS10, CAS20, CAS20_PROXY, CAS30, CAS30_PROXY, SAML
+
+		CAS10(Protocol.CAS1),
+		CAS20(Protocol.CAS2),
+		CAS20_PROXY(Protocol.CAS2),
+		CAS30(Protocol.CAS3),
+		CAS30_PROXY(Protocol.CAS3),
+		SAML(Protocol.SAML11);
+
+		Protocol protocol;
+
+		ValidationType(Protocol protocol) {
+			this.protocol = protocol;
+		}
+
+		public Protocol getProtocol() {
+			return protocol;
+		}
+
 	}
 
 	/**
@@ -61,9 +79,9 @@ public class SecurityCasServerProperties {
 	 */
 	private boolean enabled = true;
 	/**
-	 * CAS server Name. Required.
+	 * CAS server Match Tag. Required.
 	 */
-	private String serverName;
+	private String serverTag;
 	/**
 	 * CAS server Match Referer. Required.
 	 */
@@ -98,11 +116,13 @@ public class SecurityCasServerProperties {
 	 */
 	private String serverLoginUrl;
 	/**
-	 * The location of the CAS server logout URL, i.e. https://localhost:8443/cas/logout
+	 * CAS server logout URL E.g. https://example.com/cas/logout or https://cas.example/logout. Required.
 	 */
 	private String serverLogoutUrl;
-
-
+	/**
+	 * CAS-protected client application host URL E.g. https://myclient.example.com Required.
+	 */
+	private String clientHostUrl;
 	/**
 	 * The url where the application is redirected if the CAS service ticket validation failed (example : /mycontextpatch/cas_error.jsp)
 	 */
@@ -116,16 +136,11 @@ public class SecurityCasServerProperties {
 	 * true if it should convert, false otherwise.
 	 */
 	private boolean attributeConvertToUpperCase = false;
-
 	/**
 	 * Name of attributes to fetch from assertion to use when populating spring security context.
 	 */
 	private List<String> attributeAuthorities = new ArrayList<>();
 
-	/**
-	 * Specifies the name of the request parameter on where to find the artifact (i.e. ticket).
-	 */
-	private String artifactParameterName = ServiceProperties.DEFAULT_CAS_ARTIFACT_PARAMETER;
 	/**
 	 * If true, then any non-null artifact (ticket) should be authenticated.
 	 * Additionally, the service will be determined dynamically in order to ensure
@@ -213,12 +228,6 @@ public class SecurityCasServerProperties {
 	 *
 	 */
 	private String serviceUrl;
-
-	/**
-	 * Specifies the name of the request parameter on where to find the service
-	 * (i.e. service).
-	 */
-	private String serviceParameterName = ServiceProperties.DEFAULT_CAS_SERVICE_PARAMETER;
 
 	/**
 	 * Whether to store the Assertion in session or not. If sessions are not used,

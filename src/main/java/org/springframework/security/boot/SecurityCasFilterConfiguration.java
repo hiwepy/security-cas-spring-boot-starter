@@ -1,12 +1,11 @@
 package org.springframework.security.boot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jasig.cas.client.authentication.Saml11AuthenticationFilter;
+import org.jasig.cas.client.authentication.AuthenticationFilter;
 import org.jasig.cas.client.session.HashMapBackedSessionMappingStorage;
 import org.jasig.cas.client.session.SessionMappingStorage;
 import org.jasig.cas.client.util.AssertionThreadLocalFilter;
 import org.jasig.cas.client.util.HttpServletRequestWrapperFilter;
-import org.jasig.cas.client.validation.AbstractTicketValidationFilter;
 import org.jasig.cas.client.validation.TicketValidator;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -178,6 +177,7 @@ public class SecurityCasFilterConfiguration {
 		private final ServiceAuthenticationDetailsSource authenticationDetailsSource;
 	    private final CasAuthenticationSuccessHandler authenticationSuccessHandler;
 	    private final CasAuthenticationFailureHandler authenticationFailureHandler;
+		private final CasTicketValidationFilterConfiguration ticketValidationFilterConfig;
 	    private final CasProxyFailureRoutingHandler proxyFailureHandler;
 	    private final ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider;
     	private final RememberMeServices rememberMeServices;
@@ -205,6 +205,7 @@ public class SecurityCasFilterConfiguration {
    				ObjectProvider<RememberMeServices> rememberMeServicesProvider,
    				ObjectProvider<SessionMappingStorage> sessionMappingStorageProvider,
    				ObjectProvider<SessionAuthenticationStrategy> sessionAuthenticationStrategyProvider,
+				ObjectProvider<CasTicketValidationFilterConfiguration> ticketValidationFilterConfigProvider,
 				ObjectProvider<TicketValidator> ticketValidatorProvider
    				
    			) {
@@ -218,6 +219,7 @@ public class SecurityCasFilterConfiguration {
    			this.authenticationEntryPoint =  authenticationEntryPointProvider.getIfAvailable();
    			this.authenticationSuccessHandler = authenticationSuccessHandlerProvider.getIfAvailable();
    			this.authenticationFailureHandler = authenticationFailureHandlerProvider.getIfAvailable( () -> authenticationFailureHandler());
+
    			this.proxyFailureHandler = proxyFailureHandlerProvider.getIfAvailable( () -> proxyFailureHandler());
    			this.proxyGrantingTicketStorageProvider = proxyGrantingTicketStorageProvider.getIfAvailable();
    			this.redirectStrategy = WebSecurityUtils.redirectStrategy(authcProperties);
@@ -225,6 +227,7 @@ public class SecurityCasFilterConfiguration {
    			this.sessionMappingStorage = sessionMappingStorageProvider.getIfAvailable();
    			this.sessionAuthenticationStrategy = sessionAuthenticationStrategyProvider.getIfAvailable();
 		    this.ticketValidator = ticketValidatorProvider.getIfAvailable();
+			this.ticketValidationFilterConfig = ticketValidationFilterConfigProvider.getIfAvailable();
 			this.authenticationSuccessHandler.setRedirectStrategy(this.redirectStrategy);
 		}
 		
@@ -255,7 +258,6 @@ public class SecurityCasFilterConfiguration {
 		public CasAuthenticationFilter casAuthenticationFilter() throws Exception {
 
 			CasAuthenticationRoutingFilter authenticationFilter = new CasAuthenticationRoutingFilter(authcProperties);
-
 			/*
 			 * 批量设置参数
 			 */
@@ -267,7 +269,6 @@ public class SecurityCasFilterConfiguration {
 			map.from(authenticationDetailsSource).to(authenticationFilter::setAuthenticationDetailsSource);
 			map.from(rememberMeServices).to(authenticationFilter::setRememberMeServices);
 			map.from(sessionAuthenticationStrategy).to(authenticationFilter::setSessionAuthenticationStrategy);
-			
 			map.from(authcProperties.getPathPattern()).to(authenticationFilter::setFilterProcessesUrl);
 			map.from(authcProperties.isContinueChainBeforeSuccessfulAuthentication()).to(authenticationFilter::setContinueChainBeforeSuccessfulAuthentication);
 			map.from(authcProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
@@ -281,16 +282,10 @@ public class SecurityCasFilterConfiguration {
 			return authenticationFilter;
 		}
 
-		public Saml11AuthenticationFilter saml11AuthenticationFilter() throws Exception {
+		/*public Saml11AuthenticationFilter saml11AuthenticationFilter() throws Exception {
 
 			Saml11AuthenticationRoutingFilter authenticationFilter = new Saml11AuthenticationRoutingFilter(authcProperties);
-
-			/*
-			 * 批量设置参数
-			 */
 			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-
-			authenticationSuccessHandler.setRedirectStrategy(redirectStrategy);
 
 			map.from(authenticationManagerBean()).to(authenticationFilter::setAuthenticationManager);
 			map.from(authenticationSuccessHandler).to(authenticationFilter::setAuthenticationSuccessHandler);
@@ -310,35 +305,13 @@ public class SecurityCasFilterConfiguration {
 			}
 
 			return authenticationFilter;
-		}
+		}*/
 
-		public AbstractTicketValidationFilter casTicketValidationFilter() throws Exception {
+		public CasTicketValidationRoutingFilter casTicketValidationFilter() throws Exception {
 
-			CasTicketValidationRoutingFilter authenticationFilter = new CasTicketValidationRoutingFilter(authcProperties);
-
-			/*
-			 * 批量设置参数
-			 */
-			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-
-			authenticationSuccessHandler.setRedirectStrategy(redirectStrategy);
-
-			map.from(authenticationManagerBean()).to(authenticationFilter::setAuthenticationManager);
-			map.from(authenticationSuccessHandler).to(authenticationFilter::setAuthenticationSuccessHandler);
-			map.from(authenticationFailureHandler).to(authenticationFilter::setAuthenticationFailureHandler);
-			map.from(authenticationDetailsSource).to(authenticationFilter::setAuthenticationDetailsSource);
-			map.from(rememberMeServices).to(authenticationFilter::setRememberMeServices);
-			map.from(sessionAuthenticationStrategy).to(authenticationFilter::setSessionAuthenticationStrategy);
-
-			map.from(authcProperties.getPathPattern()).to(authenticationFilter::setFilterProcessesUrl);
-			map.from(authcProperties.isContinueChainBeforeSuccessfulAuthentication()).to(authenticationFilter::setContinueChainBeforeSuccessfulAuthentication);
-			map.from(authcProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
-
-			if(authcProperties.isAcceptAnyProxy()){
-				map.from(proxyGrantingTicketStorageProvider).to(authenticationFilter::setProxyGrantingTicketStorageProvider);
-				map.from(proxyFailureHandler).to(authenticationFilter::setProxyAuthenticationFailureHandler);
-				map.from(authcProperties.getProxyReceptorUrl()).to(authenticationFilter::setProxyReceptorUrl2);
-			}
+			CasTicketValidationRoutingFilter authenticationFilter = new CasTicketValidationRoutingFilter(authcProperties,
+					ticketValidationFilterConfig, ticketValidator, proxyGrantingTicketStorageProvider);
+			authenticationFilter.setIgnoreInitConfiguration(Boolean.TRUE);
 
 			return authenticationFilter;
 		}
@@ -404,7 +377,7 @@ public class SecurityCasFilterConfiguration {
    	            .addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)
    	            .addFilterAfter(assertionThreadLocalFilter(), CasAuthenticationFilter.class)
    	            .addFilterAfter(requestWrapperFilter(), AssertionThreadLocalFilter.class);
-
+			/*
 			http.antMatcher(authcProperties.getPathSaml11Pattern())
 				.exceptionHandling()
 				.authenticationEntryPoint(authenticationEntryPoint)
@@ -415,11 +388,10 @@ public class SecurityCasFilterConfiguration {
 				.addFilterAt(saml11AuthenticationFilter(), CasAuthenticationFilter.class)
 				.addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)
 				.addFilterAfter(assertionThreadLocalFilter(), CasAuthenticationFilter.class)
-				.addFilterAfter(requestWrapperFilter(), AssertionThreadLocalFilter.class);
+				.addFilterAfter(requestWrapperFilter(), AssertionThreadLocalFilter.class);*/
 
-			http.antMatcher(authcProperties.getPathSaml11Pattern())
+			http.antMatcher(authcProperties.getProxyReceptorUrl())
 					.exceptionHandling()
-					.authenticationEntryPoint(authenticationEntryPoint)
 					.and()
 					.httpBasic()
 					.disable()

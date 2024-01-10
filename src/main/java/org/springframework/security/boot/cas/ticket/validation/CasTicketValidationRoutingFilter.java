@@ -1,21 +1,22 @@
 package org.springframework.security.boot.cas.ticket.validation;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jasig.cas.client.Protocol;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
-import org.jasig.cas.client.util.AbstractCasFilter;
 import org.jasig.cas.client.util.CommonUtils;
 import org.jasig.cas.client.validation.AbstractTicketValidationFilter;
-import org.jasig.cas.client.validation.Assertion;
-import org.jasig.cas.client.validation.TicketValidationException;
 import org.jasig.cas.client.validation.TicketValidator;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
+import org.springframework.security.boot.cas.AbstractCasRoutingFilter;
 import org.springframework.security.boot.cas.ticket.ProxyGrantingTicketStorageProvider;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -26,10 +27,10 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-public class CasTicketValidationRoutingFilter extends AbstractCasFilter {
+public class CasTicketValidationRoutingFilter extends AbstractCasRoutingFilter {
 
     /** The TicketValidator we will use to validate tickets. */
-    private CasTicketRoutingValidator ticketValidator;
+    private final TicketValidator ticketValidator;
     private final SecurityCasAuthcProperties authcProperties;
     private final ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider;
     private final CasTicketValidationFilterConfiguration ticketValidationFilterConfig;
@@ -41,16 +42,16 @@ public class CasTicketValidationRoutingFilter extends AbstractCasFilter {
                                             CasTicketValidationFilterConfiguration ticketValidationFilterConfig,
                                             TicketValidator ticketValidator,
                                             ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider) {
-        super(Protocol.CAS3);
+        super(authcProperties);
         this.authcProperties = authcProperties;
         this.ticketValidationFilterConfig = ticketValidationFilterConfig;
+        this.ticketValidator = ticketValidator;
         this.proxyGrantingTicketStorageProvider = proxyGrantingTicketStorageProvider;
         this.defaultTicketValidationFilter = ticketValidationFilterConfig.retrieveTicketValidationFilter(ticketValidator,
                 CollectionUtils.firstElement(authcProperties.getServers()));
         this.initTicketValidationFilterByReferer(authcProperties.getServers());
         this.initTicketValidationFilterByTag(authcProperties.getServers());
     }
-
 
     private void initTicketValidationFilterByReferer(List<SecurityCasServerProperties> servers) {
         if (Objects.isNull(servers)) {
@@ -63,7 +64,8 @@ public class CasTicketValidationRoutingFilter extends AbstractCasFilter {
             }
             try {
                 URL url = new URL(serverProperties.getReferer());
-                ticketValidationFilterByReferer.put(url.getHost(), this.ticketFilterConfig.retrieveTicketValidationFilter(serverProperties));
+                ticketValidationFilterByReferer.put(url.getHost(),
+                        this.ticketValidationFilterConfig.retrieveTicketValidationFilter(ticketValidator, serverProperties));
             } catch (Exception e) {
                 log.error("initTicketValidatorByReferer error", e);
                 // ignore
@@ -76,12 +78,13 @@ public class CasTicketValidationRoutingFilter extends AbstractCasFilter {
             return;
         }
         for (SecurityCasServerProperties serverProperties : servers) {
-            if (!StringUtils.hasText(serverProperties.getServerName())
-                    || ticketValidationFilterByTag.containsKey(serverProperties.getServerName())) {
+            if (!StringUtils.hasText(serverProperties.getServerTag())
+                    || ticketValidationFilterByTag.containsKey(serverProperties.getServerTag())) {
                 continue;
             }
             try {
-                ticketValidationFilterByTag.put(serverProperties.getServerName(), this.ticketFilterConfig.retrieveTicketValidationFilter(serverProperties));
+                ticketValidationFilterByTag.put(serverProperties.getServerTag(),
+                        this.ticketValidationFilterConfig.retrieveTicketValidationFilter(ticketValidator, serverProperties));
             } catch (Exception e) {
                 log.error("initTicketValidatorByTag error", e);
                 // ignore
@@ -93,10 +96,6 @@ public class CasTicketValidationRoutingFilter extends AbstractCasFilter {
     public void init() {
         super.init();
         CommonUtils.assertNotNull(this.ticketValidator, "ticketValidator cannot be null.");
-    }
-
-    @Override
-    protected void initInternal(final FilterConfig filterConfig) throws ServletException {
     }
 
     /**
@@ -129,38 +128,6 @@ public class CasTicketValidationRoutingFilter extends AbstractCasFilter {
         return Boolean.FALSE;
     }
 
-
-    /**
-     * Template method that gets executed if ticket validation succeeds.  Override if you want additional behavior to occur
-     * if ticket validation succeeds.  This method is called after all ValidationFilter processing required for a successful authentication
-     * occurs.
-     *
-     * @param request the HttpServletRequest.
-     * @param response the HttpServletResponse.
-     * @param assertion the successful Assertion from the server.
-     */
-    protected void onSuccessfulValidation(final HttpServletRequest request, final HttpServletResponse response,
-                                          final Assertion assertion) {
-        // nothing to do here.
-    }
-
-    /**
-     * Template method that gets executed if validation fails.  This method is called right after the exception is caught from the ticket validator
-     * but before any of the processing of the exception occurs.
-     *
-     * @param request the HttpServletRequest.
-     * @param response the HttpServletResponse.
-     */
-    protected void onFailedValidation(final HttpServletRequest request, final HttpServletResponse response) {
-        // nothing to do here.
-    }
-
-    protected String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response, SecurityCasServerProperties serverProperties) {
-        return CommonUtils.constructServiceUrl(request, response, this.service, this.serverName,
-                this.protocol.getServiceParameterName(),
-                this.protocol.getArtifactParameterName(), this.encodeServiceUrl);
-    }
-
     @Override
     public final void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
                                final FilterChain filterChain) throws IOException, ServletException {
@@ -171,60 +138,67 @@ public class CasTicketValidationRoutingFilter extends AbstractCasFilter {
 
         final HttpServletRequest request = (HttpServletRequest) servletRequest;
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
-        final String ticket = retrieveTicketFromRequest(request);
 
-        if (CommonUtils.isNotBlank(ticket)) {
-            logger.debug("Attempting to validate ticket: {}", ticket);
+        this.getTicketValidationFilterByRequest(request).doFilter(request, response, filterChain);
 
-            SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
+    }
 
+    public AbstractTicketValidationFilter getTicketValidationFilterByRequest(HttpServletRequest request) {
+        if (Objects.isNull(request)) {
+            log.debug("Using Default TicketValidationFilter: " + this.getDefaultTicketValidationFilter().getClass().getName());
+            return this.getDefaultTicketValidationFilter();
+        }
+        // 2. 根据serverTag获取TicketValidator
+        String tag = request.getParameter(authcProperties.getServerTagParameterName());
+        if (StringUtils.hasText(tag)) {
+            log.debug("Using Tag parameter: " + tag);
             try {
-
-                final Assertion assertion = this.ticketValidator.validate(request, ticket, constructServiceUrl(request, response, serverProperties));
-
-                logger.debug("Successfully authenticated user: {}", assertion.getPrincipal().getName());
-
-                request.setAttribute(serverProperties.getServerName() +  CONST_CAS_ASSERTION, assertion);
-
-                if (serverProperties.isUseSession()) {
-                    request.getSession().setAttribute(serverProperties.getServerName() + CONST_CAS_ASSERTION, assertion);
+                AbstractTicketValidationFilter ticketValidationFilter = this.getTicketValidationFilterByTag().get(tag);
+                if (Objects.nonNull(ticketValidationFilter)) {
+                    return ticketValidationFilter;
                 }
-                onSuccessfulValidation(request, response, assertion);
-
-                if (serverProperties.isRedirectAfterValidation()) {
-                    logger.debug("Redirecting after successful ticket validation.");
-                    response.sendRedirect(constructServiceUrl(request, response));
-                    return;
-                }
-            } catch (final TicketValidationException e) {
-                logger.debug(e.getMessage(), e);
-
-                onFailedValidation(request, response);
-
-                if (serverProperties.isExceptionOnValidationFailure()) {
-                    throw new ServletException(e);
-                }
-
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
-
-                return;
+            } catch (Exception e) {
+                log.error("Get TicketValidationFilter error", e);
+                // ignore
             }
         }
-
-        filterChain.doFilter(request, response);
-
-    }
-
-    public void setTicketValidator(CasTicketRoutingValidator ticketValidator) {
-        this.ticketValidator = ticketValidator;
-    }
-
-    public void setProxyGrantingTicketStorageProvider(ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider) {
-        this.proxyGrantingTicketStorageProvider = proxyGrantingTicketStorageProvider;
+        // 3. 根据referer获取TicketValidator
+        String referer = request.getHeader(HttpHeaders.REFERER);
+        if (StringUtils.hasText(referer)) {
+            log.debug("Using Referer header: " + referer);
+            try {
+                URL url = new URL(referer);
+                AbstractTicketValidationFilter ticketValidationFilter = this.getTicketValidationFilterByReferer().get(url.getHost());
+                if (Objects.nonNull(ticketValidationFilter)) {
+                    return ticketValidationFilter;
+                }
+            } catch (Exception e) {
+                log.error("Get TicketValidationFilter error", e);
+                // ignore
+            }
+        }
+        log.debug("Using Default TicketValidationFilter: " + this.getDefaultTicketValidationFilter().getClass().getName());
+        return this.getDefaultTicketValidationFilter();
     }
 
     public ProxyGrantingTicketStorageProvider getProxyGrantingTicketStorageProvider() {
         return proxyGrantingTicketStorageProvider;
+    }
+
+    public AbstractTicketValidationFilter getDefaultTicketValidationFilter() {
+        return defaultTicketValidationFilter;
+    }
+
+    public Map<String, AbstractTicketValidationFilter> getTicketValidationFilterByReferer() {
+        return ticketValidationFilterByReferer;
+    }
+
+    public Map<String, AbstractTicketValidationFilter> getTicketValidationFilterByTag() {
+        return ticketValidationFilterByTag;
+    }
+
+    public TicketValidator getTicketValidator() {
+        return ticketValidator;
     }
 
 }

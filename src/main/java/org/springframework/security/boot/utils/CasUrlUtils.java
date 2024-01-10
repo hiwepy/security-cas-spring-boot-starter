@@ -46,12 +46,14 @@ public class CasUrlUtils {
 	}
 
 	public static String constructLogoutRedirectUrl(SecurityCasServerProperties serverProperties) {
-		return CommonUtils.constructRedirectUrl(serverProperties.getServerLogoutUrl(), serverProperties.getServiceParameterName(),
+		return CommonUtils.constructRedirectUrl(serverProperties.getServerLogoutUrl(),
+				serverProperties.getValidationType().getProtocol().getServiceParameterName(),
 				serverProperties.getServiceUrl(), serverProperties.getRenew(), serverProperties.getGateway());
 	}
 
 	public static String constructLoginRedirectUrl(SecurityCasServerProperties serverProperties) {
-		return CommonUtils.constructRedirectUrl(serverProperties.getServerLoginUrl(), serverProperties.getServiceParameterName(),
+		return CommonUtils.constructRedirectUrl(serverProperties.getServerLoginUrl(),
+				serverProperties.getValidationType().getProtocol().getServiceParameterName(),
 				serverProperties.getServiceUrl(), serverProperties.getRenew(), serverProperties.getGateway());
 	}
 
@@ -70,7 +72,7 @@ public class CasUrlUtils {
 			serviceUrl = CasUrlUtils.addParameter(serviceUrl,serverProperties.getTargetUrlParameter(),targetUrl,false);
 		}
 		return CommonUtils.constructRedirectUrl(serverProperties.getServerLoginUrl(),
-				serverProperties.getServiceParameterName(), serviceUrl,
+				serverProperties.getValidationType().getProtocol().getServiceParameterName(), serviceUrl,
 				serverProperties.getRenew(), false);
 	}
 	
@@ -83,7 +85,7 @@ public class CasUrlUtils {
 	 */
 	public static String constructFailureRedirectUrl(SecurityCasServerProperties serverProperties) {
 		return CommonUtils.constructRedirectUrl(serverProperties.getServerLoginUrl(),
-				serverProperties.getServiceParameterName(), serverProperties.getFailureUrl(),
+				serverProperties.getValidationType().getProtocol().getServiceParameterName(), serverProperties.getFailureUrl(),
 				serverProperties.getRenew(), false);
 	}
 	

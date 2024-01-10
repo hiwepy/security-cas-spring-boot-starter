@@ -61,12 +61,12 @@ public class CasTicketRoutingValidator implements TicketValidator {
             return;
         }
         for (SecurityCasServerProperties serverProperties : servers) {
-            if (!StringUtils.hasText(serverProperties.getServerName())
-                    || ticketValidatorByTag.containsKey(serverProperties.getServerName())) {
+            if (!StringUtils.hasText(serverProperties.getServerTag())
+                    || ticketValidatorByTag.containsKey(serverProperties.getServerTag())) {
                 continue;
             }
             try {
-                ticketValidatorByTag.put(serverProperties.getServerName(), this.ticketValidatorConfig.retrieveTicketValidator(serverProperties));
+                ticketValidatorByTag.put(serverProperties.getServerTag(), this.ticketValidatorConfig.retrieveTicketValidator(serverProperties));
             } catch (Exception e) {
                 log.error("initTicketValidatorByTag error", e);
                 // ignore
@@ -100,7 +100,7 @@ public class CasTicketRoutingValidator implements TicketValidator {
                     return ticketValidator;
                 }
             } catch (Exception e) {
-                log.error("validate error", e);
+                log.error("get TicketValidator error", e);
                 // ignore
             }
         }
@@ -115,7 +115,7 @@ public class CasTicketRoutingValidator implements TicketValidator {
                     return ticketValidator;
                 }
             } catch (Exception e) {
-                log.error("validate error", e);
+                log.error("get TicketValidator error", e);
                 // ignore
             }
         }

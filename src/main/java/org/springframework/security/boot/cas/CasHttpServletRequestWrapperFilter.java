@@ -60,8 +60,8 @@ public class CasHttpServletRequestWrapperFilter extends AbstractConfigurationFil
 
         final HttpSession session = request.getSession(false);
         final Assertion assertion = (Assertion) (session == null ? request
-                .getAttribute( serverProperties.getServerName() + AbstractCasFilter.CONST_CAS_ASSERTION) : session
-                .getAttribute(serverProperties.getServerName() + AbstractCasFilter.CONST_CAS_ASSERTION));
+                .getAttribute( serverProperties.getServerTag() + AbstractCasFilter.CONST_CAS_ASSERTION) : session
+                .getAttribute(serverProperties.getServerTag() + AbstractCasFilter.CONST_CAS_ASSERTION));
 
         return assertion == null ? null : assertion.getPrincipal();
     }

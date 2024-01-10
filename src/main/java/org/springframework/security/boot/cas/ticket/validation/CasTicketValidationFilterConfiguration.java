@@ -77,21 +77,17 @@ public class CasTicketValidationFilterConfiguration {
     protected Cas10TicketValidationFilter buildCas10TicketValidationFilter(final TicketValidator ticketValidator,
                                                                final SecurityCasServerProperties serverProperties) {
         Cas10TicketValidationFilter validationFilter = new Cas10TicketValidationFilter();
-        validationFilter.setTicketValidator(ticketValidator);
-        validationFilter.setRedirectAfterValidation(serverProperties.isRedirectAfterValidation());
-        validationFilter.setExceptionOnValidationFailure(serverProperties.isExceptionOnValidationFailure());
+        this.initTicketValidationFilter(validationFilter, serverProperties);
         return validationFilter;
     }
 
     protected Cas20ProxyReceivingTicketValidationFilter buildCas20ProxyReceivingTicketValidationFilter(final TicketValidator ticketValidator,
                                                              final SecurityCasServerProperties serverProperties) {
         Cas20ProxyReceivingTicketValidationFilter validationFilter = new Cas20ProxyReceivingTicketValidationFilter();
-        validationFilter.setTicketValidator(ticketValidator);
-        validationFilter.setRedirectAfterValidation(serverProperties.isRedirectAfterValidation());
-        validationFilter.setExceptionOnValidationFailure(serverProperties.isExceptionOnValidationFailure());
+        this.initTicketValidationFilter(validationFilter, serverProperties);
+        validationFilter.setMillisBetweenCleanUps(serverProperties.getMillisBetweenCleanUps());
         validationFilter.setProxyReceptorUrl(this.getProxyReceptorUrl());
         validationFilter.setProxyGrantingTicketStorage(proxyGrantingTicketStorageProvider.getProxyGrantingTicketStorage(serverProperties));
-        validationFilter.setMillisBetweenCleanUps(serverProperties.getMillisBetweenCleanUps());
         return validationFilter;
     }
 
@@ -103,29 +99,31 @@ public class CasTicketValidationFilterConfiguration {
         } else {
             validationFilter = new Cas30ProxyReceivingTicketValidationFilter();
         }
-        validationFilter.setExceptionOnValidationFailure(serverProperties.isExceptionOnValidationFailure());
-        validationFilter.setIgnoreInitConfiguration(Boolean.TRUE);
+        this.initTicketValidationFilter(validationFilter, serverProperties);
         validationFilter.setMillisBetweenCleanUps(serverProperties.getMillisBetweenCleanUps());
         validationFilter.setProxyReceptorUrl(this.getProxyReceptorUrl());
         validationFilter.setProxyGrantingTicketStorage(proxyGrantingTicketStorageProvider.getProxyGrantingTicketStorage(serverProperties));
-        validationFilter.setRedirectAfterValidation(serverProperties.isRedirectAfterValidation());
-        validationFilter.setTicketValidator(ticketValidator);
         return validationFilter;
     }
     
     protected Saml11TicketValidationFilter buildSaml11TicketValidationFilter(final TicketValidator ticketValidator,
                                                                              final SecurityCasServerProperties serverProperties) {
     	final Saml11TicketValidationFilter validationFilter = new Saml11TicketValidationFilter();
+        this.initTicketValidationFilter(validationFilter, serverProperties);
+        return validationFilter;
+    }
+
+    protected void initTicketValidationFilter(final AbstractTicketValidationFilter validationFilter,
+                                                                 final SecurityCasServerProperties serverProperties) {
         validationFilter.setEncodeServiceUrl(serverProperties.isEncodeServiceUrl());
         validationFilter.setExceptionOnValidationFailure(serverProperties.isExceptionOnValidationFailure());
         validationFilter.setIgnoreInitConfiguration(Boolean.TRUE);
         validationFilter.setRedirectAfterValidation(serverProperties.isRedirectAfterValidation());
         validationFilter.setService(serverProperties.getServiceUrl());
-        validationFilter.setTicketValidator(ticketValidator);
+        validationFilter.setServerName(serverProperties.getClientHostUrl());
         validationFilter.setUseSession(serverProperties.isUseSession());
-        return validationFilter;
     }
-	
+
 	/*
 	 * Gets the ssl config to use for HTTPS connections if one is configured for
 	 * this filter.
