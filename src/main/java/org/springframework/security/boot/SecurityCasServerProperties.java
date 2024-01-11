@@ -120,10 +120,6 @@ public class SecurityCasServerProperties {
 	 */
 	private String serverLogoutUrl;
 	/**
-	 * CAS-protected client application host URL E.g. https://myclient.example.com Required.
-	 */
-	private String clientHostUrl;
-	/**
 	 * The url where the application is redirected if the CAS service ticket validation failed (example : /mycontextpatch/cas_error.jsp)
 	 */
 	private String failureUrl;
@@ -204,6 +200,10 @@ public class SecurityCasServerProperties {
 	 */
 	private String relayStateParameterName = ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getDefaultValue();
 	/**
+	 * CAS-protected client application host URL E.g. https://myclient.example.com Required.
+	 */
+	private String clientHostUrl;
+	/**
 	 * Represents the service the user is authenticating to.
 	 * <p>
 	 * This service is the callback URL belonging to the local Spring Security System for
@@ -214,10 +214,8 @@ public class SecurityCasServerProperties {
 	 * </pre>
 	 *
 	 * The URL of the service the user is authenticating to
-	 *
 	 */
 	private String serviceUrl;
-
 	/**
 	 * Whether to store the Assertion in session or not. If sessions are not used,
 	 * tickets will be required for each request. Defaults to true.

@@ -22,6 +22,8 @@ import org.springframework.security.boot.SecurityCasServerProperties;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
@@ -37,12 +39,19 @@ public class CasUrlUtils {
 	 * @param serverProperties the server properties
 	 */
 	public static String getServerName(SecurityCasServerProperties serverProperties) {
-		String serverName = serverProperties.getClientHostUrl();
-		if (serverName != null && serverName.endsWith("/")) {
-			serverName = serverName.substring(0, serverName.length() - 1);
+		try {
+			URI uri = new URI(serverProperties.getClientHostUrl());
+			String serverName = uri.getHost();
+			// 移除可能存在的尾部斜杠
+			if (serverName.endsWith("/")) {
+				serverName = serverName.substring(0, serverName.length() - 1);
+			}
 			log.info("Eliminated extra slash from serverName [{}].  It is now [{}]", serverProperties.getClientHostUrl(), serverName);
-		}
-		return serverName;
+			return serverName;
+		} catch (URISyntaxException e) {
+			log.error("Error parsing URL {}", serverProperties.getClientHostUrl(), e.getMessage());
+			return serverProperties.getClientHostUrl();
+        }
 	}
 
 	/**
