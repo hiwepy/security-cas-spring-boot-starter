@@ -1,7 +1,6 @@
 package org.springframework.security.boot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jasig.cas.client.authentication.AuthenticationFilter;
 import org.jasig.cas.client.session.HashMapBackedSessionMappingStorage;
 import org.jasig.cas.client.session.SessionMappingStorage;
 import org.jasig.cas.client.util.AssertionThreadLocalFilter;
@@ -262,7 +261,7 @@ public class SecurityCasFilterConfiguration {
 			 * 批量设置参数
 			 */
 			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-			
+
 			map.from(authenticationManagerBean()).to(authenticationFilter::setAuthenticationManager);
 			map.from(authenticationSuccessHandler).to(authenticationFilter::setAuthenticationSuccessHandler);
 			map.from(authenticationFailureHandler).to(authenticationFilter::setAuthenticationFailureHandler);

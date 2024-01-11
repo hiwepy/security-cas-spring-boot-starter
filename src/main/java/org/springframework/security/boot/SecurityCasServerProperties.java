@@ -147,14 +147,14 @@ public class SecurityCasServerProperties {
 	 * the service matches the expected value for this artifact.
 	 */
 	private boolean authenticateAllArtifacts = false;
-
+	/**
+	 * Specifies whether the artifact should be sent using the artifact parameter or
+	 */
 	private boolean artifactParameterOverPost = false;
-
-	/*
+	/**
 	 * Map containing user defined parameters
 	 */
 	private Map<String, String> customParams = new HashMap<>();
-
 	/**
 	 * Specifies the encoding charset the client should use
 	 */
@@ -174,46 +174,35 @@ public class SecurityCasServerProperties {
 	 * By default, encoding is enabled.
 	 */
 	private boolean encodeServiceUrlWithSessionId = true;
-
-	/**
-	 * Whether Enable Front-end Authorization Proxy.
-	 */
-	private boolean frontendProxy = false;
-
-	private String frontendTargetUrl = "/";
-
 	/**
 	 * Specifies whether gateway=true should be sent to the CAS server. Valid values
 	 * are either true/false (or no value at all)
 	 */
 	private Boolean gateway = Boolean.FALSE;
-
-	/** Parameter name that stores logout request for SLO */
+	/**
+	 * Parameter name that stores logout request for SLO
+	 */
 	private String logoutParameterName = ConfigurationKeys.LOGOUT_PARAMETER_NAME.getDefaultValue();
-
-	/** The logout callback path configured at the CAS server, if there is one */
+	/**
+	 * The logout callback path configured at the CAS server, if there is one
+	 */
 	private String logoutCallbackPath;
-
-
 	/**
 	 * Specifies the proxy chain.
 	 * Each acceptable proxy chain should include a space-separated list of URLs (for exact match) or regular expressions of URLs (starting by the ^ character).
 	 * Each acceptable proxy chain should appear on its own line.
 	 */
 	private String allowedProxyChains;
-
 	/**
 	 * Specifies whether renew=true should be sent to the CAS server. Valid values
 	 * are either true/false (or no value at all). Note that renew cannot be
 	 * specified as local init-param setting..
 	 */
 	private Boolean renew = Boolean.FALSE;
-
-
-	/** Parameter name that stores the state of the CAS server webflow for the callback */
+	/**
+	 * Parameter name that stores the state of the CAS server webflow for the callback
+	 */
 	private String relayStateParameterName = ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getDefaultValue();
-
-
 	/**
 	 * Represents the service the user is authenticating to.
 	 * <p>
@@ -234,10 +223,6 @@ public class SecurityCasServerProperties {
 	 * tickets will be required for each request. Defaults to true.
 	 */
 	private boolean useSession = true;
-
-
-	private String hostnameVerifier;
-
 	/**
 	 * A reference to a properties file that includes SSL settings for client-side
 	 * SSL config, used during back-channel calls. The configuration includes keys
@@ -251,7 +236,6 @@ public class SecurityCasServerProperties {
 	 * synchronization. Defaults to 1000 msec
 	 */
 	private long tolerance = 5000L;
-
 	/**
 	 * time, in milliseconds, before a {@link ProxyGrantingTicketHolder} is
 	 * considered expired and ready for removal.
@@ -259,7 +243,6 @@ public class SecurityCasServerProperties {
 	 * @see ProxyGrantingTicketStorageImpl#DEFAULT_TIMEOUT
 	 */
 	private long ticketTimeout = DEFAULT_TIMEOUT;
-
 	/**
 	 * ValidationType the CAS protocol validation type. Defaults to CAS3 if not explicitly set.
 	 */
@@ -280,12 +263,6 @@ public class SecurityCasServerProperties {
 	private int millisBetweenCleanUps = 60000;
 
 	private SingleLogout singleLogout;
-
-	public static class TicketValidation {
-
-
-
-	}
 
 	public static class SingleLogout{
 		/**

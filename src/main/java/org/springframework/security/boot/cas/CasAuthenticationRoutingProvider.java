@@ -21,7 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.TicketValidationException;
-import org.jasig.cas.client.validation.TicketValidator;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -126,7 +125,7 @@ public class CasAuthenticationRoutingProvider extends CasAuthenticationProvider 
 	protected CasAuthenticationToken authenticateNow(final Authentication authentication)
 			throws AuthenticationException {
 		try {
-			final Assertion assertion = this.getTicketValidator(authentication).validate(authentication
+			final Assertion assertion = this.getTicketValidator().validate(authentication
 					.getCredentials().toString(), this.getServiceUrl(authentication));
 			final UserDetails userDetails = loadUserByAssertion(assertion);
 			userDetailsChecker.check(userDetails);
@@ -138,12 +137,6 @@ public class CasAuthenticationRoutingProvider extends CasAuthenticationProvider 
 		catch (final TicketValidationException e) {
 			throw new BadCredentialsException(e.getMessage(), e);
 		}
-	}
-
-	protected TicketValidator getTicketValidator(final Authentication authentication) {
-		String targetUrl = getServiceUrl(authentication);
-
-		return super.getTicketValidator();
 	}
 
 	/**

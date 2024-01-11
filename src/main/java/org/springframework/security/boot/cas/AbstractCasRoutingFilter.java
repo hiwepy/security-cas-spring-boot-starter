@@ -4,6 +4,7 @@ import org.jasig.cas.client.util.AbstractConfigurationFilter;
 import org.jasig.cas.client.util.CommonUtils;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
+import org.springframework.security.boot.utils.CasUrlUtils;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -47,7 +48,7 @@ public abstract class AbstractCasRoutingFilter extends AbstractConfigurationFilt
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
         String artifactParameterName = serverProperties.getValidationType().getProtocol().getArtifactParameterName();
         String serviceParameterName = serverProperties.getValidationType().getProtocol().getServiceParameterName();
-        return CommonUtils.constructServiceUrl(request, response, serverProperties.getServiceUrl(), this.getServerName(serverProperties),
+        return CommonUtils.constructServiceUrl(request, response, serverProperties.getServiceUrl(), CasUrlUtils.getServerName(serverProperties),
                 serviceParameterName, artifactParameterName, serverProperties.isEncodeServiceUrl());
     }
 
@@ -63,19 +64,6 @@ public abstract class AbstractCasRoutingFilter extends AbstractConfigurationFilt
         return CommonUtils.safeGetParameter(request, artifactParameterName, Arrays.asList(artifactParameterName));
     }
 
-    /**
-     * Note that trailing slashes should not be used in the serverName.  As a convenience for this common misconfiguration, we strip them from the provided
-     * value.
-     *
-     * @param serverName the serverName. If this method is called, this should not be null.  This AND service should not be both configured.
-     */
-    protected final String getServerName(SecurityCasServerProperties serverProperties) {
-        String serverName = serverProperties.getServiceUrl();
-        if (serverName != null && serverName.endsWith("/")) {
-            serverName = serverName.substring(0, serverName.length() - 1);
-            logger.info("Eliminated extra slash from serverName [{}].  It is now [{}]", serverProperties.getServiceUrl(), serverName);
-        }
-        return serverName;
-    }
+
 
 }

@@ -25,6 +25,7 @@ import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.SecurityCasServerProperties.ValidationType;
 import org.springframework.security.boot.cas.exception.CasAuthenticationServiceException;
 import org.springframework.security.boot.cas.ticket.ProxyGrantingTicketStorageProvider;
+import org.springframework.security.boot.utils.CasUrlUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -91,7 +92,8 @@ public class CasTicketValidationFilterConfiguration {
         return validationFilter;
     }
 
-    protected Cas30ProxyReceivingTicketValidationFilter buildCas30ProxyReceivingTicketValidationFilter(final TicketValidator ticketValidator,
+    protected Cas30ProxyReceivingTicketValidationFilter buildCas30ProxyReceivingTicketValidationFilter(
+                     final TicketValidator ticketValidator,
                      final SecurityCasServerProperties serverProperties) {
         Cas30ProxyReceivingTicketValidationFilter validationFilter;
         if (serverProperties.getValidationResponse() == SecurityCasServerProperties.ValidationResponse.JSON) {
@@ -114,22 +116,21 @@ public class CasTicketValidationFilterConfiguration {
     }
 
     protected void initTicketValidationFilter(final AbstractTicketValidationFilter validationFilter,
-                                                                 final SecurityCasServerProperties serverProperties) {
+                                              final SecurityCasServerProperties serverProperties) {
         validationFilter.setEncodeServiceUrl(serverProperties.isEncodeServiceUrl());
         validationFilter.setExceptionOnValidationFailure(serverProperties.isExceptionOnValidationFailure());
         validationFilter.setIgnoreInitConfiguration(Boolean.TRUE);
         validationFilter.setRedirectAfterValidation(serverProperties.isRedirectAfterValidation());
         validationFilter.setService(serverProperties.getServiceUrl());
-        validationFilter.setServerName(serverProperties.getClientHostUrl());
+        validationFilter.setServerName(CasUrlUtils.getServerName(serverProperties));
         validationFilter.setUseSession(serverProperties.isUseSession());
     }
 
-	/*
+	/**
 	 * Gets the ssl config to use for HTTPS connections if one is configured for
 	 * this filter.
-	 * 
-	 * @return Properties that can contains key/trust info for Client Side
-	 *         Certificates
+	 * @param serverProperties the server properties
+	 * @return Properties that can contains key/trust info for Client Side Certificates
 	 */
 	protected Properties getSSLConfig(SecurityCasServerProperties serverProperties) {
 		final Properties properties = new Properties();

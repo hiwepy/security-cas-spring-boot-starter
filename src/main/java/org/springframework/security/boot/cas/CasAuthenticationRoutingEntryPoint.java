@@ -46,7 +46,7 @@ public class CasAuthenticationRoutingEntryPoint extends CasAuthenticationEntryPo
         return CommonUtils.constructServiceUrl(null, response,
                 serverProperties.getServiceUrl(), null,
                 serverProperties.getValidationType().getProtocol().getArtifactParameterName(),
-                this.getEncodeServiceUrlWithSessionId());
+                serverProperties.isEncodeServiceUrlWithSessionId());
     }
 
     /**

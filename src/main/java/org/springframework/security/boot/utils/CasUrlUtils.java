@@ -15,6 +15,7 @@
  */
 package org.springframework.security.boot.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.client.util.CommonUtils;
 import org.springframework.security.boot.SecurityCasServerProperties;
@@ -26,13 +27,29 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class CasUrlUtils {
+
+	/**
+	 * Note that trailing slashes should not be used in the serverName.  As a convenience for this common misconfiguration, we strip them from the provided
+	 * value.
+	 *
+	 * @param serverProperties the server properties
+	 */
+	public static String getServerName(SecurityCasServerProperties serverProperties) {
+		String serverName = serverProperties.getClientHostUrl();
+		if (serverName != null && serverName.endsWith("/")) {
+			serverName = serverName.substring(0, serverName.length() - 1);
+			log.info("Eliminated extra slash from serverName [{}].  It is now [{}]", serverProperties.getClientHostUrl(), serverName);
+		}
+		return serverName;
+	}
 
 	/**
 	 * 获取字段值
 	 *
-	 * @param urlStr
-	 * @param field
+	 * @param urlStr URL
+	 * @param field 字段名
 	 * @return
 	 */
 	public static String getFieldValue(String urlStr, String field) {

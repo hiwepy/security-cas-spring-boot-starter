@@ -6,6 +6,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.cas.ticket.ProxyGrantingTicketStorageProvider;
+import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -25,16 +26,15 @@ import java.util.Objects;
 
 public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
 
+    private final SecurityCasAuthcProperties authcProperties;
     /**
      * The last portion of the receptor url, i.e. /proxy/receptor
      */
     private RequestMatcher proxyReceptorMatcher;
-
     /**
      * The backing storage to store ProxyGrantingTicket requests.
      */
     private ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider;
-    private final SecurityCasAuthcProperties authcProperties;
 
     public CasAuthenticationRoutingFilter(SecurityCasAuthcProperties authcProperties) {
         super();
@@ -79,6 +79,10 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
                                                 final HttpServletResponse response) throws AuthenticationException, IOException {
 
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
+        if(Objects.isNull(serverProperties)){
+            logger.error("Failed to obtain serverProperties by request");
+            return null;
+        }
         ProxyGrantingTicketStorage proxyGrantingTicketStorage = this.proxyGrantingTicketStorageProvider.getProxyGrantingTicketStorage(serverProperties);
         // if the request is a proxy request process it and return null to indicate the
         // request has been processed
@@ -87,6 +91,12 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
             CommonUtils.readAndRespondToProxyReceptorRequest(request, response, proxyGrantingTicketStorage);
             return null;
         }
+
+        ServiceProperties serviceProperties = new ServiceProperties();
+        serviceProperties.setAuthenticateAllArtifacts(serverProperties.isAuthenticateAllArtifacts());
+        serviceProperties.setArtifactParameter(serverProperties.getValidationType().getProtocol().getArtifactParameterName());
+        serviceProperties.setServiceParameter(serverProperties.getValidationType().getProtocol().getServiceParameterName());
+        this.setServiceProperties(serviceProperties);
 
         final boolean serviceTicketRequest = this.serviceTicketRequest(request, response);
         final String username = serviceTicketRequest ? CAS_STATEFUL_IDENTIFIER : CAS_STATELESS_IDENTIFIER;
