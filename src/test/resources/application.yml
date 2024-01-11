@@ -68,8 +68,7 @@ spring:
             server-logout-url: http://10.30.186.104/sso/logout
             server-url-prefix: http://10.30.186.104/sso/
             protocol: cas30
-            client-host-url:
-            service-host-url-prefix: http://10.30.186.134:8080
+            service-host-url: http://10.30.186.134:8080
             service-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
             service-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
           - name: cas2

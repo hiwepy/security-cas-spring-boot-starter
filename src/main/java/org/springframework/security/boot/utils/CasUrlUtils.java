@@ -40,17 +40,17 @@ public class CasUrlUtils {
 	 */
 	public static String getServerName(SecurityCasServerProperties serverProperties) {
 		try {
-			URI uri = new URI(serverProperties.getClientHostUrl());
+			URI uri = new URI(serverProperties.getServiceHostUrl());
 			String serverName = uri.getHost();
 			// 移除可能存在的尾部斜杠
 			if (serverName.endsWith("/")) {
 				serverName = serverName.substring(0, serverName.length() - 1);
 			}
-			log.info("Eliminated extra slash from serverName [{}].  It is now [{}]", serverProperties.getClientHostUrl(), serverName);
+			log.info("Eliminated extra slash from serverName [{}].  It is now [{}]", serverProperties.getServiceHostUrl(), serverName);
 			return serverName;
 		} catch (URISyntaxException e) {
-			log.error("Error parsing URL {}", serverProperties.getClientHostUrl(), e.getMessage());
-			return serverProperties.getClientHostUrl();
+			log.error("Error parsing URL {}", serverProperties.getServiceHostUrl(), e.getMessage());
+			return serverProperties.getServiceHostUrl();
         }
 	}
 

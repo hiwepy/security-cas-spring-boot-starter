@@ -202,7 +202,7 @@ public class SecurityCasServerProperties {
 	/**
 	 * CAS-protected client application host URL E.g. https://myclient.example.com Required.
 	 */
-	private String clientHostUrl;
+	private String serviceHostUrl;
 	/**
 	 * Represents the service the user is authenticating to.
 	 * <p>
