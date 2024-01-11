@@ -46,8 +46,7 @@ spring:
           creation-policy: if-required
         server-tag-parameter-name: platform
         servers:
-          - name: cas1
-            attributes:
+          - attributes:
               - comsys_department
               - comsys_post
               - comsys_cardid
@@ -62,8 +61,9 @@ spring:
               - comsys_other_post
               - comsys_usertype
               - comsys_teaching_number
-            always-use-default-target-url: true
+            always-use-default-target-url: false
             default-target-url: http://10.30.186.134:8089/#/client
+            server-tag: cas1
             server-login-url: http://10.30.186.104/sso/login
             server-logout-url: http://10.30.186.104/sso/logout
             server-url-prefix: http://10.30.186.104/sso/
@@ -71,8 +71,7 @@ spring:
             service-host-url: http://10.30.186.134:8080
             service-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
             service-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
-          - name: cas2
-            attributes:
+          - attributes:
               - comsys_department
               - comsys_post
               - comsys_cardid
@@ -87,17 +86,13 @@ spring:
               - comsys_other_post
               - comsys_usertype
               - comsys_teaching_number
-            frontend-proxy: true
-            frontend-target-url: /portal
-            always-use-default-target-url: true
+            always-use-default-target-url: false
             default-target-url: http://10.30.186.134:8089/#/client
-            gateway: false
+            server-tag: cas2
             server-login-url: http://10.30.186.104/sso/login
             server-logout-url: http://10.30.186.104/sso/logout
             server-url-prefix: http://10.30.186.104/sso/
             protocol: cas30
-            proxy-receptor-url: /authz/login/cas-proxy
-            proxy-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas-proxy
-            renew: false
+            service-host-url: http://10.30.186.134:8080
             service-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
             service-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
