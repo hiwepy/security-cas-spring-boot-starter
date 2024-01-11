@@ -40,7 +40,6 @@ spring:
       enabled: true
       authc:
         path-pattern: /authz/login/cas
-        accept-any-proxy: true
         session-mgt:
           allow-session-creation: true
           creation-policy: if-required
