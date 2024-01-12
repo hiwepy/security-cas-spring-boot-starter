@@ -64,9 +64,9 @@ public class CasTicketValidationFilterConfiguration {
                                                                          final SecurityCasServerProperties serverProperties) {
         if (serverProperties.getValidationType() == ValidationType.CAS10) {
             return buildCas10TicketValidationFilter(ticketValidator, serverProperties);
-        } else if (serverProperties.getValidationType() == ValidationType.CAS20_PROXY) {
+        } else if (serverProperties.getValidationType() == ValidationType.CAS20 || serverProperties.getValidationType() == ValidationType.CAS20_PROXY) {
             return buildCas20ProxyReceivingTicketValidationFilter(ticketValidator, serverProperties);
-        } else if (serverProperties.getValidationType() == ValidationType.CAS30_PROXY) {
+        } else if (serverProperties.getValidationType() == ValidationType.CAS30 || serverProperties.getValidationType() == ValidationType.CAS30_PROXY) {
             return buildCas30ProxyReceivingTicketValidationFilter(ticketValidator, serverProperties);
         } else if (serverProperties.getValidationType() == ValidationType.SAML) {
             return buildSaml11TicketValidationFilter(ticketValidator, serverProperties);

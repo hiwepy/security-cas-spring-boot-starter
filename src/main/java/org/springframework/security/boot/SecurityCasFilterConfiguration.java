@@ -388,7 +388,7 @@ public class SecurityCasFilterConfiguration {
 				.addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)
 				.addFilterAfter(assertionThreadLocalFilter(), CasAuthenticationFilter.class)
 				.addFilterAfter(requestWrapperFilter(), AssertionThreadLocalFilter.class);*/
-
+			/*
 			http.antMatcher(authcProperties.getProxyReceptorUrl())
 					.exceptionHandling()
 					.and()
@@ -398,7 +398,7 @@ public class SecurityCasFilterConfiguration {
 					.addFilterAt(casTicketValidationFilter(), CasAuthenticationFilter.class)
 					.addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)
 					.addFilterAfter(assertionThreadLocalFilter(), CasAuthenticationFilter.class)
-					.addFilterAfter(requestWrapperFilter(), AssertionThreadLocalFilter.class);
+					.addFilterAfter(requestWrapperFilter(), AssertionThreadLocalFilter.class);*/
 
    	    	super.configure(http, authcProperties.getCors());
    	    	super.configure(http, authcProperties.getCsrf());
