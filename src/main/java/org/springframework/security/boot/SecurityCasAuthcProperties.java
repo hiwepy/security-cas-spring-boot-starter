@@ -102,7 +102,7 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 		String referer = request.getHeader(HttpHeaders.REFERER);
 		if (StringUtils.hasText(referer)) {
 			for (SecurityCasServerProperties server : this.servers) {
-				if (referer.startsWith(server.getReferer())) {
+				if (referer.startsWith(server.getServiceReferer())) {
 					return server;
 				}
 			}

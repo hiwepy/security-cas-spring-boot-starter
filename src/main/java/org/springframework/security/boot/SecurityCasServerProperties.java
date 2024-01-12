@@ -78,14 +78,6 @@ public class SecurityCasServerProperties {
 	 * Whether Enable This Cas Server.
 	 */
 	private boolean enabled = true;
-	/**
-	 * CAS server Match Tag. Required.
-	 */
-	private String serverTag;
-	/**
-	 * CAS server Match Referer. Required.
-	 */
-	private String referer;
 
 	private String defaultTargetUrl = "/";
 
@@ -97,8 +89,6 @@ public class SecurityCasServerProperties {
 	private String defaultFailureUrl;
 	private boolean forwardToDestination = false;
 	private boolean allowSessionCreation = true;
-
-
 	/**
 	 * If this property is set, the current request will be checked for this a parameter
 	 * with this name and the value used as the target URL if present.
@@ -107,6 +97,10 @@ public class SecurityCasServerProperties {
 	 * URL. Defaults to null.
 	 */
 	private String targetUrlParameter = "target";
+	/**
+	 * CAS server Match Tag. Required.
+	 */
+	private String serverTag;
 	/**
 	 * CAS server URL E.g. https://example.com/cas or https://cas.example. Required.
 	 */
@@ -199,6 +193,10 @@ public class SecurityCasServerProperties {
 	 * Parameter name that stores the state of the CAS server webflow for the callback
 	 */
 	private String relayStateParameterName = ConfigurationKeys.RELAY_STATE_PARAMETER_NAME.getDefaultValue();
+	/**
+	 * CAS server Match Referer. Required.
+	 */
+	private String serviceReferer;
 	/**
 	 * CAS-protected client application host URL E.g. https://myclient.example.com Required.
 	 */

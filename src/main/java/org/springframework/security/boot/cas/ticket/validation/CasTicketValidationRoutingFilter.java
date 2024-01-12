@@ -58,12 +58,12 @@ public class CasTicketValidationRoutingFilter extends AbstractCasRoutingFilter {
             return;
         }
         for (SecurityCasServerProperties serverProperties : servers) {
-            if (!StringUtils.hasText(serverProperties.getReferer())
-                    || ticketValidationFilterByReferer.containsKey(serverProperties.getReferer())) {
+            if (!StringUtils.hasText(serverProperties.getServiceReferer())
+                    || ticketValidationFilterByReferer.containsKey(serverProperties.getServiceReferer())) {
                 continue;
             }
             try {
-                URL url = new URL(serverProperties.getReferer());
+                URL url = new URL(serverProperties.getServiceReferer());
                 ticketValidationFilterByReferer.put(url.getHost(),
                         this.ticketValidationFilterConfig.retrieveTicketValidationFilter(ticketValidator, serverProperties));
             } catch (Exception e) {

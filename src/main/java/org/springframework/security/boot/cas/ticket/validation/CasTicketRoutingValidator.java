@@ -42,12 +42,12 @@ public class CasTicketRoutingValidator implements TicketValidator {
             return;
         }
         for (SecurityCasServerProperties serverProperties : servers) {
-            if (!StringUtils.hasText(serverProperties.getReferer())
-                    || ticketValidatorByReferer.containsKey(serverProperties.getReferer())) {
+            if (!StringUtils.hasText(serverProperties.getServiceReferer())
+                    || ticketValidatorByReferer.containsKey(serverProperties.getServiceReferer())) {
                 continue;
             }
             try {
-                URL url = new URL(serverProperties.getReferer());
+                URL url = new URL(serverProperties.getServiceReferer());
                 ticketValidatorByReferer.put(url.getHost(), this.ticketValidatorConfig.retrieveTicketValidator(serverProperties));
             } catch (Exception e) {
                 log.error("initTicketValidatorByReferer error", e);
