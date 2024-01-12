@@ -32,7 +32,12 @@ public class CasProxyFailureRoutingHandler extends ListenedAuthenticationFailure
 		super(authenticationListeners, "");
 		this.authcProperties = authcProperties;
 	}
-	
+
+	@Override
+	public void setDefaultFailureUrl(String defaultFailureUrl) {
+		// do nothing
+	}
+
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
