@@ -36,6 +36,11 @@ public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailu
 	}
 
 	@Override
+	public void setDefaultFailureUrl(String defaultFailureUrl) {
+		// do nothing
+	}
+
+	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
 

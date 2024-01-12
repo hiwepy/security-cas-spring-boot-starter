@@ -39,6 +39,11 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 	}
 
 	@Override
+	public void setDefaultTargetUrl(String defaultTargetUrl) {
+		// do nothing
+	}
+
+	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
 
@@ -93,10 +98,10 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 		getRedirectStrategy().sendRedirect(request, response, targetUrl);
 	}
 
-	@Override
 	/**
 	 * Builds the target URL according to the logic defined in the main class Javadoc.
 	 */
+	@Override
 	protected String determineTargetUrl(HttpServletRequest request,
 										HttpServletResponse response) {
 		// 1. 获取请求匹配的CasServerProperties
