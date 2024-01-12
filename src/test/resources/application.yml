@@ -69,8 +69,7 @@ spring:
             protocol: cas30
             service-referer: http://10.30.186.134:8080
             service-host-url: http://10.30.186.134:8080
-            service-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
-            service-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
+            service-url: http://10.30.186.134:8080/auth/cas/login?target=xxxx&platform=cas1
           - attributes:
               - comsys_department
               - comsys_post
@@ -96,4 +95,4 @@ spring:
             service-referer: http://10.30.186.134:8080
             service-host-url: http://10.30.186.134:8080
             service-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
-            service-callback-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
+            use-session: true

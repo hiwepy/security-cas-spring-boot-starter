@@ -216,9 +216,9 @@ public class SecurityCasServerProperties {
 	private String serviceUrl;
 	/**
 	 * Whether to store the Assertion in session or not. If sessions are not used,
-	 * tickets will be required for each request. Defaults to true.
+	 * tickets will be required for each request. Defaults to false.
 	 */
-	private boolean useSession = true;
+	private boolean useSession = false;
 	/**
 	 * A reference to a properties file that includes SSL settings for client-side
 	 * SSL config, used during back-channel calls. The configuration includes keys
