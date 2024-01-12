@@ -21,6 +21,12 @@
 ##### 2、在`application.yml`文件中增加如下配置
 
 ```yaml
+server:
+  port: 8080
+
+################################################################################################################
+###Spring Boot 相关组件（SpringMVC、Freemarker、Session、Cache、DataSource）配置：
+################################################################################################################
 spring:
   # 权限控制
   security:
@@ -57,40 +63,61 @@ spring:
       enabled: true
       authc:
         path-pattern: /authz/login/cas
-        accept-any-proxy: true
-        attributes:
-          - comsys_department
-          - comsys_post
-          - comsys_cardid
-          - comsys_post_type
-          - comsys_educational
-          - comsys_phone
-          - comsys_genders
-          - comsys_name
-          - comsys_loginid
-          - comsys_email
-          - comsys_role
-          - comsys_other_post
-          - comsys_usertype
-          - comsys_teaching_number
-        continue-chain-before-successful-authentication: false
-        frontend-proxy: true
-        frontend-target-url: http://127.0.0.1:8089/#/client
-        always-use-default-target-url: true
-        default-target-url: /portal
-        gateway: false
-        login-url: http://127.0.0.1/sso/login
-        logout-url: http://127.0.0.1/sso/logout
-        prefix-url: http://127.0.0.1/sso/
-        protocol: cas20-proxy
-        proxy-receptor-url: /authz/login/cas-proxy
-        proxy-callback-url: http://127.0.0.1:8080/smartedu-authz/authz/login/cas-proxy
-        renew: false
-        service-url: http://127.0.0.1:8080/smartedu-authz/authz/login/cas
-        service-callback-url: http://127.0.0.1:8080/smartedu-authz/authz/login/cas
         session-mgt:
           allow-session-creation: true
           creation-policy: if-required
+        server-tag-parameter-name: platform
+        servers:
+          - attributes:
+              - comsys_department
+              - comsys_post
+              - comsys_cardid
+              - comsys_post_type
+              - comsys_educational
+              - comsys_phone
+              - comsys_genders
+              - comsys_name
+              - comsys_loginid
+              - comsys_email
+              - comsys_role
+              - comsys_other_post
+              - comsys_usertype
+              - comsys_teaching_number
+            always-use-default-target-url: false
+            default-target-url: http://127.0.0.1:8089/#/client
+            server-tag: cas1
+            server-login-url: http://127.0.0.1/sso/login
+            server-logout-url: http://127.0.0.1/sso/logout
+            server-url-prefix: http://127.0.0.1/sso/
+            protocol: cas30
+            service-referer: http://127.0.0.1:8080
+            service-host-url: http://127.0.0.1:8080
+            service-url: http://127.0.0.1:8080/auth/cas/login
+          - attributes:
+              - comsys_department
+              - comsys_post
+              - comsys_cardid
+              - comsys_post_type
+              - comsys_educational
+              - comsys_phone
+              - comsys_genders
+              - comsys_name
+              - comsys_loginid
+              - comsys_email
+              - comsys_role
+              - comsys_other_post
+              - comsys_usertype
+              - comsys_teaching_number
+            always-use-default-target-url: false
+            default-target-url: http://127.0.0.1:8089/#/client
+            server-tag: cas2
+            server-login-url: http://127.0.0.1/sso/login
+            server-logout-url: http://127.0.0.1/sso/logout
+            server-url-prefix: http://127.0.0.1/sso/
+            protocol: cas30
+            service-referer: http://127.0.0.1:8080
+            service-host-url: http://127.0.0.1:8080
+            service-url: http://127.0.0.1:8080/auth/cas/login
 ```
 
 ##### 3、使用示例

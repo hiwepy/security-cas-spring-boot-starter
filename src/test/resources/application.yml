@@ -61,15 +61,15 @@ spring:
               - comsys_usertype
               - comsys_teaching_number
             always-use-default-target-url: false
-            default-target-url: http://10.30.186.134:8089/#/client
+            default-target-url: http://127.0.0.1:8089/#/client
             server-tag: cas1
-            server-login-url: http://10.30.186.104/sso/login
-            server-logout-url: http://10.30.186.104/sso/logout
-            server-url-prefix: http://10.30.186.104/sso/
+            server-login-url: http://127.0.0.1/sso/login
+            server-logout-url: http://127.0.0.1/sso/logout
+            server-url-prefix: http://127.0.0.1/sso/
             protocol: cas30
-            service-referer: http://10.30.186.134:8080
-            service-host-url: http://10.30.186.134:8080
-            service-url: http://10.30.186.134:8080/auth/cas/login?target=xxxx&platform=cas1
+            service-referer: http://127.0.0.1:8080
+            service-host-url: http://127.0.0.1:8080
+            service-url: http://127.0.0.1:8080/auth/cas/login?target=xxxx&platform=cas1
           - attributes:
               - comsys_department
               - comsys_post
@@ -86,13 +86,12 @@ spring:
               - comsys_usertype
               - comsys_teaching_number
             always-use-default-target-url: false
-            default-target-url: http://10.30.186.134:8089/#/client
+            default-target-url: http://127.0.0.1:8089/#/client
             server-tag: cas2
-            server-login-url: http://10.30.186.104/sso/login
-            server-logout-url: http://10.30.186.104/sso/logout
-            server-url-prefix: http://10.30.186.104/sso/
+            server-login-url: http://127.0.0.1/sso/login
+            server-logout-url: http://127.0.0.1/sso/logout
+            server-url-prefix: http://127.0.0.1/sso/
             protocol: cas30
-            service-referer: http://10.30.186.134:8080
-            service-host-url: http://10.30.186.134:8080
-            service-url: http://10.30.186.134:8080/smartedu-authz/authz/login/cas
-            use-session: true
+            service-referer: http://127.0.0.1:8080
+            service-host-url: http://127.0.0.1:8080
+            service-url: http://127.0.0.1:8080/smartedu-authz/authz/login/cas
