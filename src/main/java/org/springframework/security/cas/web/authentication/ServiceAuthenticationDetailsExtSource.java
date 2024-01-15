@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.utils.StringUtils;
-import org.springframework.security.boot.utils.WebUtils;
 import org.springframework.security.cas.ServiceProperties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,12 +46,11 @@ public class ServiceAuthenticationDetailsExtSource extends ServiceAuthentication
     }
 
     @Override
-    public ServiceAuthenticationDetails buildDetails(HttpServletRequest context) {
-        HttpServletRequest request = WebUtils.getHttpServletRequest();
+    public ServiceAuthenticationDetails buildDetails(HttpServletRequest request) {
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
         Pattern artifactPattern = this.artifactPatternMap.get(serverProperties.getServerUrlPrefix());
         try {
-            return new DefaultServiceAuthenticationDetails(serverProperties.getServiceUrl(), context, artifactPattern);
+            return new DefaultServiceAuthenticationDetails(serverProperties.getServiceUrl(), request, artifactPattern);
         }
         catch (MalformedURLException e) {
             throw new RuntimeException(e);

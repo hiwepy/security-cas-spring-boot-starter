@@ -4,7 +4,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.jasig.cas.client.validation.Assertion;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
-import org.springframework.security.boot.utils.WebUtils;
+import org.springframework.security.boot.utils.RequestContextHolderUtils;
 import org.springframework.security.cas.userdetails.AbstractCasAssertionUserDetailsService;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,7 +31,7 @@ public class GrantedAuthorityFromAssertionAttributesUserDetailsRoutingService ex
     @Override
     protected UserDetails loadUserDetails(final Assertion assertion) {
         final List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        HttpServletRequest request = WebUtils.getHttpServletRequest();
+        HttpServletRequest request = RequestContextHolderUtils.getHttpServletRequest();
         if (Objects.nonNull(request)) {
 
             SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);

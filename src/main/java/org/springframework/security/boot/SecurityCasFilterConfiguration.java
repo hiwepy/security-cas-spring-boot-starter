@@ -49,6 +49,7 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.web.filter.RequestContextFilter;
 
 import java.util.stream.Collectors;
 
@@ -212,6 +213,7 @@ public class SecurityCasFilterConfiguration {
 			super(bizProperties, sessionMgtProperties, authenticationProvider.stream().collect(Collectors.toList()));
 			
    			this.authcProperties = authcProperties;
+			this.redirectStrategy = WebSecurityUtils.redirectStrategy(authcProperties);
 
 			this.localeContextFilter = localeContextProvider.getIfAvailable();
    			this.authenticationDetailsSource = authenticationDetailsSourceProvider.getIfAvailable();
@@ -221,13 +223,16 @@ public class SecurityCasFilterConfiguration {
 
    			this.proxyFailureHandler = proxyFailureHandlerProvider.getIfAvailable( () -> proxyFailureHandler());
    			this.proxyGrantingTicketStorageProvider = proxyGrantingTicketStorageProvider.getIfAvailable();
-   			this.redirectStrategy = WebSecurityUtils.redirectStrategy(authcProperties);
    			this.rememberMeServices = rememberMeServicesProvider.getIfAvailable();
    			this.sessionMappingStorage = sessionMappingStorageProvider.getIfAvailable();
    			this.sessionAuthenticationStrategy = sessionAuthenticationStrategyProvider.getIfAvailable();
 		    this.ticketValidator = ticketValidatorProvider.getIfAvailable();
 			this.ticketValidationFilterConfig = ticketValidationFilterConfigProvider.getIfAvailable();
+
 			this.authenticationSuccessHandler.setRedirectStrategy(this.redirectStrategy);
+			this.authenticationFailureHandler.setRedirectStrategy(this.redirectStrategy);
+			this.proxyFailureHandler.setRedirectStrategy(this.redirectStrategy);
+
 		}
 		
 		public CasAuthenticationFailureHandler authenticationFailureHandler() {
@@ -362,6 +367,12 @@ public class SecurityCasFilterConfiguration {
 			return wrapperFilter;
 		}
 
+		public RequestContextFilter requestContextFilter() {
+			RequestContextFilter requestContextFilter = new RequestContextFilter();
+			requestContextFilter.setThreadContextInheritable(true);
+			return requestContextFilter;
+		}
+
 	    @Override
 		public void configure(HttpSecurity http) throws Exception {
 	    	
@@ -372,6 +383,7 @@ public class SecurityCasFilterConfiguration {
 	        	.httpBasic()
 	        	.disable()
 	        	.addFilterBefore(localeContextFilter, UsernamePasswordAuthenticationFilter.class)
+				.addFilterBefore(requestContextFilter(), UsernamePasswordAuthenticationFilter.class)
 	        	.addFilterAt(casAuthenticationFilter(), CasAuthenticationFilter.class)
    	            .addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)
    	            .addFilterAfter(assertionThreadLocalFilter(), CasAuthenticationFilter.class)

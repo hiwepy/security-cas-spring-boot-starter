@@ -7,8 +7,7 @@ import org.jasig.cas.client.validation.TicketValidator;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
-import org.springframework.security.boot.cas.ticket.ProxyGrantingTicketStorageProvider;
-import org.springframework.security.boot.utils.WebUtils;
+import org.springframework.security.boot.utils.RequestContextHolderUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -77,7 +76,7 @@ public class CasTicketRoutingValidator implements TicketValidator {
     @Override
     public Assertion validate(String ticket, String service) throws TicketValidationException {
         // 1. 根据referer获取TicketValidator
-        HttpServletRequest request = WebUtils.getHttpServletRequest();
+        HttpServletRequest request = RequestContextHolderUtils.getHttpServletRequest();
         return this.getTicketValidatorByRequest(request).validate(ticket, service);
     }
 

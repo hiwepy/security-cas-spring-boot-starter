@@ -27,7 +27,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.utils.CasUrlUtils;
-import org.springframework.security.boot.utils.WebUtils;
+import org.springframework.security.boot.utils.RequestContextHolderUtils;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
@@ -151,7 +151,7 @@ public class CasAuthenticationRoutingProvider extends CasAuthenticationProvider 
 	private String getServiceUrl(Authentication authentication) {
 
 		// 1. 根据referer获取TicketValidator
-		HttpServletRequest request = WebUtils.getHttpServletRequest();
+		HttpServletRequest request = RequestContextHolderUtils.getHttpServletRequest();
 		Assert.isTrue(request != null, "request cannot be null");
 
 		// 1. 获取请求匹配的CasServerProperties

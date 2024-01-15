@@ -39,7 +39,7 @@ spring:
     cas:
       enabled: true
       authc:
-        path-pattern: /authz/login/cas
+        path-pattern: /login/cas
         session-mgt:
           allow-session-creation: true
           creation-policy: if-required

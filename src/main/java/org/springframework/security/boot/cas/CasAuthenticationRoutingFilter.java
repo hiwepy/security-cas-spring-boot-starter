@@ -78,6 +78,10 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
     public Authentication attemptAuthentication(final HttpServletRequest request,
                                                 final HttpServletResponse response) throws AuthenticationException, IOException {
 
+        if (Objects.isNull(RequestContextHolder.getRequestAttributes())){
+            RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
+        }
+
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
         if(Objects.isNull(serverProperties)){
             logger.error("Failed to obtain serverProperties by request");

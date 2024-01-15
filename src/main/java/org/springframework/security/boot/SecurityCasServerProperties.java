@@ -78,25 +78,6 @@ public class SecurityCasServerProperties {
 	 * Whether Enable This Cas Server.
 	 */
 	private boolean enabled = true;
-
-	private String defaultTargetUrl = "/";
-
-	private boolean alwaysUseDefaultTargetUrl = false;
-
-	private boolean useReferer = false;
-
-	private boolean alwaysUseDefaultFailureUrl = false;
-	private String defaultFailureUrl;
-	private boolean forwardToDestination = false;
-	private boolean allowSessionCreation = true;
-	/**
-	 * If this property is set, the current request will be checked for this a parameter
-	 * with this name and the value used as the target URL if present.
-	 *
-	 * @param targetUrlParameter the name of the parameter containing the encoded target
-	 * URL. Defaults to null.
-	 */
-	private String targetUrlParameter = "target";
 	/**
 	 * CAS server Match Tag. Required.
 	 */
@@ -114,10 +95,6 @@ public class SecurityCasServerProperties {
 	 */
 	private String serverLogoutUrl;
 	/**
-	 * The url where the application is redirected if the CAS service ticket validation failed (example : /mycontextpatch/cas_error.jsp)
-	 */
-	private String failureUrl;
-	/**
 	 *  The Map of key/value pairs associated with this principal.
 	 */
 	private String[] attributes = new String[] {};
@@ -130,7 +107,6 @@ public class SecurityCasServerProperties {
 	 * Name of attributes to fetch from assertion to use when populating spring security context.
 	 */
 	private List<String> attributeAuthorities = new ArrayList<>();
-
 	/**
 	 * If true, then any non-null artifact (ticket) should be authenticated.
 	 * Additionally, the service will be determined dynamically in order to ensure
@@ -214,6 +190,29 @@ public class SecurityCasServerProperties {
 	 * The URL of the service the user is authenticating to
 	 */
 	private String serviceUrl;
+	/**
+	 * The url where the application is redirected if the CAS service ticket validation failed (example : /mycontextpatch/cas_error.jsp)
+	 */
+	private String failureUrl;
+
+	private String defaultTargetUrl = "/";
+
+	private boolean alwaysUseDefaultTargetUrl = false;
+
+	private boolean useReferer = false;
+
+	private boolean alwaysUseDefaultFailureUrl = false;
+	private String defaultFailureUrl;
+	private boolean forwardToDestination = false;
+	private boolean allowSessionCreation = true;
+	/**
+	 * If this property is set, the current request will be checked for this a parameter
+	 * with this name and the value used as the target URL if present.
+	 *
+	 * @param targetUrlParameter the name of the parameter containing the encoded target
+	 * URL. Defaults to null.
+	 */
+	private String targetUrlParameter = "target";
 	/**
 	 * Whether to store the Assertion in session or not. If sessions are not used,
 	 * tickets will be required for each request. Defaults to false.

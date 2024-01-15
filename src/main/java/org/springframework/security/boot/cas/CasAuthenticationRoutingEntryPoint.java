@@ -4,7 +4,7 @@ import org.jasig.cas.client.util.CommonUtils;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.utils.CasUrlUtils;
-import org.springframework.security.boot.utils.WebUtils;
+import org.springframework.security.boot.utils.RequestContextHolderUtils;
 import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -59,7 +59,7 @@ public class CasAuthenticationRoutingEntryPoint extends CasAuthenticationEntryPo
     @Override
     protected String createRedirectUrl(final String serviceUrl) {
         // 1. 根据referer获取TicketValidator
-        HttpServletRequest request = WebUtils.getHttpServletRequest();
+        HttpServletRequest request = RequestContextHolderUtils.getHttpServletRequest();
         if (Objects.isNull(request)) {
             return super.createRedirectUrl(serviceUrl);
         }

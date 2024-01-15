@@ -8,7 +8,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
-public class WebUtils {
+public class RequestContextHolderUtils {
 
     public static HttpServletRequest getHttpServletRequest() {
         try {
