@@ -1,6 +1,7 @@
 package org.springframework.security.boot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jasig.cas.client.authentication.Saml11AuthenticationFilter;
 import org.jasig.cas.client.session.HashMapBackedSessionMappingStorage;
 import org.jasig.cas.client.session.SessionMappingStorage;
 import org.jasig.cas.client.util.AssertionThreadLocalFilter;
@@ -273,7 +274,7 @@ public class SecurityCasFilterConfiguration {
 			map.from(authenticationDetailsSource).to(authenticationFilter::setAuthenticationDetailsSource);
 			map.from(rememberMeServices).to(authenticationFilter::setRememberMeServices);
 			map.from(sessionAuthenticationStrategy).to(authenticationFilter::setSessionAuthenticationStrategy);
-			map.from(authcProperties.getPathPattern()).to(authenticationFilter::setFilterProcessesUrl);
+			map.from(authcProperties.getPathCasPattern()).to(authenticationFilter::setFilterProcessesUrl);
 			map.from(authcProperties.isContinueChainBeforeSuccessfulAuthentication()).to(authenticationFilter::setContinueChainBeforeSuccessfulAuthentication);
 			map.from(authcProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
 
@@ -286,30 +287,12 @@ public class SecurityCasFilterConfiguration {
 			return authenticationFilter;
 		}
 
-		/*public Saml11AuthenticationFilter saml11AuthenticationFilter() throws Exception {
-
+		public Saml11AuthenticationRoutingFilter saml11AuthenticationFilter() throws Exception {
 			Saml11AuthenticationRoutingFilter authenticationFilter = new Saml11AuthenticationRoutingFilter(authcProperties);
 			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-
-			map.from(authenticationManagerBean()).to(authenticationFilter::setAuthenticationManager);
-			map.from(authenticationSuccessHandler).to(authenticationFilter::setAuthenticationSuccessHandler);
-			map.from(authenticationFailureHandler).to(authenticationFilter::setAuthenticationFailureHandler);
-			map.from(authenticationDetailsSource).to(authenticationFilter::setAuthenticationDetailsSource);
-			map.from(rememberMeServices).to(authenticationFilter::setRememberMeServices);
-			map.from(sessionAuthenticationStrategy).to(authenticationFilter::setSessionAuthenticationStrategy);
-
-			map.from(authcProperties.getPathPattern()).to(authenticationFilter::setFilterProcessesUrl);
-			map.from(authcProperties.isContinueChainBeforeSuccessfulAuthentication()).to(authenticationFilter::setContinueChainBeforeSuccessfulAuthentication);
-			map.from(authcProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
-
-			if(authcProperties.isAcceptAnyProxy()){
-				map.from(proxyGrantingTicketStorageProvider).to(authenticationFilter::setProxyGrantingTicketStorageProvider);
-				map.from(proxyFailureHandler).to(authenticationFilter::setProxyAuthenticationFailureHandler);
-				map.from(authcProperties.getProxyReceptorUrl()).to(authenticationFilter::setProxyReceptorUrl2);
-			}
-
+			map.from(proxyGrantingTicketStorageProvider).to(authenticationFilter::setProxyGrantingTicketStorageProvider);
 			return authenticationFilter;
-		}*/
+		}
 
 		public CasTicketValidationRoutingFilter casTicketValidationFilter() throws Exception {
 

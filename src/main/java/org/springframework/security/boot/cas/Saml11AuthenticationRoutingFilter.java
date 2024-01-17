@@ -86,4 +86,7 @@ public class Saml11AuthenticationRoutingFilter extends AbstractCasFilter {
         return Boolean.FALSE;
     }
 
+    public void setProxyGrantingTicketStorageProvider(ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider) {
+        this.proxyGrantingTicketStorageProvider = proxyGrantingTicketStorageProvider;
+    }
 }

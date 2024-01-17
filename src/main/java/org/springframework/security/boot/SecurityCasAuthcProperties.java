@@ -38,11 +38,13 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	public static final String PREFIX = "spring.security.cas.authc";
 
 	/** Authorization Path Pattern */
-	private String pathPattern = "/login/cas";
+	private String pathPattern = "/cas/**";
 
+	/** Cas Authorization Path Pattern */
+	private String pathCasPattern = "/cas/login";
 
-	/** Authorization Path Pattern */
-	private String pathSaml11Pattern = "/login/cas-saml11";
+	/** Saml Authorization Path Pattern */
+	private String pathSaml11Pattern = "/cas/login-saml11";
 
 	/**
 	 * Defaults to true
