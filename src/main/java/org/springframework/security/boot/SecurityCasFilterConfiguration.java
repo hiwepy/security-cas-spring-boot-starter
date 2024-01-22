@@ -59,13 +59,13 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
 @EnableConfigurationProperties({ SecurityCasProperties.class, SecurityCasAuthcProperties.class, SecurityBizProperties.class, ServerProperties.class })
 public class SecurityCasFilterConfiguration {
-	
+
 	@Bean
 	@ConditionalOnMissingBean
 	public AbstractCasAssertionUserDetailsService casAssertionUserDetailsService(SecurityCasAuthcProperties authcProperties) {
 		return new GrantedAuthorityFromAssertionAttributesUserDetailsRoutingService(authcProperties);
 	}
-	
+
 	@Bean
 	@ConditionalOnMissingBean
 	public ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider(SecurityCasAuthcProperties authcProperties) {
@@ -77,13 +77,13 @@ public class SecurityCasFilterConfiguration {
 	public ServiceAuthenticationDetailsSource authenticationDetailsSource(SecurityCasAuthcProperties authcProperties) {
 		return new ServiceAuthenticationDetailsExtSource(authcProperties);
 	}
-	
+
 	@Bean
 	@ConditionalOnMissingBean
 	public SessionMappingStorage sessionMappingStorage() {
 		return new HashMapBackedSessionMappingStorage();
 	}
-	  
+
 	@Bean
 	@ConditionalOnMissingBean
 	public StatelessTicketCache statelessTicketCache() {
@@ -148,22 +148,22 @@ public class SecurityCasFilterConfiguration {
 
 		return entryPoint;
 	}
-	
+
 	@Bean
 	@ConditionalOnMissingBean
 	public CasAuthenticationSuccessHandler casAuthenticationSuccessHandler(SecurityCasAuthcProperties authcProperties,
 			@Autowired(required = false) JwtPayloadRepository jwtPayloadRepository) {
-		
+
 		CasAuthenticationSuccessHandler successHandler = new CasAuthenticationSuccessHandler(authcProperties);
-		
+
 		successHandler.setAlwaysUseDefaultTargetUrl(authcProperties.isAlwaysUseDefaultTargetUrl());
 		successHandler.setDefaultTargetUrl(authcProperties.getDefaultTargetUrl());
 		successHandler.setTargetUrlParameter(authcProperties.getTargetUrlParameter());
 		successHandler.setUseReferer(authcProperties.isUseReferer());
 		successHandler.setJwtPayloadRepository(jwtPayloadRepository);
-		
+
 		return successHandler;
-		
+
 	}
 
 	@Configuration
@@ -188,7 +188,7 @@ public class SecurityCasFilterConfiguration {
 		private final TicketValidator ticketValidator;
 
 		public CasWebSecurityConfigurerAdapter(
-				
+
 				SecurityBizProperties bizProperties,
 				SecurityCasAuthcProperties authcProperties,
    				SecuritySessionMgtProperties sessionMgtProperties,
@@ -208,11 +208,11 @@ public class SecurityCasFilterConfiguration {
    				ObjectProvider<SessionAuthenticationStrategy> sessionAuthenticationStrategyProvider,
 				ObjectProvider<CasTicketValidationFilterConfiguration> ticketValidationFilterConfigProvider,
 				ObjectProvider<TicketValidator> ticketValidatorProvider
-   				
+
    			) {
-			
+
 			super(bizProperties, sessionMgtProperties, authenticationProvider.stream().collect(Collectors.toList()));
-			
+
    			this.authcProperties = authcProperties;
 			this.redirectStrategy = WebSecurityUtils.redirectStrategy(authcProperties);
 
@@ -235,9 +235,9 @@ public class SecurityCasFilterConfiguration {
 			this.proxyFailureHandler.setRedirectStrategy(this.redirectStrategy);
 
 		}
-		
+
 		public CasAuthenticationFailureHandler authenticationFailureHandler() {
-	    	
+
 			CasAuthenticationFailureHandler failureHandler = new CasAuthenticationFailureHandler(authcProperties);
 
 	    	failureHandler.setAllowSessionCreation(getSessionMgtProperties().isAllowSessionCreation());
@@ -245,22 +245,22 @@ public class SecurityCasFilterConfiguration {
 			failureHandler.setRedirectStrategy(redirectStrategy);
 			failureHandler.setUseForward(authcProperties.isUseForward());
 			return failureHandler;
-			
+
 		}
-	    
+
 	   	public CasProxyFailureRoutingHandler proxyFailureHandler() {
-	    	
+
 	    	CasProxyFailureRoutingHandler failureHandler = new CasProxyFailureRoutingHandler(authcProperties);
-			
+
 			failureHandler.setAllowSessionCreation(getSessionMgtProperties().isAllowSessionCreation());
 			failureHandler.setDefaultFailureUrl(authcProperties.getFailureUrl());
 			failureHandler.setRedirectStrategy(redirectStrategy);
 			failureHandler.setUseForward(authcProperties.isUseForward());
 			return failureHandler;
-			
+
 	   	}
 
-		public CasAuthenticationFilter casAuthenticationFilter() throws Exception {
+		public CasAuthenticationRoutingFilter casAuthenticationFilter() throws Exception {
 
 			CasAuthenticationRoutingFilter authenticationFilter = new CasAuthenticationRoutingFilter(authcProperties);
 			/*
@@ -274,7 +274,7 @@ public class SecurityCasFilterConfiguration {
 			map.from(authenticationDetailsSource).to(authenticationFilter::setAuthenticationDetailsSource);
 			map.from(rememberMeServices).to(authenticationFilter::setRememberMeServices);
 			map.from(sessionAuthenticationStrategy).to(authenticationFilter::setSessionAuthenticationStrategy);
-			map.from(authcProperties.getPathCasPattern()).to(authenticationFilter::setFilterProcessesUrl);
+			map.from(authcProperties.getPathLoginPattern()).to(authenticationFilter::setFilterProcessesUrl);
 			map.from(authcProperties.isContinueChainBeforeSuccessfulAuthentication()).to(authenticationFilter::setContinueChainBeforeSuccessfulAuthentication);
 			map.from(authcProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
 
@@ -329,7 +329,7 @@ public class SecurityCasFilterConfiguration {
 			SingleSignOutRoutingFilter singleSignOutFilter = new SingleSignOutRoutingFilter(authcProperties, sessionMappingStorage);
 			return singleSignOutFilter;
 		}
-		
+
 		/*
 		 * 	CAS Assertion Thread Local Filter
 		 * 	该过滤器使得可以通过org.jasig.cas.client.util.AssertionHolder来获取用户的登录名。
@@ -339,7 +339,7 @@ public class SecurityCasFilterConfiguration {
 		public AssertionThreadLocalFilter assertionThreadLocalFilter() {
 			return new AssertionThreadLocalFilter();
 		}
-		
+
 		/*
 		 * 	CAS HttpServletRequest Wrapper Filter
 		 * 	该过滤器对HttpServletRequest请求包装， 可通过HttpServletRequest的getRemoteUser()方法获得登录用户的登录名
@@ -358,7 +358,7 @@ public class SecurityCasFilterConfiguration {
 
 	    @Override
 		public void configure(HttpSecurity http) throws Exception {
-	    	
+
 	    	http.antMatcher(authcProperties.getPathPattern())
 				.exceptionHandling()
 	        	.authenticationEntryPoint(authenticationEntryPoint)
@@ -400,13 +400,13 @@ public class SecurityCasFilterConfiguration {
    	    	super.configure(http, authcProperties.getHeaders());
 	    	super.configure(http);
 	    }
-	    
+
 	    @Override
 	    public void configure(WebSecurity web) throws Exception {
 	    	super.configure(web);
 	    }
-	    
+
 	}
-	
+
 }
 

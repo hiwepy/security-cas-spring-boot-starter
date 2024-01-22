@@ -39,7 +39,9 @@ spring:
     cas:
       enabled: true
       authc:
-        path-pattern: /login/cas
+        path-pattern: /cas/**
+        path-cas-pattern: /cas/login
+        path-logout-pattern: /cas/logout
         session-mgt:
           allow-session-creation: true
           creation-policy: if-required
@@ -95,3 +97,4 @@ spring:
             service-referer: http://127.0.0.1:8080
             service-host-url: http://127.0.0.1:8080
             service-url: http://127.0.0.1:8080/smartedu-authz/authz/login/cas
+

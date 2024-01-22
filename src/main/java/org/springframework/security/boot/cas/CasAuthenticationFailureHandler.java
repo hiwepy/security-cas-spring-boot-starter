@@ -25,13 +25,13 @@ public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailu
 	private SecurityCasAuthcProperties authcProperties;
 
 	public CasAuthenticationFailureHandler(SecurityCasAuthcProperties authcProperties) {
-		super("");
+		super("/");
 		this.authcProperties = authcProperties;
 	}
 
 	public CasAuthenticationFailureHandler(List<AuthenticationListener> authenticationListeners,
 										   SecurityCasAuthcProperties authcProperties) {
-		super(authenticationListeners, "");
+		super(authenticationListeners, "/");
 		this.authcProperties = authcProperties;
 	}
 

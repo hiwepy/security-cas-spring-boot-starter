@@ -29,12 +29,12 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 	private JwtPayloadRepository jwtPayloadRepository;
 
 	public CasAuthenticationSuccessHandler(SecurityCasAuthcProperties authcProperties) {
-		super("");
+		super("/");
 		this.authcProperties = authcProperties;
 	}
 
 	public CasAuthenticationSuccessHandler(List<AuthenticationListener> authenticationListeners, SecurityCasAuthcProperties authcProperties) {
-		super(authenticationListeners, "");
+		super(authenticationListeners, "/");
 		this.authcProperties = authcProperties;
 	}
 

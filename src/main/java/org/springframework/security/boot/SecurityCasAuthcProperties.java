@@ -40,10 +40,10 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	/** Authorization Path Pattern */
 	private String pathPattern = "/cas/**";
 
-	/** Cas Authorization Path Pattern */
-	private String pathCasPattern = "/cas/login";
+	/** Cas Login Path Pattern */
+	private String pathLoginPattern = "/cas/login";
 
-	/** Saml Authorization Path Pattern */
+	/** Saml Login Path Pattern */
 	private String pathSaml11Pattern = "/cas/login-saml11";
 
 	/**
@@ -74,10 +74,10 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 
 	@NestedConfigurationProperty
 	private SecurityHeaderCorsProperties cors = new SecurityHeaderCorsProperties();
-	
+
 	@NestedConfigurationProperty
 	private SecurityHeaderCsrfProperties csrf = new SecurityHeaderCsrfProperties();
-	
+
 	@NestedConfigurationProperty
 	private SecurityHeadersProperties headers = new SecurityHeadersProperties();
 
@@ -111,5 +111,5 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 		}
 		return CollectionUtils.firstElement(this.servers);
 	}
-	
+
 }
