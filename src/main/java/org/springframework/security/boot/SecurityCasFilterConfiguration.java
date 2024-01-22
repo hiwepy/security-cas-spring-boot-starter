@@ -206,7 +206,7 @@ public class SecurityCasFilterConfiguration {
    				ObjectProvider<RememberMeServices> rememberMeServicesProvider,
    				ObjectProvider<SessionMappingStorage> sessionMappingStorageProvider,
    				ObjectProvider<SessionAuthenticationStrategy> sessionAuthenticationStrategyProvider,
-				ObjectProvider<CasTicketValidationFilterConfiguration> ticketValidationFilterConfigProvider,
+				ObjectProvider<CasTicketValidationFilterConfiguration> ticketValidationFilterConfigurationProvider,
 				ObjectProvider<TicketValidator> ticketValidatorProvider
 
    			) {
@@ -228,7 +228,7 @@ public class SecurityCasFilterConfiguration {
    			this.sessionMappingStorage = sessionMappingStorageProvider.getIfAvailable();
    			this.sessionAuthenticationStrategy = sessionAuthenticationStrategyProvider.getIfAvailable();
 		    this.ticketValidator = ticketValidatorProvider.getIfAvailable();
-			this.ticketValidationFilterConfig = ticketValidationFilterConfigProvider.getIfAvailable();
+			this.ticketValidationFilterConfig = ticketValidationFilterConfigurationProvider.getIfAvailable();
 
 			this.authenticationSuccessHandler.setRedirectStrategy(this.redirectStrategy);
 			this.authenticationFailureHandler.setRedirectStrategy(this.redirectStrategy);
@@ -263,6 +263,7 @@ public class SecurityCasFilterConfiguration {
 		public CasAuthenticationRoutingFilter casAuthenticationFilter() throws Exception {
 
 			CasAuthenticationRoutingFilter authenticationFilter = new CasAuthenticationRoutingFilter(authcProperties);
+
 			/*
 			 * 批量设置参数
 			 */
@@ -290,6 +291,7 @@ public class SecurityCasFilterConfiguration {
 		public Saml11AuthenticationRoutingFilter saml11AuthenticationFilter() throws Exception {
 			Saml11AuthenticationRoutingFilter authenticationFilter = new Saml11AuthenticationRoutingFilter(authcProperties);
 			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+			authenticationFilter.setIgnoreInitConfiguration(Boolean.TRUE);
 			map.from(proxyGrantingTicketStorageProvider).to(authenticationFilter::setProxyGrantingTicketStorageProvider);
 			return authenticationFilter;
 		}

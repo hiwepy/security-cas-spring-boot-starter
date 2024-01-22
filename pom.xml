@@ -528,7 +528,6 @@
 		<dependency>
 		    <groupId>org.jasig.cas.client</groupId>
 		    <artifactId>cas-client-support-saml</artifactId>
-		    <optional>true</optional>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.jasig.cas.client/cas-client-support-distributed-memcached -->
 		<dependency>

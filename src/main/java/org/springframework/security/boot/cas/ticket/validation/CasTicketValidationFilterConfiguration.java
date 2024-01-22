@@ -56,6 +56,10 @@ public class CasTicketValidationFilterConfiguration {
      */
     private String proxyCallbackUrl;
 
+    public CasTicketValidationFilterConfiguration() {
+
+    }
+
 	public CasTicketValidationFilterConfiguration(ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider) {
 		this.proxyGrantingTicketStorageProvider = proxyGrantingTicketStorageProvider;
 	}
@@ -107,7 +111,7 @@ public class CasTicketValidationFilterConfiguration {
         validationFilter.setProxyGrantingTicketStorage(proxyGrantingTicketStorageProvider.getProxyGrantingTicketStorage(serverProperties));
         return validationFilter;
     }
-    
+
     protected Saml11TicketValidationFilter buildSaml11TicketValidationFilter(final TicketValidator ticketValidator,
                                                                              final SecurityCasServerProperties serverProperties) {
     	final Saml11TicketValidationFilter validationFilter = new Saml11TicketValidationFilter();
