@@ -278,9 +278,9 @@ public class SecurityCasFilterConfiguration {
 			map.from(authcProperties.getPathLoginPattern()).to(authenticationFilter::setFilterProcessesUrl);
 			map.from(authcProperties.isContinueChainBeforeSuccessfulAuthentication()).to(authenticationFilter::setContinueChainBeforeSuccessfulAuthentication);
 			map.from(authcProperties.isEagerlyCreateSessions()).to(authenticationFilter::setAllowSessionCreation);
+			map.from(proxyGrantingTicketStorageProvider).to(authenticationFilter::setProxyGrantingTicketStorageProvider);
 
 			if(authcProperties.isAcceptAnyProxy()){
-				map.from(proxyGrantingTicketStorageProvider).to(authenticationFilter::setProxyGrantingTicketStorageProvider);
 				map.from(proxyFailureHandler).to(authenticationFilter::setProxyAuthenticationFailureHandler);
 				map.from(authcProperties.getProxyReceptorUrl()).to(authenticationFilter::setProxyReceptorUrl2);
 			}

@@ -90,7 +90,7 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
         ProxyGrantingTicketStorage proxyGrantingTicketStorage = this.proxyGrantingTicketStorageProvider.getProxyGrantingTicketStorage(serverProperties);
         // if the request is a proxy request process it and return null to indicate the
         // request has been processed
-        if (proxyReceptorRequest(request)) {
+        if (proxyReceptorRequest(proxyGrantingTicketStorage, request)) {
             logger.debug("Responding to proxy receptor request");
             CommonUtils.readAndRespondToProxyReceptorRequest(request, response, proxyGrantingTicketStorage);
             return null;
@@ -125,12 +125,11 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
      *
      * @return
      */
-    protected boolean proxyReceptorConfigured(final HttpServletRequest request) {
+    protected boolean proxyReceptorConfigured(ProxyGrantingTicketStorage proxyGrantingTicketStorage, final HttpServletRequest request) {
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
         if(Objects.isNull(serverProperties)){
             return Boolean.FALSE;
         }
-        ProxyGrantingTicketStorage proxyGrantingTicketStorage = this.proxyGrantingTicketStorageProvider.getProxyGrantingTicketStorage(serverProperties);
         final boolean result = proxyGrantingTicketStorage != null && proxyReceptorMatcher != null;
         if (logger.isDebugEnabled()) {
             logger.debug("proxyReceptorConfigured = " + result);
@@ -143,8 +142,8 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
      * @param request
      * @return
      */
-    protected boolean proxyReceptorRequest(final HttpServletRequest request) {
-        final boolean result = proxyReceptorConfigured(request) && proxyReceptorMatcher.matches(request);
+    protected boolean proxyReceptorRequest(ProxyGrantingTicketStorage proxyGrantingTicketStorage, final HttpServletRequest request) {
+        final boolean result = proxyReceptorConfigured(proxyGrantingTicketStorage, request) && proxyReceptorMatcher.matches(request);
         if (logger.isDebugEnabled()) {
             logger.debug("proxyReceptorRequest = " + result);
         }
