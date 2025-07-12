@@ -16,7 +16,7 @@
 package org.springframework.security.boot.cas.session;
 
 import net.rubyeye.xmemcached.XMemcachedClient;
-import org.jasig.cas.client.session.SessionMappingStorage;
+import org.apereo.cas.client.session.SessionMappingStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

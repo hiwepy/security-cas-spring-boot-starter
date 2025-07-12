@@ -1,6 +1,6 @@
 package org.springframework.security.boot.cas.ticket;
 
-import org.jasig.cas.client.proxy.AbstractEncryptedProxyGrantingTicketStorageImpl;
+import org.apereo.cas.client.proxy.AbstractEncryptedProxyGrantingTicketStorageImpl;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.time.Duration;

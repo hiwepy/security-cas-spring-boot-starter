@@ -1,8 +1,8 @@
 package org.springframework.security.boot.cas.ticket;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
-import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
+import org.apereo.cas.client.proxy.ProxyGrantingTicketStorage;
+import org.apereo.cas.client.proxy.ProxyGrantingTicketStorageImpl;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.util.StringUtils;

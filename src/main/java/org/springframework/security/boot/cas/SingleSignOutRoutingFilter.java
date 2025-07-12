@@ -1,17 +1,17 @@
 package org.springframework.security.boot.cas;
 
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.jasig.cas.client.session.SessionMappingStorage;
-import org.jasig.cas.client.session.SingleSignOutHandler;
-import org.jasig.cas.client.util.AbstractConfigurationFilter;
+import org.apereo.cas.client.session.SessionMappingStorage;
+import org.apereo.cas.client.session.SingleSignOutHandler;
+import org.apereo.cas.client.util.AbstractConfigurationFilter;
 import org.springframework.boot.context.properties.PropertyMapper;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.util.StringUtils;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +79,7 @@ public class SingleSignOutRoutingFilter extends AbstractConfigurationFilter {
 
         /**
          * <p>Workaround for now for the fact that Spring Security will fail since it doesn't call {@link #init(jakarta.servlet.FilterConfig)}.</p>
-         * <p>Ultimately we need to allow deployers to actually inject their fully-initialized {@link org.jasig.cas.client.session.SingleSignOutHandler}.</p>
+         * <p>Ultimately we need to allow deployers to actually inject their fully-initialized {@link org.apereo.cas.client.session.SingleSignOutHandler}.</p>
          */
         if (!this.handlerInitialized.getAndSet(true)) {
             this.initSingleSignOutHandler(authcProperties.getServers());

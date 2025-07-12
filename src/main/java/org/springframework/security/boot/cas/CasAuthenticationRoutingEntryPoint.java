@@ -1,6 +1,7 @@
 package org.springframework.security.boot.cas;
 
-import org.jasig.cas.client.util.CommonUtils;
+import org.apereo.cas.client.util.CommonUtils;
+import org.apereo.cas.client.util.WebUtils;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.utils.CasUrlUtils;
@@ -42,11 +43,10 @@ public class CasAuthenticationRoutingEntryPoint extends CasAuthenticationEntryPo
         }
         // 1. 获取请求匹配的CasServerProperties
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
-
-        return CommonUtils.constructServiceUrl(null, response,
-                serverProperties.getServiceUrl(), null,
-                serverProperties.getValidationType().getProtocol().getArtifactParameterName(),
-                serverProperties.isEncodeServiceUrlWithSessionId());
+        String artifactParameterName = serverProperties.getValidationType().getProtocol().getArtifactParameterName();
+        String serviceParameterName = serverProperties.getValidationType().getProtocol().getServiceParameterName();
+        return WebUtils.constructServiceUrl(request, response, serverProperties.getServiceUrl(), CasUrlUtils.getServerName(serverProperties),
+                serviceParameterName, artifactParameterName, serverProperties.isEncodeServiceUrl());
     }
 
     /**

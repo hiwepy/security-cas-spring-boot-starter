@@ -1,7 +1,7 @@
 package org.springframework.security.boot.cas;
 
-import org.jasig.cas.client.Protocol;
-import org.jasig.cas.client.util.AbstractCasFilter;
+import org.apereo.cas.client.Protocol;
+import org.apereo.cas.client.util.AbstractCasFilter;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.cas.ticket.ProxyGrantingTicketStorageProvider;
 
@@ -12,10 +12,6 @@ import java.io.IOException;
 
 public class Saml11AuthenticationRoutingFilter extends AbstractCasFilter {
 
-    /**
-     * The backing storage to store ProxyGrantingTicket requests.
-     */
-    private ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider;
     private final SecurityCasAuthcProperties authcProperties;
 
     public Saml11AuthenticationRoutingFilter(SecurityCasAuthcProperties authcProperties) {
@@ -86,7 +82,4 @@ public class Saml11AuthenticationRoutingFilter extends AbstractCasFilter {
         return Boolean.FALSE;
     }
 
-    public void setProxyGrantingTicketStorageProvider(ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider) {
-        this.proxyGrantingTicketStorageProvider = proxyGrantingTicketStorageProvider;
-    }
 }

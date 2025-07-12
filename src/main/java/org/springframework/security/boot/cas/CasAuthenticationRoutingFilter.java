@@ -1,26 +1,37 @@
 package org.springframework.security.boot.cas;
 
-import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
-import org.jasig.cas.client.util.CommonUtils;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.boot.SecurityCasAuthcProperties;
-import org.springframework.security.boot.SecurityCasServerProperties;
-import org.springframework.security.boot.cas.ticket.ProxyGrantingTicketStorageProvider;
-import org.springframework.security.cas.ServiceProperties;
-import org.springframework.security.cas.web.CasAuthenticationFilter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import lombok.Setter;
+import org.apereo.cas.client.proxy.ProxyGrantingTicketStorage;
+import org.apereo.cas.client.util.WebUtils;
+import org.springframework.core.log.LogMessage;
+import org.springframework.security.boot.SecurityCasAuthcProperties;
+import org.springframework.security.boot.SecurityCasServerProperties;
+import org.springframework.security.boot.cas.ticket.ProxyGrantingTicketStorageProvider;
+import org.springframework.security.cas.ServiceProperties;
+import org.springframework.security.cas.authentication.CasServiceTicketAuthenticationToken;
+import org.springframework.security.cas.web.CasAuthenticationFilter;
+import org.springframework.security.cas.web.CasGatewayAuthenticationRedirectFilter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 import java.io.IOException;
 import java.util.Objects;
 
@@ -34,7 +45,12 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
     /**
      * The backing storage to store ProxyGrantingTicket requests.
      */
+    @Setter
     private ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider;
+
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+
+    private RequestCache requestCache = new HttpSessionRequestCache();
 
     public CasAuthenticationRoutingFilter(SecurityCasAuthcProperties authcProperties) {
         super();
@@ -81,7 +97,6 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
         if (Objects.isNull(RequestContextHolder.getRequestAttributes())){
             RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
         }
-
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
         if(Objects.isNull(serverProperties)){
             logger.error("Failed to obtain serverProperties by request");
@@ -92,7 +107,7 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
         // request has been processed
         if (proxyReceptorRequest(proxyGrantingTicketStorage, request)) {
             logger.debug("Responding to proxy receptor request");
-            CommonUtils.readAndRespondToProxyReceptorRequest(request, response, proxyGrantingTicketStorage);
+            WebUtils.readAndRespondToProxyReceptorRequest(request, response, proxyGrantingTicketStorage);
             return null;
         }
 
@@ -102,21 +117,33 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
         serviceProperties.setServiceParameter(serverProperties.getValidationType().getProtocol().getServiceParameterName());
         this.setServiceProperties(serviceProperties);
 
-        final boolean serviceTicketRequest = this.serviceTicketRequest(request, response);
-        final String username = serviceTicketRequest ? CAS_STATEFUL_IDENTIFIER : CAS_STATELESS_IDENTIFIER;
-        String password = obtainArtifact(request);
+        String serviceTicket = obtainArtifact(request);
+        if (!StringUtils.hasText(serviceTicket)) {
+            HttpSession session = request.getSession(false);
+            if (session != null && session
+                    .getAttribute(CasGatewayAuthenticationRedirectFilter.CAS_GATEWAY_AUTHENTICATION_ATTR) != null) {
+                this.logger.debug("Failed authentication response from CAS gateway request");
+                session.removeAttribute(CasGatewayAuthenticationRedirectFilter.CAS_GATEWAY_AUTHENTICATION_ATTR);
+                SavedRequest savedRequest = this.requestCache.getRequest(request, response);
+                if (savedRequest != null) {
+                    String redirectUrl = savedRequest.getRedirectUrl();
+                    this.logger.debug(LogMessage.format("Redirecting to: %s", redirectUrl));
+                    this.requestCache.removeRequest(request, response);
+                    this.redirectStrategy.sendRedirect(request, response, redirectUrl);
+                    return null;
+                }
+            }
 
-        if (password == null) {
-            logger.debug("Failed to obtain an artifact (cas ticket)");
-            password = "";
+            this.logger.debug("Failed to obtain an artifact (cas ticket)");
+            serviceTicket = "";
         }
-
-        final UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-                username, password);
-
-        authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
-
+        boolean serviceTicketRequest = this.serviceTicketRequest(request, response);
+        CasServiceTicketAuthenticationToken authRequest = serviceTicketRequest
+                ? CasServiceTicketAuthenticationToken.stateful(serviceTicket)
+                : CasServiceTicketAuthenticationToken.stateless(serviceTicket);
+        authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
         return this.getAuthenticationManager().authenticate(authRequest);
+
     }
 
     /**
@@ -157,7 +184,7 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
      * @param response
      * @return
      */
-    protected boolean serviceTicketRequest(final HttpServletRequest request,
+    public boolean serviceTicketRequest(final HttpServletRequest request,
                                          final HttpServletResponse response) {
         boolean result = super.requiresAuthentication(request, response);
         if (logger.isDebugEnabled()) {
@@ -171,7 +198,28 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
         this.proxyReceptorMatcher = new AntPathRequestMatcher("/**" + proxyReceptorUrl);
     }
 
-    public void setProxyGrantingTicketStorageProvider(ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider) {
-        this.proxyGrantingTicketStorageProvider = proxyGrantingTicketStorageProvider;
+    /**
+     * Set the {@link RedirectStrategy} used to redirect to the saved request if there is
+     * one saved. Defaults to {@link DefaultRedirectStrategy}.
+     * @param redirectStrategy the redirect strategy to use
+     * @since 6.3
+     */
+    public final void setRedirectStrategy2(RedirectStrategy redirectStrategy) {
+        Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
+        this.redirectStrategy = redirectStrategy;
+        super.setRedirectStrategy(redirectStrategy);
     }
+
+    /**
+     * The {@link RequestCache} used to retrieve the saved request in failed gateway
+     * authentication scenarios.
+     * @param requestCache the request cache to use
+     * @since 6.3
+     */
+    public final void setRequestCache2(RequestCache requestCache) {
+        Assert.notNull(requestCache, "requestCache cannot be null");
+        this.requestCache = requestCache;
+        super.setRequestCache(requestCache);
+    }
+
 }

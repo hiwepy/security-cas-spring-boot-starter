@@ -384,42 +384,41 @@
 		<maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
 		<maven-war-plugin.version>3.4.0</maven-war-plugin.version>
 		<!-- Dependency versions -->
-		<cas-client.version>3.6.4</cas-client.version>
+		<cas-client.version>4.0.4</cas-client.version>
 		<commons-io.version>2.16.1</commons-io.version>
+		<hutool.version>5.8.37</hutool.version>
 		<spring-boot-starter-security-biz.version>3.3.x.20241003.RELEASE</spring-boot-starter-security-biz.version>
-		<woodstox-asl.version>4.4.1</woodstox-asl.version>
 		<xmemcached.version>2.4.8</xmemcached.version>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- https://mvnrepository.com/artifact/org.codehaus.woodstox/woodstox-core-asl -->
 			<dependency>
-			    <groupId>org.codehaus.woodstox</groupId>
-			    <artifactId>woodstox-core-asl</artifactId>
-			    <version>${woodstox-asl.version}</version>
+				<groupId>cn.hutool</groupId>
+				<artifactId>hutool-core</artifactId>
+				<version>${hutool.version}</version>
 			</dependency>
-			<!-- https://mvnrepository.com/artifact/org.jasig.cas.client/cas-client-core -->
+			<!-- https://mvnrepository.com/artifact/org.apereo.cas.client/cas-client-core -->
 			<dependency>
-			    <groupId>org.jasig.cas.client</groupId>
+			    <groupId>org.apereo.cas.client</groupId>
 			    <artifactId>cas-client-core</artifactId>
 			    <version>${cas-client.version}</version>
 			</dependency>
-			<!-- https://mvnrepository.com/artifact/org.jasig.cas.client/cas-client-support-saml -->
+			<!-- https://mvnrepository.com/artifact/org.apereo.cas.client/cas-client-support-saml -->
 			<dependency>
-			    <groupId>org.jasig.cas.client</groupId>
+			    <groupId>org.apereo.cas.client</groupId>
 			    <artifactId>cas-client-support-saml</artifactId>
 			    <version>${cas-client.version}</version>
 			</dependency>
-			<!-- https://mvnrepository.com/artifact/org.jasig.cas.client/cas-client-support-distributed-memcached -->
+			<!-- https://mvnrepository.com/artifact/org.apereo.cas.client/cas-client-support-distributed-memcached -->
 			<dependency>
-			    <groupId>org.jasig.cas.client</groupId>
+			    <groupId>org.apereo.cas.client</groupId>
 			    <artifactId>cas-client-support-distributed-memcached</artifactId>
 			    <version>${cas-client.version}</version>
 			</dependency>
-			<!-- https://mvnrepository.com/artifact/org.jasig.cas.client/cas-client-support-distributed-ehcache -->
+			<!-- https://mvnrepository.com/artifact/org.apereo.cas.client/cas-client-support-distributed-ehcache -->
 			<dependency>
-			    <groupId>org.jasig.cas.client</groupId>
+			    <groupId>org.apereo.cas.client</groupId>
 			    <artifactId>cas-client-support-distributed-ehcache</artifactId>
 			    <version>${cas-client.version}</version>
 			</dependency>
@@ -520,12 +519,10 @@
 		    <scope>provided</scope>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.codehaus.woodstox/woodstox-core-asl -->
 		<dependency>
-		    <groupId>org.codehaus.woodstox</groupId>
-		    <artifactId>woodstox-core-asl</artifactId>
+			<groupId>cn.hutool</groupId>
+			<artifactId>hutool-core</artifactId>
 		</dependency>
-		<!-- Commons项目中用来处理Java基本对象方法的工具类包， 可以简化很多平时经常要用到的写法， 例如判断字符串是否为空等等 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -538,25 +535,25 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-cas</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.jasig.cas.client/cas-client-core -->
+		<!-- https://mvnrepository.com/artifact/org.apereo.cas.client/cas-client-core -->
 		<dependency>
-		    <groupId>org.jasig.cas.client</groupId>
+		    <groupId>org.apereo.cas.client</groupId>
 		    <artifactId>cas-client-core</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.jasig.cas.client/cas-client-support-saml -->
+		<!-- https://mvnrepository.com/artifact/org.apereo.cas.client/cas-client-support-saml -->
 		<dependency>
-		    <groupId>org.jasig.cas.client</groupId>
+		    <groupId>org.apereo.cas.client</groupId>
 		    <artifactId>cas-client-support-saml</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.jasig.cas.client/cas-client-support-distributed-memcached -->
+		<!-- https://mvnrepository.com/artifact/org.apereo.cas.client/cas-client-support-distributed-memcached -->
 		<dependency>
-		    <groupId>org.jasig.cas.client</groupId>
+		    <groupId>org.apereo.cas.client</groupId>
 		    <artifactId>cas-client-support-distributed-memcached</artifactId>
 		    <optional>true</optional>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.jasig.cas.client/cas-client-support-distributed-ehcache -->
+		<!-- https://mvnrepository.com/artifact/org.apereo.cas.client/cas-client-support-distributed-ehcache -->
 		<dependency>
-		    <groupId>org.jasig.cas.client</groupId>
+		    <groupId>org.apereo.cas.client</groupId>
 		    <artifactId>cas-client-support-distributed-ehcache</artifactId>
 		    <optional>true</optional>
 		</dependency>

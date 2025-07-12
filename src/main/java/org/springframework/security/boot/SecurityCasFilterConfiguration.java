@@ -1,11 +1,11 @@
 package org.springframework.security.boot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jasig.cas.client.session.HashMapBackedSessionMappingStorage;
-import org.jasig.cas.client.session.SessionMappingStorage;
-import org.jasig.cas.client.util.AssertionThreadLocalFilter;
-import org.jasig.cas.client.util.HttpServletRequestWrapperFilter;
-import org.jasig.cas.client.validation.TicketValidator;
+import org.apereo.cas.client.session.HashMapBackedSessionMappingStorage;
+import org.apereo.cas.client.session.SessionMappingStorage;
+import org.apereo.cas.client.util.AssertionThreadLocalFilter;
+import org.apereo.cas.client.util.HttpServletRequestWrapperFilter;
+import org.apereo.cas.client.validation.TicketValidator;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.biz.web.servlet.i18n.LocaleContextFilter;
@@ -43,10 +43,13 @@ import org.springframework.security.cas.web.authentication.ServiceAuthentication
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.CompositeAccessDeniedHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
@@ -172,6 +175,8 @@ public class SecurityCasFilterConfiguration {
 	static class CasWebSecurityCustomizerAdapter extends WebSecurityCustomizerAdapter {
 
 		private final SecurityCasAuthcProperties authcProperties;
+
+		private final AccessDeniedHandler accessDeniedHandler;
     	private final LocaleContextFilter localeContextFilter;
 	    private final AuthenticationEntryPoint authenticationEntryPoint;
 		private final ServiceAuthenticationDetailsSource authenticationDetailsSource;
@@ -192,6 +197,7 @@ public class SecurityCasFilterConfiguration {
 				SecurityCasAuthcProperties authcProperties,
    				SecuritySessionMgtProperties sessionMgtProperties,
 
+				ObjectProvider<AccessDeniedHandler> accessDeniedHandlerProvider,
 				ObjectProvider<LocaleContextFilter> localeContextProvider,
 				ObjectProvider<CasAuthenticationProvider> authenticationProvider,
 				ObjectProvider<CasAuthenticationSuccessHandler> authenticationSuccessHandlerProvider,
@@ -215,13 +221,14 @@ public class SecurityCasFilterConfiguration {
    			this.authcProperties = authcProperties;
 			this.redirectStrategy = WebSecurityUtils.redirectStrategy(authcProperties);
 
+			this.accessDeniedHandler = new CompositeAccessDeniedHandler(accessDeniedHandlerProvider.stream().collect(Collectors.toList()));
 			this.localeContextFilter = localeContextProvider.getIfAvailable();
    			this.authenticationDetailsSource = authenticationDetailsSourceProvider.getIfAvailable();
    			this.authenticationEntryPoint =  authenticationEntryPointProvider.getIfAvailable();
    			this.authenticationSuccessHandler = authenticationSuccessHandlerProvider.getIfAvailable();
-   			this.authenticationFailureHandler = authenticationFailureHandlerProvider.getIfAvailable( () -> authenticationFailureHandler());
+   			this.authenticationFailureHandler = authenticationFailureHandlerProvider.getIfAvailable(this::authenticationFailureHandler);
 
-   			this.proxyFailureHandler = proxyFailureHandlerProvider.getIfAvailable( () -> proxyFailureHandler());
+   			this.proxyFailureHandler = proxyFailureHandlerProvider.getIfAvailable(this::proxyFailureHandler);
    			this.proxyGrantingTicketStorageProvider = proxyGrantingTicketStorageProvider.getIfAvailable();
    			this.rememberMeServices = rememberMeServicesProvider.getIfAvailable();
    			this.sessionMappingStorage = sessionMappingStorageProvider.getIfAvailable();
@@ -291,7 +298,6 @@ public class SecurityCasFilterConfiguration {
 			Saml11AuthenticationRoutingFilter authenticationFilter = new Saml11AuthenticationRoutingFilter(authcProperties);
 			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
 			authenticationFilter.setIgnoreInitConfiguration(Boolean.TRUE);
-			map.from(proxyGrantingTicketStorageProvider).to(authenticationFilter::setProxyGrantingTicketStorageProvider);
 			return authenticationFilter;
 		}
 
@@ -327,13 +333,12 @@ public class SecurityCasFilterConfiguration {
 		 * @return SingleSignOutFilter
 		 */
 		public SingleSignOutRoutingFilter singleSignOutFilter() {
-			SingleSignOutRoutingFilter singleSignOutFilter = new SingleSignOutRoutingFilter(authcProperties, sessionMappingStorage);
-			return singleSignOutFilter;
+            return new SingleSignOutRoutingFilter(authcProperties, sessionMappingStorage);
 		}
 
 		/*
 		 * 	CAS Assertion Thread Local Filter
-		 * 	该过滤器使得可以通过org.jasig.cas.client.util.AssertionHolder来获取用户的登录名。
+		 * 	该过滤器使得可以通过org.apereo.cas.client.util.AssertionHolder来获取用户的登录名。
 		 * 	比如AssertionHolder.getAssertion().getPrincipal().getName()。
 		 * 	这个类把Assertion信息放在ThreadLocal变量中，这样应用程序不在web层也能够获取到当前登录信息
 		 */
@@ -361,46 +366,24 @@ public class SecurityCasFilterConfiguration {
 		@Order(SecurityProperties.DEFAULT_FILTER_ORDER + 60)
 		public SecurityFilterChain casSecurityFilterChain(HttpSecurity http) throws Exception {
 
-	    	http.antMatcher(authcProperties.getPathPattern())
-				.exceptionHandling()
-	        	.authenticationEntryPoint(authenticationEntryPoint)
-	        	.and()
-	        	.httpBasic()
-	        	.disable()
-	        	.addFilterBefore(localeContextFilter, UsernamePasswordAuthenticationFilter.class)
-				.addFilterBefore(requestContextFilter(), UsernamePasswordAuthenticationFilter.class)
-	        	.addFilterAt(casAuthenticationFilter(), CasAuthenticationFilter.class)
-   	            .addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)
-   	            .addFilterAfter(assertionThreadLocalFilter(), CasAuthenticationFilter.class)
-   	            .addFilterAfter(requestWrapperFilter(), AssertionThreadLocalFilter.class);
-			/*
-			http.antMatcher(authcProperties.getPathSaml11Pattern())
-				.exceptionHandling()
-				.authenticationEntryPoint(authenticationEntryPoint)
-				.and()
-				.httpBasic()
-				.disable()
-				.addFilterBefore(localeContextFilter, UsernamePasswordAuthenticationFilter.class)
-				.addFilterAt(saml11AuthenticationFilter(), CasAuthenticationFilter.class)
-				.addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)
-				.addFilterAfter(assertionThreadLocalFilter(), CasAuthenticationFilter.class)
-				.addFilterAfter(requestWrapperFilter(), AssertionThreadLocalFilter.class);*/
-			/*
-			http.antMatcher(authcProperties.getProxyReceptorUrl())
-					.exceptionHandling()
-					.and()
-					.httpBasic()
-					.disable()
-					.addFilterBefore(localeContextFilter, UsernamePasswordAuthenticationFilter.class)
-					.addFilterAt(casTicketValidationFilter(), CasAuthenticationFilter.class)
+			http.securityMatcher(authcProperties.getPathPattern())
+					.exceptionHandling(configurer -> {
+						configurer.authenticationEntryPoint(authenticationEntryPoint)
+								.accessDeniedHandler(accessDeniedHandler)
+								.accessDeniedPage(authcProperties.getAccessDeniedUrl());
+					});
+			http.httpBasic(AbstractHttpConfigurer::disable);
+			http.addFilterBefore(localeContextFilter, UsernamePasswordAuthenticationFilter.class)
+					.addFilterBefore(requestContextFilter(), UsernamePasswordAuthenticationFilter.class)
+					.addFilterAt(casAuthenticationFilter(), CasAuthenticationFilter.class)
 					.addFilterBefore(singleSignOutFilter(), CasAuthenticationFilter.class)
 					.addFilterAfter(assertionThreadLocalFilter(), CasAuthenticationFilter.class)
-					.addFilterAfter(requestWrapperFilter(), AssertionThreadLocalFilter.class);*/
+					.addFilterAfter(requestWrapperFilter(), AssertionThreadLocalFilter.class);
 
-   	    	super.configure(http, authcProperties.getCors());
-   	    	super.configure(http, authcProperties.getCsrf());
-   	    	super.configure(http, authcProperties.getHeaders());
-	    	super.configure(http);
+			super.configure(http, authcProperties.getCors());
+			super.configure(http, authcProperties.getCsrf());
+			super.configure(http, authcProperties.getHeaders());
+			super.configure(http);
 
 			return http.build();
 	    }

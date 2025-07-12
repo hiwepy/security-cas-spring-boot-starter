@@ -1,9 +1,10 @@
 package org.springframework.security.boot;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.http.HttpHeaders;
@@ -14,7 +15,6 @@ import org.springframework.security.boot.biz.property.SecurityHeadersProperties;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +22,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
+@Slf4j
 public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 
 	/**
@@ -102,6 +103,7 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 			}
 		}
 		String referer = request.getHeader(HttpHeaders.REFERER);
+		log.info("Get Referer By Header {} : {}", HttpHeaders.REFERER, referer);
 		if (StringUtils.hasText(referer)) {
 			for (SecurityCasServerProperties server : this.servers) {
 				if (referer.startsWith(server.getServiceReferer())) {
@@ -111,5 +113,6 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 		}
 		return CollectionUtils.firstElement(this.servers);
 	}
+
 
 }

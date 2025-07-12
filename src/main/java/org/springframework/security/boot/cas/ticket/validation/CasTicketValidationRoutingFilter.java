@@ -1,10 +1,11 @@
 package org.springframework.security.boot.cas.ticket.validation;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
-import org.jasig.cas.client.util.CommonUtils;
-import org.jasig.cas.client.validation.AbstractTicketValidationFilter;
-import org.jasig.cas.client.validation.TicketValidator;
+import org.apereo.cas.client.proxy.ProxyGrantingTicketStorage;
+import org.apereo.cas.client.util.CommonUtils;
+import org.apereo.cas.client.util.WebUtils;
+import org.apereo.cas.client.validation.AbstractTicketValidationFilter;
+import org.apereo.cas.client.validation.TicketValidator;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
@@ -119,7 +120,7 @@ public class CasTicketValidationRoutingFilter extends AbstractCasRoutingFilter {
 
         try {
             ProxyGrantingTicketStorage proxyGrantingTicketStorage = getProxyGrantingTicketStorageProvider().getProxyGrantingTicketStorage(serverProperties);
-            CommonUtils.readAndRespondToProxyReceptorRequest(request, response, proxyGrantingTicketStorage);
+            WebUtils.readAndRespondToProxyReceptorRequest(request, response, proxyGrantingTicketStorage);
         } catch (final RuntimeException e) {
             logger.error(e.getMessage(), e);
             throw e;

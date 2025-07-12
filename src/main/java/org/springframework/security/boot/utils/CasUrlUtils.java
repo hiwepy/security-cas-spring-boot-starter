@@ -15,9 +15,11 @@
  */
 package org.springframework.security.boot.utils;
 
+import cn.hutool.core.net.url.UrlBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jasig.cas.client.util.CommonUtils;
+import org.apereo.cas.client.util.CommonUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.boot.SecurityCasServerProperties;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,6 +33,33 @@ import java.util.regex.Pattern;
 
 @Slf4j
 public class CasUrlUtils {
+
+	public static String getHostByRequest(HttpServletRequest request) {
+		String host = request.getServerName();
+		log.info("Get host name of the server to which the request was sent. {}", host);
+		if (!org.springframework.util.StringUtils.hasText(host)) {
+			host = request.getHeader(HttpHeaders.HOST);
+			log.info("Get Host By Header {} : {}", HttpHeaders.HOST, host);
+			if (org.springframework.util.StringUtils.hasText(host)) {
+				host = UrlBuilder.of(host).getHost();
+			}
+		}
+		if (!org.springframework.util.StringUtils.hasText(host)) {
+			String origin = request.getHeader(HttpHeaders.ORIGIN);
+			log.info("Get Origin By Header {} : {}", HttpHeaders.ORIGIN, origin);
+			if (org.springframework.util.StringUtils.hasText(origin)) {
+				host = UrlBuilder.of(origin).getHost();
+			}
+		}
+		if (!org.springframework.util.StringUtils.hasText(host)) {
+			String referer = request.getHeader(HttpHeaders.REFERER);
+			log.info("Get Referer By Header {} : {}", HttpHeaders.REFERER, host);
+			if (org.springframework.util.StringUtils.hasText(referer)) {
+				host = UrlBuilder.of(referer).getHost();
+			}
+		}
+		return host;
+	}
 
 	/**
 	 * Note that trailing slashes should not be used in the serverName.  As a convenience for this common misconfiguration, we strip them from the provided

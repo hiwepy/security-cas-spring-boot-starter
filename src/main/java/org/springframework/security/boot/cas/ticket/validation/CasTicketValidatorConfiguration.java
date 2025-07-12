@@ -17,16 +17,16 @@ package org.springframework.security.boot.cas.ticket.validation;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.jasig.cas.client.configuration.ConfigurationKeys;
-import org.jasig.cas.client.proxy.Cas20ProxyRetriever;
-import org.jasig.cas.client.proxy.ProxyRetriever;
-import org.jasig.cas.client.ssl.AnyHostnameVerifier;
-import org.jasig.cas.client.ssl.HttpURLConnectionFactory;
-import org.jasig.cas.client.ssl.HttpsURLConnectionFactory;
-import org.jasig.cas.client.ssl.WhitelistHostnameVerifier;
-import org.jasig.cas.client.util.CommonUtils;
-import org.jasig.cas.client.validation.*;
-import org.jasig.cas.client.validation.json.Cas30JsonServiceTicketValidator;
+import org.apereo.cas.client.configuration.ConfigurationKeys;
+import org.apereo.cas.client.proxy.Cas20ProxyRetriever;
+import org.apereo.cas.client.proxy.ProxyRetriever;
+import org.apereo.cas.client.ssl.AnyHostnameVerifier;
+import org.apereo.cas.client.ssl.HttpURLConnectionFactory;
+import org.apereo.cas.client.ssl.HttpsURLConnectionFactory;
+import org.apereo.cas.client.ssl.WhitelistHostnameVerifier;
+import org.apereo.cas.client.util.CommonUtils;
+import org.apereo.cas.client.validation.*;
+import org.apereo.cas.client.validation.json.Cas30JsonServiceTicketValidator;
 import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.SecurityCasServerProperties.ValidationType;
 import org.springframework.security.boot.SecurityCasServerProperties.ValidationResponse;

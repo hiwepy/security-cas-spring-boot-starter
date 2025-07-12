@@ -1,6 +1,6 @@
 package org.springframework.security.boot.cas;
 
-import org.jasig.cas.client.session.SessionMappingStorage;
+import org.apereo.cas.client.session.SessionMappingStorage;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionEvent;

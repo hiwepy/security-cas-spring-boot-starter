@@ -1,12 +1,12 @@
 package org.springframework.security.cas.web.authentication;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.utils.StringUtils;
 import org.springframework.security.cas.ServiceProperties;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;

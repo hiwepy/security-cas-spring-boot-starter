@@ -1,7 +1,7 @@
 package org.springframework.security.boot.cas.userdetails;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.jasig.cas.client.validation.Assertion;
+import org.apereo.cas.client.validation.Assertion;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.utils.RequestContextHolderUtils;

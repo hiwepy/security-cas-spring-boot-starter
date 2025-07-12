@@ -15,15 +15,16 @@
  */
 package org.springframework.security.boot.cas;
 
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jasig.cas.client.validation.Assertion;
-import org.jasig.cas.client.validation.TicketValidationException;
+import org.apereo.cas.client.validation.Assertion;
+import org.apereo.cas.client.validation.TicketValidationException;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.utils.CasUrlUtils;
@@ -31,7 +32,7 @@ import org.springframework.security.boot.utils.RequestContextHolderUtils;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
-import org.springframework.security.cas.web.CasAuthenticationFilter;
+import org.springframework.security.cas.authentication.CasServiceTicketAuthenticationToken;
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -41,14 +42,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.util.Assert;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 @Slf4j
 public class CasAuthenticationRoutingProvider extends CasAuthenticationProvider {
 
 	private static final Log logger = LogFactory.getLog(CasAuthenticationRoutingProvider.class);
 	private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
-	private SecurityCasAuthcProperties authcProperties;
+	@Setter
+    private SecurityCasAuthcProperties authcProperties;
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
 	private static final String TARGET_PARAMETER_NAME = "target";
@@ -58,84 +58,55 @@ public class CasAuthenticationRoutingProvider extends CasAuthenticationProvider 
 	}
 
 	@Override
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException {
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		if (!supports(authentication.getClass())) {
 			return null;
 		}
-
-		if (authentication instanceof UsernamePasswordAuthenticationToken
-				&& (!CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER
-						.equals(authentication.getPrincipal().toString()) && !CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER
-						.equals(authentication.getPrincipal().toString()))) {
-			// UsernamePasswordAuthenticationToken not CAS related
-			return null;
-		}
-
 		// If an existing CasAuthenticationToken, just check we created it
 		if (authentication instanceof CasAuthenticationToken) {
-			if (this.getKey().hashCode() == ((CasAuthenticationToken) authentication)
-					.getKeyHash()) {
-				return authentication;
+			if (this.getKey().hashCode() != ((CasAuthenticationToken) authentication).getKeyHash()) {
+				throw new BadCredentialsException(this.messages.getMessage("CasAuthenticationProvider.incorrectKey",
+						"The presented CasAuthenticationToken does not contain the expected key"));
 			}
-			else {
-				throw new BadCredentialsException(
-						messages.getMessage("CasAuthenticationProvider.incorrectKey",
-								"The presented CasAuthenticationToken does not contain the expected key"));
-			}
+			return authentication;
 		}
 
 		// Ensure credentials are presented
-		if ((authentication.getCredentials() == null)
-				|| "".equals(authentication.getCredentials())) {
-			throw new BadCredentialsException(messages.getMessage(
-					"CasAuthenticationProvider.noServiceTicket",
+		if ((authentication.getCredentials() == null) || "".equals(authentication.getCredentials())) {
+			throw new BadCredentialsException(this.messages.getMessage("CasAuthenticationProvider.noServiceTicket",
 					"Failed to provide a CAS service ticket to validate"));
 		}
 
-		boolean stateless = false;
-
-		if (authentication instanceof UsernamePasswordAuthenticationToken
-				&& CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER.equals(authentication
-						.getPrincipal())) {
-			stateless = true;
-		}
-
+		boolean stateless = (authentication instanceof CasServiceTicketAuthenticationToken token
+				&& token.isStateless());
 		CasAuthenticationToken result = null;
 
 		if (stateless) {
 			// Try to obtain from cache
-			result = getStatelessTicketCache().getByTicketId(authentication.getCredentials()
-					.toString());
+			result = this.getStatelessTicketCache().getByTicketId(authentication.getCredentials().toString());
 		}
-
 		if (result == null) {
 			result = this.authenticateNow(authentication);
 			result.setDetails(authentication.getDetails());
 		}
-
 		if (stateless) {
 			// Add to cache
-			getStatelessTicketCache().putTicketInCache(result);
+			this.getStatelessTicketCache().putTicketInCache(result);
 		}
-
 		return result;
 	}
 
-	protected CasAuthenticationToken authenticateNow(final Authentication authentication)
-			throws AuthenticationException {
+	private CasAuthenticationToken authenticateNow(final Authentication authentication) throws AuthenticationException {
 		try {
-			final Assertion assertion = this.getTicketValidator().validate(authentication
-					.getCredentials().toString(), this.getServiceUrl(authentication));
-			final UserDetails userDetails = loadUserByAssertion(assertion);
-			userDetailsChecker.check(userDetails);
-			return new CasAuthenticationToken(this.getKey(), userDetails,
-					authentication.getCredentials(),
-					authoritiesMapper.mapAuthorities(userDetails.getAuthorities()),
-					userDetails, assertion);
+			Assertion assertion = this.getTicketValidator().validate(authentication.getCredentials().toString(),
+					getServiceUrl(authentication));
+			UserDetails userDetails = loadUserByAssertion(assertion);
+			this.userDetailsChecker.check(userDetails);
+			return new CasAuthenticationToken(this.getKey(), userDetails, authentication.getCredentials(),
+					this.authoritiesMapper.mapAuthorities(userDetails.getAuthorities()), userDetails, assertion);
 		}
-		catch (final TicketValidationException e) {
-			throw new BadCredentialsException(e.getMessage(), e);
+		catch (TicketValidationException ex) {
+			throw new BadCredentialsException(ex.getMessage(), ex);
 		}
 	}
 
@@ -179,11 +150,7 @@ public class CasAuthenticationRoutingProvider extends CasAuthenticationProvider 
 	}
 
 
-	public void setAuthcProperties(SecurityCasAuthcProperties authcProperties) {
-		this.authcProperties = authcProperties;
-	}
-
-	@Override
+    @Override
 	public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		super.setAuthoritiesMapper(authoritiesMapper);
 		this.authoritiesMapper = authoritiesMapper;

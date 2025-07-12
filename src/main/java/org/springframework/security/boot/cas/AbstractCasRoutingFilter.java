@@ -1,15 +1,15 @@
 package org.springframework.security.boot.cas;
 
-import org.jasig.cas.client.util.AbstractConfigurationFilter;
-import org.jasig.cas.client.util.CommonUtils;
-import org.springframework.security.boot.SecurityCasAuthcProperties;
-import org.springframework.security.boot.SecurityCasServerProperties;
-import org.springframework.security.boot.utils.CasUrlUtils;
-
 import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apereo.cas.client.util.AbstractConfigurationFilter;
+import org.apereo.cas.client.util.WebUtils;
+import org.springframework.security.boot.SecurityCasAuthcProperties;
+import org.springframework.security.boot.SecurityCasServerProperties;
+import org.springframework.security.boot.utils.CasUrlUtils;
+
 import java.util.Arrays;
 
 public abstract class AbstractCasRoutingFilter extends AbstractConfigurationFilter {
@@ -48,7 +48,7 @@ public abstract class AbstractCasRoutingFilter extends AbstractConfigurationFilt
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
         String artifactParameterName = serverProperties.getValidationType().getProtocol().getArtifactParameterName();
         String serviceParameterName = serverProperties.getValidationType().getProtocol().getServiceParameterName();
-        return CommonUtils.constructServiceUrl(request, response, serverProperties.getServiceUrl(), CasUrlUtils.getServerName(serverProperties),
+        return WebUtils.constructServiceUrl(request, response, serverProperties.getServiceUrl(), CasUrlUtils.getServerName(serverProperties),
                 serviceParameterName, artifactParameterName, serverProperties.isEncodeServiceUrl());
     }
 
@@ -61,9 +61,8 @@ public abstract class AbstractCasRoutingFilter extends AbstractConfigurationFilt
     protected String retrieveTicketFromRequest(final HttpServletRequest request) {
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
         String artifactParameterName = serverProperties.getValidationType().getProtocol().getArtifactParameterName();
-        return CommonUtils.safeGetParameter(request, artifactParameterName, Arrays.asList(artifactParameterName));
+        return WebUtils.safeGetParameter(request, artifactParameterName, Arrays.asList(artifactParameterName));
     }
-
 
 
 }

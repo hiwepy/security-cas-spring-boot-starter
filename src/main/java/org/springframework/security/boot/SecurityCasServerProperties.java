@@ -15,14 +15,13 @@
  */
 package org.springframework.security.boot;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.jasig.cas.client.Protocol;
-import org.jasig.cas.client.configuration.ConfigurationKeys;
-import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
-import org.springframework.lang.NonNull;
-import org.springframework.security.cas.ServiceProperties;
+import org.apereo.cas.client.Protocol;
+import org.apereo.cas.client.configuration.ConfigurationKeys;
+import org.apereo.cas.client.proxy.ProxyGrantingTicketStorageImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +45,8 @@ public class SecurityCasServerProperties {
 	/**
 	 * CAS Validation Type.
 	 */
-	public enum ValidationType {
+	@Getter
+    public enum ValidationType {
 
 		CAS10(Protocol.CAS1),
 		CAS20(Protocol.CAS2),
@@ -61,11 +61,7 @@ public class SecurityCasServerProperties {
 			this.protocol = protocol;
 		}
 
-		public Protocol getProtocol() {
-			return protocol;
-		}
-
-	}
+    }
 
 	/**
 	 * CAS Validation Response.
@@ -232,10 +228,8 @@ public class SecurityCasServerProperties {
 	 */
 	private long tolerance = 5000L;
 	/**
-	 * time, in milliseconds, before a {@link ProxyGrantingTicketHolder} is
+	 * time, in milliseconds, before a {@link ProxyGrantingTicketStorageImpl.ProxyGrantingTicketHolder} is
 	 * considered expired and ready for removal.
-	 *
-	 * @see ProxyGrantingTicketStorageImpl#DEFAULT_TIMEOUT
 	 */
 	private long ticketTimeout = DEFAULT_TIMEOUT;
 	/**
@@ -257,21 +251,15 @@ public class SecurityCasServerProperties {
 
 	private int millisBetweenCleanUps = 60000;
 
-	private SingleLogout singleLogout;
+	private SingleLogout singleLogout = new SingleLogout();
 
+	@Data
 	public static class SingleLogout{
 		/**
 		 * whether to receive the single logout request from cas server.
 		 */
 		private boolean enabled = false;
 
-		public boolean isEnabled() {
-			return enabled;
-		}
-
-		public void setEnabled(boolean enabled) {
-			this.enabled = enabled;
-		}
 	}
 	
 }

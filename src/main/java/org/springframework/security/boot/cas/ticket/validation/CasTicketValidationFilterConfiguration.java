@@ -17,10 +17,10 @@ package org.springframework.security.boot.cas.ticket.validation;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.jasig.cas.client.proxy.ProxyRetriever;
-import org.jasig.cas.client.util.CommonUtils;
-import org.jasig.cas.client.validation.*;
-import org.jasig.cas.client.validation.json.Cas30JsonProxyReceivingTicketValidationFilter;
+import org.apereo.cas.client.proxy.ProxyRetriever;
+import org.apereo.cas.client.util.CommonUtils;
+import org.apereo.cas.client.validation.*;
+import org.apereo.cas.client.validation.json.Cas30JsonProxyReceivingTicketValidationFilter;
 import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.SecurityCasServerProperties.ValidationType;
 import org.springframework.security.boot.cas.exception.CasAuthenticationServiceException;
