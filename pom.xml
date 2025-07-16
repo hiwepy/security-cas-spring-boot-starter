@@ -384,10 +384,13 @@
 		<maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
 		<maven-war-plugin.version>3.4.0</maven-war-plugin.version>
 		<!-- Dependency versions -->
+		<bcprov.version>1.81</bcprov.version>
+		<bcpkix.version>${bcprov.version}</bcpkix.version>
 		<cas-client.version>4.0.4</cas-client.version>
 		<commons-io.version>2.16.1</commons-io.version>
+		<commons-lang3.version>3.18.0</commons-lang3.version>
 		<hutool.version>5.8.37</hutool.version>
-		<spring-boot-starter-security-biz.version>3.3.x.20241003.RELEASE</spring-boot-starter-security-biz.version>
+		<spring-boot-starter-security-biz.version>3.3.x.20250712-SNAPSHOT</spring-boot-starter-security-biz.version>
 		<xmemcached.version>2.4.8</xmemcached.version>
 	</properties>
 
@@ -397,6 +400,12 @@
 				<groupId>cn.hutool</groupId>
 				<artifactId>hutool-core</artifactId>
 				<version>${hutool.version}</version>
+			</dependency>
+			<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on -->
+			<dependency>
+				<groupId>org.bouncycastle</groupId>
+				<artifactId>bcpkix-jdk18on</artifactId>
+				<version>${bcpkix.version}</version>
 			</dependency>
 			<!-- https://mvnrepository.com/artifact/org.apereo.cas.client/cas-client-core -->
 			<dependency>
@@ -539,23 +548,52 @@
 		<dependency>
 		    <groupId>org.apereo.cas.client</groupId>
 		    <artifactId>cas-client-core</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>bcpkix-jdk15on</artifactId>
+					<groupId>org.bouncycastle</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.apereo.cas.client/cas-client-support-saml -->
 		<dependency>
 		    <groupId>org.apereo.cas.client</groupId>
 		    <artifactId>cas-client-support-saml</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>bcpkix-jdk15on</artifactId>
+					<groupId>org.bouncycastle</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.apereo.cas.client/cas-client-support-distributed-memcached -->
 		<dependency>
 		    <groupId>org.apereo.cas.client</groupId>
 		    <artifactId>cas-client-support-distributed-memcached</artifactId>
-		    <optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcpkix-jdk15on</artifactId>
+				</exclusion>
+			</exclusions>
+			<optional>true</optional>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.apereo.cas.client/cas-client-support-distributed-ehcache -->
 		<dependency>
 		    <groupId>org.apereo.cas.client</groupId>
 		    <artifactId>cas-client-support-distributed-ehcache</artifactId>
-		    <optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<artifactId>bcpkix-jdk15on</artifactId>
+					<groupId>org.bouncycastle</groupId>
+				</exclusion>
+			</exclusions>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpkix-jdk18on</artifactId>
+
 		</dependency>
 
 	</dependencies>
