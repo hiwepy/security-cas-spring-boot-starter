@@ -40,11 +40,6 @@ spring:
       enabled: true
       authc:
         path-pattern: /cas/**
-        path-cas-pattern: /cas/login
-        path-logout-pattern: /cas/logout
-        session-mgt:
-          allow-session-creation: true
-          creation-policy: if-required
         server-tag-parameter-name: platform
         servers:
           - attributes:
@@ -68,10 +63,10 @@ spring:
             server-login-url: http://127.0.0.1/sso/login
             server-logout-url: http://127.0.0.1/sso/logout
             server-url-prefix: http://127.0.0.1/sso/
-            protocol: cas30
             service-referer: http://127.0.0.1:8080
             service-host-url: http://127.0.0.1:8080
             service-url: http://127.0.0.1:8080/auth/cas/login?target=xxxx&platform=cas1
+            validation-type: cas30
           - attributes:
               - comsys_department
               - comsys_post
@@ -93,8 +88,8 @@ spring:
             server-login-url: http://127.0.0.1/sso/login
             server-logout-url: http://127.0.0.1/sso/logout
             server-url-prefix: http://127.0.0.1/sso/
-            protocol: cas30
             service-referer: http://127.0.0.1:8080
             service-host-url: http://127.0.0.1:8080
             service-url: http://127.0.0.1:8080/smartedu-authz/authz/login/cas
+            validation-type: cas30
 
