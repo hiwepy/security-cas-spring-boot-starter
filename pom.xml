@@ -442,6 +442,10 @@
         <hutool.version>5.8.37</hutool.version>
         <spring-boot-starter-security-biz.version>3.3.x.20250712-SNAPSHOT</spring-boot-starter-security-biz.version>
         <xmemcached.version>2.4.8</xmemcached.version>
+<<<<<<< Updated upstream
+=======
+                <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
+>>>>>>> Stashed changes
                 <slf4j.version>2.0.18</slf4j.version>
     </properties>
 
@@ -504,6 +508,15 @@
                 <version>${spring-boot-starter-security-biz.version}</version>
             </dependency>
                 <dependency>
+<<<<<<< Updated upstream
+=======
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${javax.servlet-api.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+>>>>>>> Stashed changes
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
@@ -530,8 +543,14 @@
         
         <!-- For Servlet Api -->
         <dependency>
+<<<<<<< Updated upstream
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
+=======
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${javax.servlet-api.version}</version>
+>>>>>>> Stashed changes
             <optional>true</optional>
         </dependency>
 
