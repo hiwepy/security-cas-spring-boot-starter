@@ -443,6 +443,7 @@
         <hutool.version>5.8.37</hutool.version>
         <spring-boot-starter-security-biz.version>3.3.x.20250712-SNAPSHOT</spring-boot-starter-security-biz.version>
         <xmemcached.version>2.4.8</xmemcached.version>
+                <slf4j.version>2.0.18</slf4j.version>
     </properties>
 
     <dependencyManagement>
@@ -503,7 +504,18 @@
                 <artifactId>security-biz-spring-boot-starter</artifactId>
                 <version>${spring-boot-starter-security-biz.version}</version>
             </dependency>
-        </dependencies>
+                <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+</dependencies>
     </dependencyManagement>
 
     <dependencies>
@@ -528,14 +540,14 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>2.0.13</version>
+            <version>${slf4j.version}</version>
         </dependency>
         
         <!-- For Slf4j Simple -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>2.0.13</version>
+            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
 
