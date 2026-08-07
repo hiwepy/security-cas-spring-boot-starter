@@ -12,7 +12,7 @@
     <groupId>io.github.easy4j</groupId>
     <artifactId>security-cas-spring-boot-starter</artifactId>
     <description>Spring Boot Starter For Spring Security With Cas</description>
-    <version>3.4.x.20251227-SNAPSHOT</version>
+    <version>3.4.x.20260630-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <url>https://github.com/easy-4-java/${project.artifactId}</url>
     <packaging>jar</packaging>
@@ -440,7 +440,7 @@
         <commons-io.version>2.16.1</commons-io.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <hutool.version>5.8.37</hutool.version>
-        <spring-boot-starter-security-biz.version>3.3.x.20250712-SNAPSHOT</spring-boot-starter-security-biz.version>
+        <spring-boot-starter-security-biz.version>3.4.x.20260630-SNAPSHOT</spring-boot-starter-security-biz.version>
         <xmemcached.version>2.4.8</xmemcached.version>
                 <slf4j.version>2.0.18</slf4j.version>
     </properties>
