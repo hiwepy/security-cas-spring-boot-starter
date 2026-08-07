@@ -25,7 +25,7 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -195,7 +195,7 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
 
     public void setProxyReceptorUrl2(final String proxyReceptorUrl) {
         super.setProxyReceptorUrl(proxyReceptorUrl);
-        this.proxyReceptorMatcher = new AntPathRequestMatcher("/**" + proxyReceptorUrl);
+        this.proxyReceptorMatcher = PathPatternRequestMatcher.pathPattern("/**" + proxyReceptorUrl);
     }
 
     /**

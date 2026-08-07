@@ -6,6 +6,7 @@ import org.springframework.security.boot.SecurityCasAuthcProperties;
 import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.utils.StringUtils;
 import org.springframework.security.cas.ServiceProperties;
+import org.springframework.security.cas.authentication.ServiceAuthenticationDetails;
 
 import java.net.MalformedURLException;
 import java.util.List;

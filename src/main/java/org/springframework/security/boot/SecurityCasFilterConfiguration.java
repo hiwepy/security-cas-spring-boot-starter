@@ -12,14 +12,12 @@ import org.springframework.biz.web.servlet.i18n.LocaleContextFilter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.PropertyMapper;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.boot.biz.authentication.captcha.CaptchaResolver;
 import org.springframework.security.boot.biz.property.SecuritySessionMgtProperties;
@@ -58,9 +56,11 @@ import org.springframework.web.filter.RequestContextFilter;
 import java.util.stream.Collectors;
 
 @Configuration
-@AutoConfigureBefore({ SecurityFilterAutoConfiguration.class })
+@AutoConfigureBefore(name = {
+		"org.springframework.boot.security.autoconfigure.web.servlet.SecurityFilterAutoConfiguration"
+})
 @ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
-@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityCasAuthcProperties.class, SecurityBizProperties.class, ServerProperties.class })
+@EnableConfigurationProperties({ SecurityCasProperties.class, SecurityCasAuthcProperties.class, SecurityBizProperties.class })
 public class SecurityCasFilterConfiguration {
 
 	@Bean
@@ -273,7 +273,7 @@ public class SecurityCasFilterConfiguration {
 			/*
 			 * 批量设置参数
 			 */
-			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+			PropertyMapper map = PropertyMapper.get();
 
 			map.from(authenticationManagerBean()).to(authenticationFilter::setAuthenticationManager);
 			map.from(authenticationSuccessHandler).to(authenticationFilter::setAuthenticationSuccessHandler);
@@ -296,7 +296,7 @@ public class SecurityCasFilterConfiguration {
 
 		public Saml11AuthenticationRoutingFilter saml11AuthenticationFilter() throws Exception {
 			Saml11AuthenticationRoutingFilter authenticationFilter = new Saml11AuthenticationRoutingFilter(authcProperties);
-			PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+			PropertyMapper map = PropertyMapper.get();
 			authenticationFilter.setIgnoreInitConfiguration(Boolean.TRUE);
 			return authenticationFilter;
 		}
@@ -363,7 +363,7 @@ public class SecurityCasFilterConfiguration {
 		}
 
 		@Bean
-		@Order(SecurityProperties.DEFAULT_FILTER_ORDER + 60)
+		@Order(Ordered.HIGHEST_PRECEDENCE + 60)
 		public SecurityFilterChain casSecurityFilterChain(HttpSecurity http) throws Exception {
 
 			http.securityMatcher(authcProperties.getPathPattern())

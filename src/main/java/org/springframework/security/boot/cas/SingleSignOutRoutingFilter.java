@@ -39,7 +39,7 @@ public class SingleSignOutRoutingFilter extends AbstractConfigurationFilter {
         /**
          * 批量设置参数
          */
-        PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+        PropertyMapper map = PropertyMapper.get();
         for (SecurityCasServerProperties serverProperties : servers) {
             if (!StringUtils.hasText(serverProperties.getServerUrlPrefix())
                     || stringSingleSignOutHandlerMap.containsKey(serverProperties.getServerUrlPrefix())) {
@@ -49,7 +49,7 @@ public class SingleSignOutRoutingFilter extends AbstractConfigurationFilter {
 
                 SingleSignOutHandler singleSignOutHandler = new SingleSignOutHandler();
 
-                map.from(sessionMappingStorage).whenNonNull().to(singleSignOutHandler::setSessionMappingStorage);
+                map.from(sessionMappingStorage).to(singleSignOutHandler::setSessionMappingStorage);
                 map.from(serverProperties.isArtifactParameterOverPost()).to(singleSignOutHandler::setArtifactParameterOverPost);
                 map.from(serverProperties.getValidationType().getProtocol().getArtifactParameterName()).whenHasText().to(singleSignOutHandler::setArtifactParameterName);
                 map.from(serverProperties.getLogoutCallbackPath()).to(singleSignOutHandler::setLogoutCallbackPath);
