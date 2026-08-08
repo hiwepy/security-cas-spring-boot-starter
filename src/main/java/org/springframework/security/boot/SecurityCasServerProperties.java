@@ -30,7 +30,7 @@ import java.util.Map;
 
 /**
  * Security Cas Server Properties
- * @author 		： <a href="https://github.com/hiwepy">wandl</a>
+ * @author [@Loong Wan](https://github.com/loong10k)
  */
 @Getter
 @Setter
