@@ -12,15 +12,15 @@ import org.springframework.security.boot.utils.CasUrlUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
 /**
  * Cas认证请求成功后的处理实现
- * @author ： <a href="https://github.com/hiwepy">hiwepy</a>
+ * @author [@Loong Wan](https://github.com/loong10k)
  */
 @Slf4j
 public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSuccessHandler {
