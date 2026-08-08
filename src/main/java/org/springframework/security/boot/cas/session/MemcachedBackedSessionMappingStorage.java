@@ -24,7 +24,7 @@ import jakarta.servlet.http.HttpSession;
 
 /**
  * For Session Storage With Memcached
- * @author ： <a href="https://github.com/hiwepy">hiwepy</a>
+ * @author [@Loong Wan](https://github.com/loong10k)
  */
 public final class MemcachedBackedSessionMappingStorage implements SessionMappingStorage {
 
