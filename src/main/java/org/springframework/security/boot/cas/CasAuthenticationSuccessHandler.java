@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * Cas认证请求成功后的处理实现
- * @author ： <a href="https://github.com/hiwepy">hiwepy</a>
+ * @author [@Loong Wan](https://github.com/loong10k)
  */
 @Slf4j
 public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSuccessHandler {
