@@ -15,6 +15,12 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
+/**
+ * ServiceAuthenticationDetailsExtSource.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 @Slf4j
 public class ServiceAuthenticationDetailsExtSource extends ServiceAuthenticationDetailsSource {
 

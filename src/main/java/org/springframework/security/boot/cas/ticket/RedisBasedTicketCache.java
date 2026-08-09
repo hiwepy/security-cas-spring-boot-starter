@@ -8,6 +8,12 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.cas.authentication.StatelessTicketCache;
 import org.springframework.util.Assert;
+/**
+ * RedisBasedTicketCache.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 @Slf4j
 public class RedisBasedTicketCache implements StatelessTicketCache, InitializingBean {
 

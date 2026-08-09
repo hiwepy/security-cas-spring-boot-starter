@@ -6,6 +6,12 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
 import java.util.Objects;
+/**
+ * SingleSignOutHttpSessionCasListener.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 
 public class SingleSignOutHttpSessionCasListener implements HttpSessionListener {
 

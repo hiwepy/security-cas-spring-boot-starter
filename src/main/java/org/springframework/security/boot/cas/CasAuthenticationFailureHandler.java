@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Cas认证请求失败后的处理实现
+ * Implementation of CAS authentication failure handling
  */
 @Slf4j
 public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailureHandler {
@@ -46,9 +46,9 @@ public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailu
 
 		log.error("Cas Authentication Failure, error : {}", exception);
 
-		// 1. 获取请求匹配的CasServerProperties
+		// 1. Retrieve the matching CasServerProperties for the request
 		SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
-		// 2. 判断是否存总是使用默认的失败地址
+		// 2. Determine whether to always use the default failure URL
 		if (serverProperties.isAlwaysUseDefaultFailureUrl()) {
 			log.debug("Always Use Default Failure Url : {}", serverProperties.getDefaultFailureUrl());
 			if (serverProperties.getDefaultFailureUrl() == null) {

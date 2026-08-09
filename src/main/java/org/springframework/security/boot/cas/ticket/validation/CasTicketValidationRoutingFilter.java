@@ -27,6 +27,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * CasTicketValidationRoutingFilter.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 @Slf4j
 public class CasTicketValidationRoutingFilter extends AbstractCasRoutingFilter {
 

@@ -55,6 +55,12 @@ import org.springframework.web.filter.RequestContextFilter;
 
 import java.util.stream.Collectors;
 
+/**
+ * SecurityCasFilterConfiguration.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 @Configuration
 @AutoConfigureBefore(name = {
 		"org.springframework.boot.security.autoconfigure.web.servlet.SecurityFilterAutoConfiguration"
@@ -271,7 +277,7 @@ public class SecurityCasFilterConfiguration {
 			CasAuthenticationRoutingFilter authenticationFilter = new CasAuthenticationRoutingFilter(authcProperties);
 
 			/*
-			 * 批量设置参数
+			 * Set parameters in batch
 			 */
 			PropertyMapper map = PropertyMapper.get();
 
@@ -313,7 +319,7 @@ public class SecurityCasFilterConfiguration {
 
 		/**
 		 * CAS SignOut Listener
-		 * 该监听器用于实现Session销毁时，通知 SessionMappingStorage 中记录的所有客户端应用注销当前用户的登录信息
+		 * This listener notifies registered client applications when the session is destroyed，to log out the current user
 		 * @return ServletListenerRegistrationBean
 		 */
 	    @Bean
@@ -329,7 +335,7 @@ public class SecurityCasFilterConfiguration {
 
 		/**
 		 * CAS SignOut Filter
-		 * 该过滤器用于实现单点登出功能，单点退出配置，一定要放在其他filter之前
+		 * This filter implements single sign-out functionality，and must be placed before other filters
 		 * @return SingleSignOutFilter
 		 */
 		public SingleSignOutRoutingFilter singleSignOutFilter() {
@@ -338,7 +344,7 @@ public class SecurityCasFilterConfiguration {
 
 		/*
 		 * 	CAS Assertion Thread Local Filter
-		 * 	该过滤器使得可以通过org.apereo.cas.client.util.AssertionHolder来获取用户的登录名。
+		 * 	This filter allows retrieving the login name viaorg.apereo.cas.client.util.AssertionHolder来获取用户的登录名。
 		 * 	比如AssertionHolder.getAssertion().getPrincipal().getName()。
 		 * 	这个类把Assertion信息放在ThreadLocal变量中，这样应用程序不在web层也能够获取到当前登录信息
 		 */
@@ -348,7 +354,7 @@ public class SecurityCasFilterConfiguration {
 
 		/*
 		 * 	CAS HttpServletRequest Wrapper Filter
-		 * 	该过滤器对HttpServletRequest请求包装， 可通过HttpServletRequest的getRemoteUser()方法获得登录用户的登录名
+		 * 	This filter wraps the HttpServletRequest， 可通过HttpServletRequest的getRemoteUser()方法获得登录用户的登录名
 		 */
 		public HttpServletRequestWrapperFilter requestWrapperFilter() {
 			HttpServletRequestWrapperFilter wrapperFilter = new HttpServletRequestWrapperFilter();

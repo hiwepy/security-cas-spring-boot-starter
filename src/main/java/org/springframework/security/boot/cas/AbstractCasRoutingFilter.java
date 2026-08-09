@@ -11,6 +11,12 @@ import org.springframework.security.boot.SecurityCasServerProperties;
 import org.springframework.security.boot.utils.CasUrlUtils;
 
 import java.util.Arrays;
+/**
+ * AbstractCasRoutingFilter.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 
 public abstract class AbstractCasRoutingFilter extends AbstractConfigurationFilter {
 

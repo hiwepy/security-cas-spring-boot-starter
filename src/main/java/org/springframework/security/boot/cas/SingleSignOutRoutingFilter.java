@@ -18,6 +18,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * SingleSignOutRoutingFilter.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 @Slf4j
 public class SingleSignOutRoutingFilter extends AbstractConfigurationFilter {
 
@@ -37,7 +43,7 @@ public class SingleSignOutRoutingFilter extends AbstractConfigurationFilter {
     private void initSingleSignOutHandler(List<SecurityCasServerProperties> servers) {
 
         /**
-         * 批量设置参数
+         * Set parameters in batch
          */
         PropertyMapper map = PropertyMapper.get();
         for (SecurityCasServerProperties serverProperties : servers) {

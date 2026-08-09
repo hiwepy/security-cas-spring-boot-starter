@@ -18,6 +18,10 @@ package org.springframework.security.boot;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -125,9 +129,11 @@ class SecurityCasServerPropertiesTest {
         try {
             java.lang.reflect.Field f = SecurityCasServerProperties.class.getDeclaredField("attributes");
             f.setAccessible(true);
-            f.set(props, null);
+            String[] expected = new String[] { "uid", "cn" };
+            f.set(props, expected);
             Object value = f.get(props);
             assertThat(value).isNotNull();
+            assertThat((String[]) value).containsExactly("uid", "cn");
         } catch (Exception e) {
             // Field may have a more complex type; skip silently
         }

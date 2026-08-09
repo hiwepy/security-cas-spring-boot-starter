@@ -6,6 +6,12 @@ import org.springframework.data.redis.core.RedisTemplate;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+/**
+ * RedisBackedProxyGrantingTicketStorageImpl.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 
 public class RedisBackedProxyGrantingTicketStorageImpl extends
         AbstractEncryptedProxyGrantingTicketStorageImpl {

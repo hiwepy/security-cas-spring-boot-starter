@@ -10,6 +10,12 @@ import org.springframework.util.Assert;
 
 import java.util.concurrent.TimeoutException;
 
+/**
+ * MemcachedBasedTicketCache.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 @Slf4j
 public class MemcachedBasedTicketCache implements StatelessTicketCache, InitializingBean {
 

@@ -34,6 +34,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
 import java.util.Objects;
+/**
+ * CasAuthenticationRoutingFilter.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 
 public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
 

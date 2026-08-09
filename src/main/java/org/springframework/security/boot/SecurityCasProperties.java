@@ -5,6 +5,12 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * SecurityCasProperties.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 @ConfigurationProperties(SecurityCasProperties.PREFIX)
 @Getter
 @Setter

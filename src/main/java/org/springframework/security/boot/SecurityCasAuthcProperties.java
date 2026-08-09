@@ -18,6 +18,12 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * SecurityCasAuthcProperties.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 @ConfigurationProperties(SecurityCasAuthcProperties.PREFIX)
 @Getter
 @Setter

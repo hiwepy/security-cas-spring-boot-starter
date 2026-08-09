@@ -13,6 +13,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Objects;
+/**
+ * CasAuthenticationRoutingEntryPoint.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 
 public class CasAuthenticationRoutingEntryPoint extends CasAuthenticationEntryPoint {
 
@@ -41,7 +47,7 @@ public class CasAuthenticationRoutingEntryPoint extends CasAuthenticationEntryPo
         if (Objects.isNull(RequestContextHolder.getRequestAttributes())){
             RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
         }
-        // 1. 获取请求匹配的CasServerProperties
+        // 1. Retrieve the matching CasServerProperties for the request
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
         String artifactParameterName = serverProperties.getValidationType().getProtocol().getArtifactParameterName();
         String serviceParameterName = serverProperties.getValidationType().getProtocol().getServiceParameterName();
@@ -63,7 +69,7 @@ public class CasAuthenticationRoutingEntryPoint extends CasAuthenticationEntryPo
         if (Objects.isNull(request)) {
             return super.createRedirectUrl(serviceUrl);
         }
-        // 2. 获取请求匹配的CasServerProperties
+        // 2. Retrieve the matching CasServerProperties for the request
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
         // 3. 构建重定向URL
         String loginUrl = CasUrlUtils.constructLoginRedirectUrl(serverProperties);

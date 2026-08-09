@@ -9,6 +9,12 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+/**
+ * Saml11AuthenticationRoutingFilter.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 
 public class Saml11AuthenticationRoutingFilter extends AbstractCasFilter {
 

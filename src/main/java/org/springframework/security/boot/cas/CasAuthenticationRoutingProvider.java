@@ -42,6 +42,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.util.Assert;
 
+/**
+ * CasAuthenticationRoutingProvider.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 @Slf4j
 public class CasAuthenticationRoutingProvider extends CasAuthenticationProvider {
 
@@ -125,7 +131,7 @@ public class CasAuthenticationRoutingProvider extends CasAuthenticationProvider 
 		HttpServletRequest request = RequestContextHolderUtils.getHttpServletRequest();
 		Assert.isTrue(request != null, "request cannot be null");
 
-		// 1. 获取请求匹配的CasServerProperties
+		// 1. Retrieve the matching CasServerProperties for the request
 		SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
 
 		String serviceUrl;

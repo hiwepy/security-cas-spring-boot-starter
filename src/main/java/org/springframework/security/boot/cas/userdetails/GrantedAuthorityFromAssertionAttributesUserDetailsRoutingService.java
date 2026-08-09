@@ -15,6 +15,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+/**
+ * GrantedAuthorityFromAssertionAttributesUserDetailsRoutingService.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 1.0.0
+ */
 
 public class GrantedAuthorityFromAssertionAttributesUserDetailsRoutingService extends
         AbstractCasAssertionUserDetailsService {

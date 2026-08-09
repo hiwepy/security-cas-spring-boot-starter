@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Cas认证请求成功后的处理实现
+ * Implementation of CAS authentication success handling
  * @author [@Loong Wan](https://github.com/loong10k)
  */
 @Slf4j
@@ -51,11 +51,11 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 
 		//Assertion assertion = casToken.getAssertion();
 		/*
-		 * 获取用户的唯一标识信息 由UIA的配置不同可分为两种： (1)学生：学号；教工：身份证号 (2)学生：学号；教工：教工号
+		 * Retrieve the unique identifier of the user 由UIA的配置不同可分为两种： (1)学生：学号；教工：身份证号 (2)学生：学号；教工：教工号
 		 */
 		//String ssoid = assertion.getPrincipal().getName();
 		/*
-		 * 获取用户扩展信息 扩展信息由UIA的SSO配置决定 其中，由于用户可能拥有多个角色，岗位，部门等
+		 * Retrieve extended user information 扩展信息由UIA的SSO配置决定 其中，由于用户可能拥有多个角色，岗位，部门等
 		Map<String, Object> attributes = assertion.getPrincipal().getAttributes();
 		*/
 
@@ -83,11 +83,11 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 					+ targetUrl);
 			return;
 		}
-		// 签发jwt
+		// Issue JWT token
 		String tokenString = getJwtPayloadRepository().issueJwt((AbstractAuthenticationToken) authentication);
-		// 地址添加token参数
+		// Append token parameter to URL
 		targetUrl = CasUrlUtils.addParameter(targetUrl, "token", tokenString,true);
-		// 地址添加sessionid参数 ,前端统一会话用
+		// Append session ID parameter to URL ,前端统一会话用
 		String jsessionid = request.getSession(false).getId();
 		targetUrl = CasUrlUtils.addParameter(targetUrl, "jsessionid", jsessionid,true);
 
@@ -104,7 +104,7 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 	@Override
 	protected String determineTargetUrl(HttpServletRequest request,
 										HttpServletResponse response) {
-		// 1. 获取请求匹配的CasServerProperties
+		// 1. Retrieve the matching CasServerProperties for the request
 		SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
 		if (serverProperties.isAlwaysUseDefaultTargetUrl()) {
 			return serverProperties.getDefaultTargetUrl();
