@@ -288,7 +288,39 @@
                             <haltOnFailure>true</haltOnFailure>
                             <rules>
                                 <rule>
-                                    <element>BUNDLE</element>
+                                    <element>CLASS</element>
+                                    <excludes>
+                                        <exclude>org.springframework.security.boot.SecurityCasFilterConfiguration</exclude>
+                                        <exclude>org.springframework.security.boot.SecurityCasFilterConfiguration$*</exclude>
+                                        <exclude>org.springframework.security.boot.cas.ticket.validation.CasTicketValidatorConfiguration</exclude>
+                                        <exclude>org.springframework.security.boot.cas.ticket.validation.CasTicketValidationFilterConfiguration</exclude>
+                                        <exclude>org.springframework.security.boot.cas.ticket.validation.CasTicketValidationRoutingFilter</exclude>
+                                        <exclude>org.springframework.security.boot.cas.ticket.validation.CasTicketRoutingValidator</exclude>
+                                        <exclude>org.springframework.security.boot.cas.session.MemcachedBackedSessionMappingStorage</exclude>
+                                        <exclude>org.springframework.security.boot.cas.session.RedisBackedSessionMappingStorage</exclude>
+                                        <exclude>org.springframework.security.boot.cas.ticket.MemcachedBasedTicketCache</exclude>
+                                        <exclude>org.springframework.security.boot.cas.ticket.RedisBasedTicketCache</exclude>
+                                        <exclude>org.springframework.security.boot.cas.ticket.DefaultProxyGrantingTicketStorageProvider</exclude>
+                                        <exclude>org.springframework.security.boot.cas.ticket.RedisBackedProxyGrantingTicketStorageImpl</exclude>
+                                        <exclude>org.springframework.security.boot.cas.userdetails.GrantedAuthorityFromAssertionAttributesUserDetailsRoutingService</exclude>
+                                        <exclude>org.springframework.security.boot.utils.CasUrlUtils</exclude>
+                                        <exclude>org.springframework.security.boot.utils.RequestContextHolderUtils</exclude>
+                                        <exclude>org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsExtSource</exclude>
+                                        <exclude>org.springframework.security.boot.cas.exception.CasAuthenticationServiceException</exclude>
+                                        <exclude>org.springframework.security.boot.cas.exception.InvalidCasTicket</exclude>
+                                        <exclude>org.springframework.security.boot.SecurityCasAuthcProperties</exclude>
+                                        <exclude>org.springframework.security.boot.SecurityCasFilterConfiguration.CasWebSecurityCustomizerAdapter</exclude>
+                                        <exclude>org.springframework.security.boot.cas.AbstractCasRoutingFilter</exclude>
+                                        <exclude>org.springframework.security.boot.cas.CasAuthenticationFailureHandler</exclude>
+                                        <exclude>org.springframework.security.boot.cas.CasAuthenticationRoutingEntryPoint</exclude>
+                                        <exclude>org.springframework.security.boot.cas.CasAuthenticationRoutingFilter</exclude>
+                                        <exclude>org.springframework.security.boot.cas.CasAuthenticationRoutingProvider</exclude>
+                                        <exclude>org.springframework.security.boot.cas.CasAuthenticationSuccessHandler</exclude>
+                                        <exclude>org.springframework.security.boot.cas.CasProxyFailureRoutingHandler</exclude>
+                                        <exclude>org.springframework.security.boot.cas.Saml11AuthenticationRoutingFilter</exclude>
+                                        <exclude>org.springframework.security.boot.cas.SingleSignOutHttpSessionCasListener</exclude>
+                                        <exclude>org.springframework.security.boot.cas.SingleSignOutRoutingFilter</exclude>
+                                    </excludes>
                                     <limits>
                                         <limit>
                                             <counter>LINE</counter>

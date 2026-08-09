@@ -156,19 +156,19 @@ class SecurityCasServerPropertiesTest {
     }
 
     @Test
-    @DisplayName("Field 'attributeAuthorities' can be set and read")
+    @DisplayName("Field 'attributeAuthorities' getter/setter round-trip")
     void testAttributeAuthoritiesField() {
         SecurityCasServerProperties props = new SecurityCasServerProperties();
-        // Use reflection to set private field (covers all fields including those without setters)
-        try {
-            java.lang.reflect.Field f = SecurityCasServerProperties.class.getDeclaredField("attributeAuthorities");
-            f.setAccessible(true);
-            f.set(props, null);
-            Object value = f.get(props);
-            assertThat(value).isNotNull();
-        } catch (Exception e) {
-            // Field may have a more complex type; skip silently
-        }
+        // Default should be non-null (empty ArrayList)
+        assertThat(props.getAttributeAuthorities()).isNotNull();
+        assertThat(props.getAttributeAuthorities()).isEmpty();
+        // Set via setter and verify via getter
+        java.util.List<String> authorities = new java.util.ArrayList<>();
+        authorities.add("ROLE_ADMIN");
+        authorities.add("ROLE_USER");
+        props.setAttributeAuthorities(authorities);
+        assertThat(props.getAttributeAuthorities()).isNotEmpty();
+        assertThat(props.getAttributeAuthorities()).containsExactly("ROLE_ADMIN", "ROLE_USER");
     }
 
     @Test

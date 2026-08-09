@@ -166,19 +166,18 @@ class SecurityCasAuthcPropertiesTest {
     }
 
     @Test
-    @DisplayName("Field 'servers' can be set and read")
+    @DisplayName("Field 'servers' getter/setter round-trip")
     void testServersField() {
         SecurityCasAuthcProperties props = new SecurityCasAuthcProperties();
-        // Use reflection to set private field (covers all fields including those without setters)
-        try {
-            java.lang.reflect.Field f = SecurityCasAuthcProperties.class.getDeclaredField("servers");
-            f.setAccessible(true);
-            f.set(props, null);
-            Object value = f.get(props);
-            assertThat(value).isNotNull();
-        } catch (Exception e) {
-            // Field may have a more complex type; skip silently
-        }
+        // Default should be non-null (empty ArrayList)
+        assertThat(props.getServers()).isNotNull();
+        assertThat(props.getServers()).isEmpty();
+        // Set via setter and verify via getter
+        java.util.List<SecurityCasServerProperties> servers = new java.util.ArrayList<>();
+        servers.add(new SecurityCasServerProperties());
+        props.setServers(servers);
+        assertThat(props.getServers()).isNotEmpty();
+        assertThat(props.getServers()).hasSize(1);
     }
 
     @Test
