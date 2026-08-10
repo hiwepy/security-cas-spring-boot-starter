@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * Implementation of CAS authentication success handling
- * @author [@Loong Wan](https://github.com/loong10k)
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  */
 @Slf4j
 public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSuccessHandler {
