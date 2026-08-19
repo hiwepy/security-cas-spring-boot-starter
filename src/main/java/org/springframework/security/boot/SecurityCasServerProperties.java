@@ -31,6 +31,7 @@ import java.util.Map;
 /**
  * Security Cas Server Properties
  * @author <a href="https://github.com/loong10k">Loong Wan</a>
+ * @since 1.0.0
  */
 @Getter
 @Setter

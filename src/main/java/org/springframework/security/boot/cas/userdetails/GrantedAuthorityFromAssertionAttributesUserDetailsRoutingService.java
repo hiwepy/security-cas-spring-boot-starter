@@ -29,6 +29,11 @@ public class GrantedAuthorityFromAssertionAttributesUserDetailsRoutingService ex
 
     private SecurityCasAuthcProperties authcProperties;
 
+    /**
+     * Constructs a new granted authority from assertion attributes user details routing service instance.
+     *
+     * @param authcProperties the authc properties
+     */
     public GrantedAuthorityFromAssertionAttributesUserDetailsRoutingService(SecurityCasAuthcProperties authcProperties) {
         this.authcProperties = authcProperties;
     }

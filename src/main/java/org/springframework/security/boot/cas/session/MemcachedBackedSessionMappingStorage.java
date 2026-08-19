@@ -40,10 +40,21 @@ public final class MemcachedBackedSessionMappingStorage implements SessionMappin
 	private static final String ID_TO_SESSION_KEY_MAPPING = "ID_TO_SESSION_KEY_MAPPING.";
 	private XMemcachedClient client;
 
+	/**
+	 * Constructs a new memcached backed session mapping storage instance.
+	 *
+	 * @param client the client
+	 */
 	public MemcachedBackedSessionMappingStorage(XMemcachedClient client) {
 		this.client = client;
 	}
 
+	/**
+	 * add Session By ID.
+	 *
+	 * @param mappingId the mapping id
+	 * @param session the session
+	 */
 	@Override
 	public synchronized void addSessionById(String mappingId, HttpSession session) {
 		try {
@@ -54,6 +65,11 @@ public final class MemcachedBackedSessionMappingStorage implements SessionMappin
 		}
 	}
 
+	/**
+	 * remove By Session By ID.
+	 *
+	 * @param sessionId the session id
+	 */
 	@Override
 	public synchronized void removeBySessionById(String sessionId) {
 
@@ -77,6 +93,12 @@ public final class MemcachedBackedSessionMappingStorage implements SessionMappin
 		}
 	}
 
+	/**
+	 * remove Session By Mapping ID.
+	 *
+	 * @param mappingId the mapping id
+	 * @return the result
+	 */
 	@Override
 	public synchronized HttpSession removeSessionByMappingId(String mappingId) {
 		HttpSession session = null;

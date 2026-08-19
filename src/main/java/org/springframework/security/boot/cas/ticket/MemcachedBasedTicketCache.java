@@ -25,6 +25,11 @@ public class MemcachedBasedTicketCache implements StatelessTicketCache, Initiali
 
     private XMemcachedClient client;
 
+    /**
+     * Constructs a new memcached based ticket cache instance.
+     *
+     * @param client the client
+     */
     public MemcachedBasedTicketCache(XMemcachedClient client) {
         this.client = client;
     }

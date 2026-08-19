@@ -27,10 +27,21 @@ import org.springframework.security.boot.biz.exception.AuthenticationServiceExce
 @SuppressWarnings("serial")
 public class CasAuthenticationServiceException extends AuthenticationServiceExceptionAdapter {
 
+	/**
+	 * Constructs a new cas authentication service exception instance.
+	 *
+	 * @param message the message
+	 */
 	public CasAuthenticationServiceException(String message) {
         super(AuthResponseCode.SC_AUTHZ_THIRD_PARTY_SERVICE, message);
     }
 
+    /**
+     * Constructs a new cas authentication service exception instance.
+     *
+     * @param message the message
+     * @param cause the cause
+     */
     public CasAuthenticationServiceException(String message, Throwable cause) {
         super(AuthResponseCode.SC_AUTHZ_THIRD_PARTY_SERVICE, message, cause);
     }

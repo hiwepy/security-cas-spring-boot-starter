@@ -17,6 +17,11 @@ public class SingleSignOutHttpSessionCasListener implements HttpSessionListener 
 
     private final SessionMappingStorage sessionMappingStorage;
 
+    /**
+     * Constructs a new single sign out http session cas listener instance.
+     *
+     * @param sessionMappingStorage the session mapping storage
+     */
     public SingleSignOutHttpSessionCasListener(SessionMappingStorage sessionMappingStorage) {
         this.sessionMappingStorage = sessionMappingStorage;
     }

@@ -23,6 +23,11 @@ public class DefaultProxyGrantingTicketStorageProvider implements ProxyGrantingT
 
     private Map<String, ProxyGrantingTicketStorage> proxyGrantingTicketStorageMap = new ConcurrentHashMap<>();
 
+    /**
+     * Constructs a new default proxy granting ticket storage provider instance.
+     *
+     * @param authcProperties the authc properties
+     */
     public DefaultProxyGrantingTicketStorageProvider(SecurityCasAuthcProperties authcProperties) {
         this.initProxyGrantingTicketStorage(authcProperties.getServers());
     }

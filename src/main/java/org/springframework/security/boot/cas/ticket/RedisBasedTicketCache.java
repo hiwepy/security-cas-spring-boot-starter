@@ -22,6 +22,11 @@ public class RedisBasedTicketCache implements StatelessTicketCache, Initializing
 
     private final RedisTemplate<String, Object> redisTemplate;
 
+    /**
+     * Constructs a new redis based ticket cache instance.
+     *
+     * @param redisTemplate the redis template
+     */
     public RedisBasedTicketCache(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }

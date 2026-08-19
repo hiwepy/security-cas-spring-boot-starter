@@ -45,6 +45,14 @@ public class CasTicketValidationRoutingFilter extends AbstractCasRoutingFilter {
     private final Map<String, AbstractTicketValidationFilter> ticketValidationFilterByReferer = new ConcurrentHashMap<>();
     private final Map<String, AbstractTicketValidationFilter> ticketValidationFilterByTag = new ConcurrentHashMap<>();
 
+    /**
+     * Constructs a new cas ticket validation routing filter instance.
+     *
+     * @param authcProperties the authc properties
+     * @param ticketValidationFilterConfig the ticket validation filter config
+     * @param ticketValidator the ticket validator
+     * @param proxyGrantingTicketStorageProvider the proxy granting ticket storage provider
+     */
     public CasTicketValidationRoutingFilter(SecurityCasAuthcProperties authcProperties,
                                             CasTicketValidationFilterConfiguration ticketValidationFilterConfig,
                                             TicketValidator ticketValidator,
@@ -138,6 +146,15 @@ public class CasTicketValidationRoutingFilter extends AbstractCasRoutingFilter {
         return Boolean.FALSE;
     }
 
+    /**
+     * do Filter.
+     *
+     * @param servletRequest the servlet request
+     * @param servletResponse the servlet response
+     * @param filterChain the filter chain
+     * @throws IOException if an error occurs
+     * @throws ServletException if an error occurs
+     */
     @Override
     public final void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
                                final FilterChain filterChain) throws IOException, ServletException {

@@ -40,6 +40,12 @@ import java.util.regex.Pattern;
 @Slf4j
 public class CasUrlUtils {
 
+	/**
+	 * get Host By Request.
+	 *
+	 * @param request the request
+	 * @return the result
+	 */
 	public static String getHostByRequest(HttpServletRequest request) {
 		String host = request.getServerName();
 		log.info("Get host name of the server to which the request was sent. {}", host);
@@ -106,12 +112,24 @@ public class CasUrlUtils {
 		return result;
 	}
 
+	/**
+	 * construct Logout Redirect URL.
+	 *
+	 * @param serverProperties the server properties
+	 * @return the result
+	 */
 	public static String constructLogoutRedirectUrl(SecurityCasServerProperties serverProperties) {
 		return CommonUtils.constructRedirectUrl(serverProperties.getServerLogoutUrl(),
 				serverProperties.getValidationType().getProtocol().getServiceParameterName(),
 				serverProperties.getServiceUrl(), serverProperties.getRenew(), serverProperties.getGateway());
 	}
 
+	/**
+	 * construct Login Redirect URL.
+	 *
+	 * @param serverProperties the server properties
+	 * @return the result
+	 */
 	public static String constructLoginRedirectUrl(SecurityCasServerProperties serverProperties) {
 		return CommonUtils.constructRedirectUrl(serverProperties.getServerLoginUrl(),
 				serverProperties.getValidationType().getProtocol().getServiceParameterName(),

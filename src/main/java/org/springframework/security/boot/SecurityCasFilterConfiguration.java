@@ -65,6 +65,12 @@ import java.util.stream.Collectors;
 @AutoConfigureBefore(name = {
 		"org.springframework.boot.security.autoconfigure.web.servlet.SecurityFilterAutoConfiguration"
 })
+/**
+ * <p>Configuration properties.</p>
+ *
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
+ * @since 1.0.0
+ */
 @ConditionalOnProperty(prefix = SecurityCasProperties.PREFIX, value = "enabled", havingValue = "true")
 @EnableConfigurationProperties({ SecurityCasProperties.class, SecurityCasAuthcProperties.class, SecurityBizProperties.class })
 public class SecurityCasFilterConfiguration {
@@ -122,6 +128,13 @@ public class SecurityCasFilterConfiguration {
 		return new NullStatelessTicketCache();
 	}
 
+	/**
+	 * ticket Validator Configuration.
+	 *
+	 * @param authcProperties the authc properties
+	 * @param proxyGrantingTicketStorageProvider the proxy granting ticket storage provider
+	 * @return the result
+	 */
 	@Bean
 	@ConditionalOnMissingBean
 	public CasTicketValidatorConfiguration ticketValidatorConfiguration(SecurityCasAuthcProperties authcProperties,
@@ -133,6 +146,13 @@ public class SecurityCasFilterConfiguration {
 		return ticketValidatorConfig;
 	}
 
+	/**
+	 * ticket Validator.
+	 *
+	 * @param casProperties the cas properties
+	 * @param ticketValidatorConfig the ticket validator config
+	 * @return the result
+	 */
 	@Bean
 	@ConditionalOnMissingBean
 	public TicketValidator ticketValidator(SecurityCasAuthcProperties casProperties,
@@ -140,6 +160,13 @@ public class SecurityCasFilterConfiguration {
 		return new CasTicketRoutingValidator(casProperties, ticketValidatorConfig);
 	}
 
+	/**
+	 * ticket Validation Filter Configuration.
+	 *
+	 * @param authcProperties the authc properties
+	 * @param proxyGrantingTicketStorageProvider the proxy granting ticket storage provider
+	 * @return the result
+	 */
 	@Bean
 	@ConditionalOnMissingBean
 	public CasTicketValidationFilterConfiguration ticketValidationFilterConfiguration(SecurityCasAuthcProperties authcProperties,
@@ -151,6 +178,15 @@ public class SecurityCasFilterConfiguration {
 		return ticketValidationFilterConfig;
 	}
 
+	/**
+	 * cas Authentication Provider.
+	 *
+	 * @param casAssertionUserDetailsService the cas assertion user details service
+	 * @param authoritiesMapper the authorities mapper
+	 * @param authcProperties the authc properties
+	 * @param ticketValidator the ticket validator
+	 * @return the result
+	 */
 	@Bean
 	@ConditionalOnMissingBean
 	public CasAuthenticationProvider casAuthenticationProvider(
@@ -186,6 +222,13 @@ public class SecurityCasFilterConfiguration {
 		return entryPoint;
 	}
 
+	/**
+	 * cas Authentication Success Handler.
+	 *
+	 * @param authcProperties the authc properties
+	 * @param false the false
+	 * @return the result
+	 */
 	@Bean
 	@ConditionalOnMissingBean
 	public CasAuthenticationSuccessHandler casAuthenticationSuccessHandler(SecurityCasAuthcProperties authcProperties,

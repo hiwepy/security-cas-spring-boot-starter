@@ -22,9 +22,20 @@ public abstract class AbstractCasRoutingFilter extends AbstractConfigurationFilt
 
     private final SecurityCasAuthcProperties authcProperties;
 
+    /**
+     * Constructs a new abstract cas routing filter instance.
+     *
+     * @param authcProperties the authc properties
+     */
     public AbstractCasRoutingFilter(SecurityCasAuthcProperties authcProperties) {
         this.authcProperties = authcProperties;
     }
+    /**
+     * init.
+     *
+     * @param filterConfig the filter config
+     * @throws ServletException if an error occurs
+     */
     @Override
     public final void init(final FilterConfig filterConfig) throws ServletException {
         super.init(filterConfig);
@@ -50,6 +61,13 @@ public abstract class AbstractCasRoutingFilter extends AbstractConfigurationFilt
         // template method
     }
 
+    /**
+     * construct Service URL.
+     *
+     * @param request the request
+     * @param response the response
+     * @return the result
+     */
     protected final String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
         String artifactParameterName = serverProperties.getValidationType().getProtocol().getArtifactParameterName();

@@ -58,6 +58,11 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
 
     private RequestCache requestCache = new HttpSessionRequestCache();
 
+    /**
+     * Constructs a new cas authentication routing filter instance.
+     *
+     * @param authcProperties the authc properties
+     */
     public CasAuthenticationRoutingFilter(SecurityCasAuthcProperties authcProperties) {
         super();
         this.authcProperties = authcProperties;

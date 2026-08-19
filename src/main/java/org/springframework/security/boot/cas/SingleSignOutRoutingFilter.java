@@ -34,6 +34,12 @@ public class SingleSignOutRoutingFilter extends AbstractConfigurationFilter {
     private SessionMappingStorage sessionMappingStorage;
     private boolean eagerlyCreateSessions = true;
 
+    /**
+     * Constructs a new single sign out routing filter instance.
+     *
+     * @param authcProperties the authc properties
+     * @param sessionMappingStorage the session mapping storage
+     */
     public SingleSignOutRoutingFilter(SecurityCasAuthcProperties authcProperties, SessionMappingStorage sessionMappingStorage) {
         this.authcProperties = authcProperties;
         this.sessionMappingStorage = sessionMappingStorage;
@@ -81,6 +87,15 @@ public class SingleSignOutRoutingFilter extends AbstractConfigurationFilter {
         super.init(filterConfig);
     }
 
+    /**
+     * do Filter.
+     *
+     * @param servletRequest the servlet request
+     * @param servletResponse the servlet response
+     * @param filterChain the filter chain
+     * @throws IOException if an error occurs
+     * @throws ServletException if an error occurs
+     */
     @Override
     public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
                          final FilterChain filterChain) throws IOException, ServletException {

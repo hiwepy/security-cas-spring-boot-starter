@@ -20,6 +20,11 @@ public class Saml11AuthenticationRoutingFilter extends AbstractCasFilter {
 
     private final SecurityCasAuthcProperties authcProperties;
 
+    /**
+     * Constructs a new saml11 authentication routing filter instance.
+     *
+     * @param authcProperties the authc properties
+     */
     public Saml11AuthenticationRoutingFilter(SecurityCasAuthcProperties authcProperties) {
         super(Protocol.SAML11);
         this.authcProperties = authcProperties;
@@ -34,6 +39,15 @@ public class Saml11AuthenticationRoutingFilter extends AbstractCasFilter {
 
     }
 
+    /**
+     * do Filter.
+     *
+     * @param servletRequest the servlet request
+     * @param servletResponse the servlet response
+     * @param filterChain the filter chain
+     * @throws IOException if an error occurs
+     * @throws ServletException if an error occurs
+     */
     @Override
     public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
                                final FilterChain filterChain) throws IOException, ServletException {

@@ -17,17 +17,30 @@ import java.util.List;
 
 /**
  * Implementation of CAS authentication failure handling
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
+ * @since 1.0.0
  */
 @Slf4j
 public class CasProxyFailureRoutingHandler extends ListenedAuthenticationFailureHandler {
 	
 	private SecurityCasAuthcProperties authcProperties;
 	
+	/**
+	 * Constructs a new cas proxy failure routing handler instance.
+	 *
+	 * @param authcProperties the authc properties
+	 */
 	public CasProxyFailureRoutingHandler(SecurityCasAuthcProperties authcProperties) {
 		super("");
 		this.authcProperties = authcProperties;
 	}
 	
+	/**
+	 * Constructs a new cas proxy failure routing handler instance.
+	 *
+	 * @param authenticationListeners the authentication listeners
+	 * @param authcProperties the authc properties
+	 */
 	public CasProxyFailureRoutingHandler(List<AuthenticationListener> authenticationListeners, SecurityCasAuthcProperties authcProperties) {
 		super(authenticationListeners, "");
 		this.authcProperties = authcProperties;
@@ -42,6 +55,15 @@ public class CasProxyFailureRoutingHandler extends ListenedAuthenticationFailure
 		// do nothing
 	}
 
+	/**
+	 * on Authentication Failure.
+	 *
+	 * @param request the request
+	 * @param response the response
+	 * @param exception the exception
+	 * @throws IOException if an error occurs
+	 * @throws ServletException if an error occurs
+	 */
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {

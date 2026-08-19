@@ -27,6 +27,11 @@ public class ServiceAuthenticationDetailsExtSource extends ServiceAuthentication
     private final Map<String, Pattern> artifactPatternMap = new ConcurrentHashMap<>();
     private SecurityCasAuthcProperties authcProperties;
 
+    /**
+     * Constructs a new service authentication details ext source instance.
+     *
+     * @param authcProperties the authc properties
+     */
     public ServiceAuthenticationDetailsExtSource(SecurityCasAuthcProperties authcProperties) {
         super(new ServiceProperties());
         this.authcProperties = authcProperties;

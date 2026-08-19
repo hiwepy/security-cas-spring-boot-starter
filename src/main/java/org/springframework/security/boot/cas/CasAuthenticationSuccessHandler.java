@@ -21,6 +21,7 @@ import java.util.List;
 /**
  * Implementation of CAS authentication success handling
  * @author <a href="https://github.com/loong10k">Loong Wan</a>
+ * @since 1.0.0
  */
 @Slf4j
 public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSuccessHandler {
@@ -28,11 +29,22 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 	private SecurityCasAuthcProperties authcProperties;
 	private JwtPayloadRepository jwtPayloadRepository;
 
+	/**
+	 * Constructs a new cas authentication success handler instance.
+	 *
+	 * @param authcProperties the authc properties
+	 */
 	public CasAuthenticationSuccessHandler(SecurityCasAuthcProperties authcProperties) {
 		super("/");
 		this.authcProperties = authcProperties;
 	}
 
+	/**
+	 * Constructs a new cas authentication success handler instance.
+	 *
+	 * @param authenticationListeners the authentication listeners
+	 * @param authcProperties the authc properties
+	 */
 	public CasAuthenticationSuccessHandler(List<AuthenticationListener> authenticationListeners, SecurityCasAuthcProperties authcProperties) {
 		super(authenticationListeners, "/");
 		this.authcProperties = authcProperties;
@@ -47,6 +59,15 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 		// do nothing
 	}
 
+	/**
+	 * on Authentication Success.
+	 *
+	 * @param request the request
+	 * @param response the response
+	 * @param authentication the authentication
+	 * @throws IOException if an error occurs
+	 * @throws ServletException if an error occurs
+	 */
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {

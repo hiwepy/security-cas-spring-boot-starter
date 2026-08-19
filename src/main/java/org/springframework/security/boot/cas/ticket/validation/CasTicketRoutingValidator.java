@@ -33,6 +33,12 @@ public class CasTicketRoutingValidator implements TicketValidator {
     private final Map<String, TicketValidator> ticketValidatorByReferer = new ConcurrentHashMap<>();
     private final Map<String, TicketValidator> ticketValidatorByTag = new ConcurrentHashMap<>();
 
+    /**
+     * Constructs a new cas ticket routing validator instance.
+     *
+     * @param authcProperties the authc properties
+     * @param ticketValidatorConfig the ticket validator config
+     */
     public CasTicketRoutingValidator(SecurityCasAuthcProperties authcProperties,
                                      CasTicketValidatorConfiguration ticketValidatorConfig) {
         this.authcProperties = authcProperties;

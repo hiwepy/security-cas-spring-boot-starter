@@ -62,14 +62,30 @@ public class CasTicketValidationFilterConfiguration {
      */
     private String proxyCallbackUrl;
 
+    /**
+     * Constructs a new cas ticket validation filter configuration instance.
+     *
+     */
     public CasTicketValidationFilterConfiguration() {
 
     }
 
+	/**
+	 * Constructs a new cas ticket validation filter configuration instance.
+	 *
+	 * @param proxyGrantingTicketStorageProvider the proxy granting ticket storage provider
+	 */
 	public CasTicketValidationFilterConfiguration(ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider) {
 		this.proxyGrantingTicketStorageProvider = proxyGrantingTicketStorageProvider;
 	}
 
+    /**
+     * retrieve Ticket Validation Filter.
+     *
+     * @param ticketValidator the ticket validator
+     * @param serverProperties the server properties
+     * @return the result
+     */
     public AbstractTicketValidationFilter retrieveTicketValidationFilter(final TicketValidator ticketValidator,
                                                                          final SecurityCasServerProperties serverProperties) {
         if (serverProperties.getValidationType() == ValidationType.CAS10) {
@@ -85,6 +101,13 @@ public class CasTicketValidationFilterConfiguration {
         }
     }
 
+    /**
+     * build Cas10 Ticket Validation Filter.
+     *
+     * @param ticketValidator the ticket validator
+     * @param serverProperties the server properties
+     * @return the result
+     */
     protected Cas10TicketValidationFilter buildCas10TicketValidationFilter(final TicketValidator ticketValidator,
                                                                final SecurityCasServerProperties serverProperties) {
         Cas10TicketValidationFilter validationFilter = new Cas10TicketValidationFilter();
@@ -92,6 +115,13 @@ public class CasTicketValidationFilterConfiguration {
         return validationFilter;
     }
 
+    /**
+     * build Cas20 Proxy Receiving Ticket Validation Filter.
+     *
+     * @param ticketValidator the ticket validator
+     * @param serverProperties the server properties
+     * @return the result
+     */
     protected Cas20ProxyReceivingTicketValidationFilter buildCas20ProxyReceivingTicketValidationFilter(final TicketValidator ticketValidator,
                                                              final SecurityCasServerProperties serverProperties) {
         Cas20ProxyReceivingTicketValidationFilter validationFilter = new Cas20ProxyReceivingTicketValidationFilter();
@@ -102,6 +132,13 @@ public class CasTicketValidationFilterConfiguration {
         return validationFilter;
     }
 
+    /**
+     * build Cas30 Proxy Receiving Ticket Validation Filter.
+     *
+     * @param ticketValidator the ticket validator
+     * @param serverProperties the server properties
+     * @return the result
+     */
     protected Cas30ProxyReceivingTicketValidationFilter buildCas30ProxyReceivingTicketValidationFilter(
                      final TicketValidator ticketValidator,
                      final SecurityCasServerProperties serverProperties) {
@@ -118,6 +155,13 @@ public class CasTicketValidationFilterConfiguration {
         return validationFilter;
     }
 
+    /**
+     * build Saml11 Ticket Validation Filter.
+     *
+     * @param ticketValidator the ticket validator
+     * @param serverProperties the server properties
+     * @return the result
+     */
     protected Saml11TicketValidationFilter buildSaml11TicketValidationFilter(final TicketValidator ticketValidator,
                                                                              final SecurityCasServerProperties serverProperties) {
     	final Saml11TicketValidationFilter validationFilter = new Saml11TicketValidationFilter();
@@ -125,6 +169,12 @@ public class CasTicketValidationFilterConfiguration {
         return validationFilter;
     }
 
+    /**
+     * init Ticket Validation Filter.
+     *
+     * @param validationFilter the validation filter
+     * @param serverProperties the server properties
+     */
     protected void initTicketValidationFilter(final AbstractTicketValidationFilter validationFilter,
                                               final SecurityCasServerProperties serverProperties) {
         validationFilter.setEncodeServiceUrl(serverProperties.isEncodeServiceUrl());

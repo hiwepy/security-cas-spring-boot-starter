@@ -18,17 +18,30 @@ import java.util.List;
 
 /**
  * Implementation of CAS authentication failure handling
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
+ * @since 1.0.0
  */
 @Slf4j
 public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailureHandler {
 
 	private SecurityCasAuthcProperties authcProperties;
 
+	/**
+	 * Constructs a new cas authentication failure handler instance.
+	 *
+	 * @param authcProperties the authc properties
+	 */
 	public CasAuthenticationFailureHandler(SecurityCasAuthcProperties authcProperties) {
 		super("/");
 		this.authcProperties = authcProperties;
 	}
 
+	/**
+	 * Constructs a new cas authentication failure handler instance.
+	 *
+	 * @param authenticationListeners the authentication listeners
+	 * @param authcProperties the authc properties
+	 */
 	public CasAuthenticationFailureHandler(List<AuthenticationListener> authenticationListeners,
 										   SecurityCasAuthcProperties authcProperties) {
 		super(authenticationListeners, "/");
@@ -44,6 +57,15 @@ public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailu
 		// do nothing
 	}
 
+	/**
+	 * on Authentication Failure.
+	 *
+	 * @param request the request
+	 * @param response the response
+	 * @param exception the exception
+	 * @throws IOException if an error occurs
+	 * @throws ServletException if an error occurs
+	 */
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {

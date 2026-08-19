@@ -59,6 +59,11 @@ public class CasAuthenticationRoutingProvider extends CasAuthenticationProvider 
 
 	private static final String TARGET_PARAMETER_NAME = "target";
 
+	/**
+	 * Constructs a new cas authentication routing provider instance.
+	 *
+	 * @param authcProperties the authc properties
+	 */
 	public CasAuthenticationRoutingProvider(SecurityCasAuthcProperties authcProperties) {
 		this.authcProperties = authcProperties;
 	}

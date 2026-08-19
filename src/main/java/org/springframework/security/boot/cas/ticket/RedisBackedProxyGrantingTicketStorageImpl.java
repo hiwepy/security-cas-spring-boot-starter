@@ -17,6 +17,11 @@ public class RedisBackedProxyGrantingTicketStorageImpl extends
         AbstractEncryptedProxyGrantingTicketStorageImpl {
     private final RedisTemplate<String, Object> redisTemplate;
 
+    /**
+     * Constructs a new redis backed proxy granting ticket storage impl instance.
+     *
+     * @param redisTemplate the redis template
+     */
     public RedisBackedProxyGrantingTicketStorageImpl(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }

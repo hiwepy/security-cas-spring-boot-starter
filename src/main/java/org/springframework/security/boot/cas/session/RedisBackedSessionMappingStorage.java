@@ -41,10 +41,21 @@ public final class RedisBackedSessionMappingStorage implements SessionMappingSto
 	private static final String ID_TO_SESSION_KEY_MAPPING = "ID_TO_SESSION_KEY_MAPPING.";
 	private RedisTemplate<String, Object> redisTemplate;
 
+	/**
+	 * Constructs a new redis backed session mapping storage instance.
+	 *
+	 * @param redisTemplate the redis template
+	 */
 	public RedisBackedSessionMappingStorage(RedisTemplate<String, Object> redisTemplate) {
 		this.redisTemplate = redisTemplate;
 	}
 
+	/**
+	 * add Session By ID.
+	 *
+	 * @param mappingId the mapping id
+	 * @param session the session
+	 */
 	@Override
 	public synchronized void addSessionById(String mappingId, HttpSession session) {
 		try {
@@ -57,6 +68,11 @@ public final class RedisBackedSessionMappingStorage implements SessionMappingSto
 		}
 	}
 
+	/**
+	 * remove By Session By ID.
+	 *
+	 * @param sessionId the session id
+	 */
 	@Override
 	public synchronized void removeBySessionById(String sessionId) {
 
@@ -84,6 +100,12 @@ public final class RedisBackedSessionMappingStorage implements SessionMappingSto
 		}
 	}
 
+	/**
+	 * remove Session By Mapping ID.
+	 *
+	 * @param mappingId the mapping id
+	 * @return the result
+	 */
 	@Override
 	public synchronized HttpSession removeSessionByMappingId(String mappingId) {
 		HttpSession session = null;

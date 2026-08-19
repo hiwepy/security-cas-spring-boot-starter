@@ -16,6 +16,11 @@ import jakarta.servlet.http.HttpServletRequest;
 @Slf4j
 public class RequestContextHolderUtils {
 
+    /**
+     * Returns the http servlet request.
+     *
+     * @return the http servlet request
+     */
     public static HttpServletRequest getHttpServletRequest() {
         try {
             RequestAttributes requestAttributes = getRequestAttributesSafely();
@@ -28,6 +33,11 @@ public class RequestContextHolderUtils {
         return null;
     }
 
+    /**
+     * Returns the request attributes safely.
+     *
+     * @return the request attributes safely
+     */
     public static RequestAttributes getRequestAttributesSafely(){
         RequestAttributes requestAttributes = null;
         try{

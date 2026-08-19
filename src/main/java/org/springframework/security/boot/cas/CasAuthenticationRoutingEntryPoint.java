@@ -24,6 +24,11 @@ public class CasAuthenticationRoutingEntryPoint extends CasAuthenticationEntryPo
 
     private final SecurityCasAuthcProperties authcProperties;
 
+    /**
+     * Constructs a new cas authentication routing entry point instance.
+     *
+     * @param authcProperties the authc properties
+     */
     public CasAuthenticationRoutingEntryPoint(SecurityCasAuthcProperties authcProperties) {
         super();
         this.authcProperties = authcProperties;

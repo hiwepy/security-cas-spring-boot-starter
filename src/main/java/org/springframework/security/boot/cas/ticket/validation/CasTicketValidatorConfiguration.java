@@ -73,6 +73,11 @@ public class CasTicketValidatorConfiguration {
      */
     private String proxyCallbackUrl;
     
+	/**
+	 * Constructs a new cas ticket validator configuration instance.
+	 *
+	 * @param proxyGrantingTicketStorageProvider the proxy granting ticket storage provider
+	 */
 	public CasTicketValidatorConfiguration(ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider) {
 		this.proxyGrantingTicketStorageProvider = proxyGrantingTicketStorageProvider;
 	}
