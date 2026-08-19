@@ -26,6 +26,12 @@ import jakarta.servlet.http.HttpSession;
  * For Session Storage With Memcached
  * @author <a href="https://github.com/loong10k">Loong Wan</a>
  */
+/**
+ * <p>MemcachedBackedSessionMappingStorage implementation.</p>
+ *
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
+ * @since 1.0.0
+ */
 public final class MemcachedBackedSessionMappingStorage implements SessionMappingStorage {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());

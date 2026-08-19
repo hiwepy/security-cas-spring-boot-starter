@@ -27,6 +27,12 @@ import java.util.concurrent.TimeUnit;
  * For Session Storage With Redis
  * https://www.cnblogs.com/huangbin/p/3282643.html
  */
+/**
+ * <p>RedisBackedSessionMappingStorage implementation.</p>
+ *
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
+ * @since 1.0.0
+ */
 public final class RedisBackedSessionMappingStorage implements SessionMappingStorage {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());

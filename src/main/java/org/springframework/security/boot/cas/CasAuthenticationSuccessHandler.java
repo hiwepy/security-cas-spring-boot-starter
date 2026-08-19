@@ -23,6 +23,12 @@ import java.util.List;
  * @author <a href="https://github.com/loong10k">Loong Wan</a>
  */
 @Slf4j
+/**
+ * <p>CasAuthenticationSuccessHandler implementation.</p>
+ *
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
+ * @since 1.0.0
+ */
 public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSuccessHandler {
 
 	private SecurityCasAuthcProperties authcProperties;

@@ -20,6 +20,12 @@ import java.util.List;
  * Implementation of CAS authentication failure handling
  */
 @Slf4j
+/**
+ * <p>CasAuthenticationFailureHandler implementation.</p>
+ *
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
+ * @since 1.0.0
+ */
 public class CasAuthenticationFailureHandler extends ListenedAuthenticationFailureHandler {
 
 	private SecurityCasAuthcProperties authcProperties;
