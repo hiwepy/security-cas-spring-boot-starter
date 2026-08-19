@@ -33,11 +33,19 @@ public class MemcachedBasedTicketCache implements StatelessTicketCache, Initiali
     // ========================================================================================================
 
     @Override
+    /**
+     * <p>After properties set.</p>
+     */
     public void afterPropertiesSet() {
         Assert.notNull(client, "client mandatory");
     }
 
     @Override
+    /**
+     * <p>Returns the by ticket id.</p>
+     * @param serviceTicket
+     * @return the get by ticket id
+     */
     public CasAuthenticationToken getByTicketId(final String serviceTicket) {
         try {
             Object token = client.get(serviceTicket);
@@ -51,6 +59,10 @@ public class MemcachedBasedTicketCache implements StatelessTicketCache, Initiali
     }
 
     @Override
+    /**
+     * <p>Put ticket in cache.</p>
+     * @param token
+     */
     public void putTicketInCache(final CasAuthenticationToken token) {
         if (log.isDebugEnabled()) {
             log.debug("Cache put: {}", token.getCredentials().toString());
@@ -63,6 +75,10 @@ public class MemcachedBasedTicketCache implements StatelessTicketCache, Initiali
     }
 
     @Override
+    /**
+     * <p>Remove ticket from cache.</p>
+     * @param token
+     */
     public void removeTicketFromCache(final CasAuthenticationToken token) {
         if (log.isDebugEnabled()) {
             log.debug("Cache remove: {}", token.getCredentials().toString());
@@ -71,6 +87,10 @@ public class MemcachedBasedTicketCache implements StatelessTicketCache, Initiali
     }
 
     @Override
+    /**
+     * <p>Remove ticket from cache.</p>
+     * @param serviceTicket
+     */
     public void removeTicketFromCache(final String serviceTicket) {
         try {
             client.delete(serviceTicket);

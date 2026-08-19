@@ -161,34 +161,66 @@ public class CasTicketValidationFilterConfiguration {
 		return properties;
 	}
 
+    /**
+     * <p>Returns the proxy retriever.</p>
+     * @return the get proxy retriever
+     */
     public ProxyRetriever getProxyRetriever() {
         return proxyRetriever;
     }
 
+    /**
+     * <p>Sets the proxy retriever.</p>
+     * @param proxyRetriever
+     */
     public void setProxyRetriever(ProxyRetriever proxyRetriever) {
         this.proxyRetriever = proxyRetriever;
     }
 
+    /**
+     * <p>Checks if accept any proxy.</p>
+     * @return the is accept any proxy
+     */
     public boolean isAcceptAnyProxy() {
         return acceptAnyProxy;
     }
 
+    /**
+     * <p>Sets the accept any proxy.</p>
+     * @param acceptAnyProxy
+     */
     public void setAcceptAnyProxy(boolean acceptAnyProxy) {
         this.acceptAnyProxy = acceptAnyProxy;
     }
 
+    /**
+     * <p>Returns the proxy receptor url.</p>
+     * @return the get proxy receptor url
+     */
     public String getProxyReceptorUrl() {
         return proxyReceptorUrl;
     }
 
+    /**
+     * <p>Sets the proxy receptor url.</p>
+     * @param proxyReceptorUrl
+     */
     public void setProxyReceptorUrl(String proxyReceptorUrl) {
         this.proxyReceptorUrl = proxyReceptorUrl;
     }
 
+    /**
+     * <p>Returns the proxy callback url.</p>
+     * @return the get proxy callback url
+     */
     public String getProxyCallbackUrl() {
         return proxyCallbackUrl;
     }
 
+    /**
+     * <p>Sets the proxy callback url.</p>
+     * @param proxyCallbackUrl
+     */
     public void setProxyCallbackUrl(String proxyCallbackUrl) {
         this.proxyCallbackUrl = proxyCallbackUrl;
     }

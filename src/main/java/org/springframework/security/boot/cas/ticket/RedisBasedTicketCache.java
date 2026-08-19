@@ -30,11 +30,19 @@ public class RedisBasedTicketCache implements StatelessTicketCache, Initializing
     // ========================================================================================================
 
     @Override
+    /**
+     * <p>After properties set.</p>
+     */
     public void afterPropertiesSet() {
         Assert.notNull(redisTemplate, "redisTemplate mandatory");
     }
 
     @Override
+    /**
+     * <p>Returns the by ticket id.</p>
+     * @param serviceTicket
+     * @return the get by ticket id
+     */
     public CasAuthenticationToken getByTicketId(final String serviceTicket) {
         Object token = redisTemplate.opsForValue().get(serviceTicket);
         if (log.isDebugEnabled()) {
@@ -44,6 +52,10 @@ public class RedisBasedTicketCache implements StatelessTicketCache, Initializing
     }
 
     @Override
+    /**
+     * <p>Put ticket in cache.</p>
+     * @param token
+     */
     public void putTicketInCache(final CasAuthenticationToken token) {
         if (log.isDebugEnabled()) {
             log.debug("Cache put: {}", token.getCredentials().toString());
@@ -52,6 +64,10 @@ public class RedisBasedTicketCache implements StatelessTicketCache, Initializing
     }
 
     @Override
+    /**
+     * <p>Remove ticket from cache.</p>
+     * @param token
+     */
     public void removeTicketFromCache(final CasAuthenticationToken token) {
         if (log.isDebugEnabled()) {
             log.debug("Cache remove: {}", token.getCredentials().toString());
@@ -60,6 +76,10 @@ public class RedisBasedTicketCache implements StatelessTicketCache, Initializing
     }
 
     @Override
+    /**
+     * <p>Remove ticket from cache.</p>
+     * @param serviceTicket
+     */
     public void removeTicketFromCache(final String serviceTicket) {
         redisTemplate.delete(serviceTicket);
     }

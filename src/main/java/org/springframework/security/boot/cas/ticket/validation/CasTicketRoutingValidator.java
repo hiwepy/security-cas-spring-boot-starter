@@ -80,16 +80,34 @@ public class CasTicketRoutingValidator implements TicketValidator {
     }
 
     @Override
+    /**
+     * <p>Validate.</p>
+     * @param ticket
+     * @param service
+     * @return the validate
+     */
     public Assertion validate(String ticket, String service) throws TicketValidationException {
         // 1. 根据referer获取TicketValidator
         HttpServletRequest request = RequestContextHolderUtils.getHttpServletRequest();
         return this.getTicketValidatorByRequest(request).validate(ticket, service);
     }
 
+    /**
+     * <p>Validate.</p>
+     * @param request
+     * @param ticket
+     * @param service
+     * @return the validate
+     */
     public Assertion validate(HttpServletRequest request, String ticket, String service) throws TicketValidationException {
         return this.getTicketValidatorByRequest(request).validate(ticket, service);
     }
 
+    /**
+     * <p>Returns the ticket validator by request.</p>
+     * @param request
+     * @return the get ticket validator by request
+     */
     public TicketValidator getTicketValidatorByRequest(HttpServletRequest request) {
         if (Objects.isNull(request)) {
             log.debug("Using Default TicketValidator: " + this.getDefaultTicketValidator().getClass().getName());
@@ -128,14 +146,26 @@ public class CasTicketRoutingValidator implements TicketValidator {
         return this.getDefaultTicketValidator();
     }
 
+    /**
+     * <p>Returns the default ticket validator.</p>
+     * @return the get default ticket validator
+     */
     public TicketValidator getDefaultTicketValidator() {
         return defaultTicketValidator;
     }
 
+    /**
+     * <p>Returns the ticket validator by referer.</p>
+     * @return the get ticket validator by referer
+     */
     public Map<String, TicketValidator> getTicketValidatorByReferer() {
         return ticketValidatorByReferer;
     }
 
+    /**
+     * <p>Returns the ticket validator by tag.</p>
+     * @return the get ticket validator by tag
+     */
     public Map<String, TicketValidator> getTicketValidatorByTag() {
         return ticketValidatorByTag;
     }

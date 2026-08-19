@@ -22,11 +22,19 @@ public class SingleSignOutHttpSessionCasListener implements HttpSessionListener 
     }
 
     @Override
+    /**
+     * <p>Session created.</p>
+     * @param event
+     */
     public void sessionCreated(final HttpSessionEvent event) {
         // nothing to do at the moment
     }
 
     @Override
+    /**
+     * <p>Session destroyed.</p>
+     * @param event
+     */
     public void sessionDestroyed(final HttpSessionEvent event) {
         if (Objects.nonNull(sessionMappingStorage)) {
             final HttpSession session = event.getSession();

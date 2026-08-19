@@ -53,6 +53,11 @@ public class ServiceAuthenticationDetailsExtSource extends ServiceAuthentication
     }
 
     @Override
+    /**
+     * <p>Builds the details.</p>
+     * @param request
+     * @return the build details
+     */
     public ServiceAuthenticationDetails buildDetails(HttpServletRequest request) {
         SecurityCasServerProperties serverProperties = authcProperties.getByRequest(request);
         Pattern artifactPattern = this.artifactPatternMap.get(serverProperties.getServerUrlPrefix());

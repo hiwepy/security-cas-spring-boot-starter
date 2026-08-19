@@ -23,12 +23,6 @@ import java.util.List;
  * @author <a href="https://github.com/loong10k">Loong Wan</a>
  */
 @Slf4j
-/**
- * <p>CasAuthenticationSuccessHandler implementation.</p>
- *
- * @author <a href="https://github.com/loong10k">Loong Wan</a>
- * @since 1.0.0
- */
 public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSuccessHandler {
 
 	private SecurityCasAuthcProperties authcProperties;
@@ -45,6 +39,10 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 	}
 
 	@Override
+    /**
+     * <p>Sets the default target url.</p>
+     * @param defaultTargetUrl
+     */
 	public void setDefaultTargetUrl(String defaultTargetUrl) {
 		// do nothing
 	}
@@ -142,10 +140,18 @@ public class CasAuthenticationSuccessHandler extends ListenedAuthenticationSucce
 		return targetUrl;
 	}
 
+    /**
+     * <p>Returns the jwt payload repository.</p>
+     * @return the get jwt payload repository
+     */
 	public JwtPayloadRepository getJwtPayloadRepository() {
 		return jwtPayloadRepository;
 	}
 
+    /**
+     * <p>Sets the jwt payload repository.</p>
+     * @param jwtPayloadRepository
+     */
 	public void setJwtPayloadRepository(JwtPayloadRepository jwtPayloadRepository) {
 		this.jwtPayloadRepository = jwtPayloadRepository;
 	}

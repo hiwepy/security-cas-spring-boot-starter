@@ -19,12 +19,6 @@ import java.util.List;
  * Implementation of CAS authentication failure handling
  */
 @Slf4j
-/**
- * <p>CasProxyFailureRoutingHandler implementation.</p>
- *
- * @author <a href="https://github.com/loong10k">Loong Wan</a>
- * @since 1.0.0
- */
 public class CasProxyFailureRoutingHandler extends ListenedAuthenticationFailureHandler {
 	
 	private SecurityCasAuthcProperties authcProperties;
@@ -40,6 +34,10 @@ public class CasProxyFailureRoutingHandler extends ListenedAuthenticationFailure
 	}
 
 	@Override
+    /**
+     * <p>Sets the default failure url.</p>
+     * @param defaultFailureUrl
+     */
 	public void setDefaultFailureUrl(String defaultFailureUrl) {
 		// do nothing
 	}

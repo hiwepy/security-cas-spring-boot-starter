@@ -100,6 +100,9 @@ public class CasTicketValidationRoutingFilter extends AbstractCasRoutingFilter {
     }
 
     @Override
+    /**
+     * <p>Initializes the init.</p>
+     */
     public void init() {
         super.init();
         CommonUtils.assertNotNull(this.ticketValidator, "ticketValidator cannot be null.");
@@ -150,6 +153,11 @@ public class CasTicketValidationRoutingFilter extends AbstractCasRoutingFilter {
 
     }
 
+    /**
+     * <p>Returns the ticket validation filter by request.</p>
+     * @param request
+     * @return the get ticket validation filter by request
+     */
     public AbstractTicketValidationFilter getTicketValidationFilterByRequest(HttpServletRequest request) {
         if (Objects.isNull(request)) {
             log.debug("Using Default TicketValidationFilter: " + this.getDefaultTicketValidationFilter().getClass().getName());
@@ -188,22 +196,42 @@ public class CasTicketValidationRoutingFilter extends AbstractCasRoutingFilter {
         return this.getDefaultTicketValidationFilter();
     }
 
+    /**
+     * <p>Returns the proxy granting ticket storage provider.</p>
+     * @return the get proxy granting ticket storage provider
+     */
     public ProxyGrantingTicketStorageProvider getProxyGrantingTicketStorageProvider() {
         return proxyGrantingTicketStorageProvider;
     }
 
+    /**
+     * <p>Returns the default ticket validation filter.</p>
+     * @return the get default ticket validation filter
+     */
     public AbstractTicketValidationFilter getDefaultTicketValidationFilter() {
         return defaultTicketValidationFilter;
     }
 
+    /**
+     * <p>Returns the ticket validation filter by referer.</p>
+     * @return the get ticket validation filter by referer
+     */
     public Map<String, AbstractTicketValidationFilter> getTicketValidationFilterByReferer() {
         return ticketValidationFilterByReferer;
     }
 
+    /**
+     * <p>Returns the ticket validation filter by tag.</p>
+     * @return the get ticket validation filter by tag
+     */
     public Map<String, AbstractTicketValidationFilter> getTicketValidationFilterByTag() {
         return ticketValidationFilterByTag;
     }
 
+    /**
+     * <p>Returns the ticket validator.</p>
+     * @return the get ticket validator
+     */
     public TicketValidator getTicketValidator() {
         return ticketValidator;
     }

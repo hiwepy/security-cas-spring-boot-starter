@@ -71,30 +71,53 @@ public class SecurityCasFilterConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
+    /**
+     * <p>Cas assertion user details service.</p>
+     * @param authcProperties
+     * @return the cas assertion user details service
+     */
 	public AbstractCasAssertionUserDetailsService casAssertionUserDetailsService(SecurityCasAuthcProperties authcProperties) {
 		return new GrantedAuthorityFromAssertionAttributesUserDetailsRoutingService(authcProperties);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
+    /**
+     * <p>Proxy granting ticket storage provider.</p>
+     * @param authcProperties
+     * @return the proxy granting ticket storage provider
+     */
 	public ProxyGrantingTicketStorageProvider proxyGrantingTicketStorageProvider(SecurityCasAuthcProperties authcProperties) {
 		return new DefaultProxyGrantingTicketStorageProvider(authcProperties);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
+    /**
+     * <p>Authentication details source.</p>
+     * @param authcProperties
+     * @return the authentication details source
+     */
 	public ServiceAuthenticationDetailsSource authenticationDetailsSource(SecurityCasAuthcProperties authcProperties) {
 		return new ServiceAuthenticationDetailsExtSource(authcProperties);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
+    /**
+     * <p>Session mapping storage.</p>
+     * @return the session mapping storage
+     */
 	public SessionMappingStorage sessionMappingStorage() {
 		return new HashMapBackedSessionMappingStorage();
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
+    /**
+     * <p>Stateless ticket cache.</p>
+     * @return the stateless ticket cache
+     */
 	public StatelessTicketCache statelessTicketCache() {
 		return new NullStatelessTicketCache();
 	}
@@ -147,6 +170,11 @@ public class SecurityCasFilterConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
+    /**
+     * <p>Cas authentication entry point.</p>
+     * @param authcProperties
+     * @return the cas authentication entry point
+     */
 	public CasAuthenticationEntryPoint casAuthenticationEntryPoint(SecurityCasAuthcProperties authcProperties) {
 
 		CasAuthenticationRoutingEntryPoint entryPoint = new CasAuthenticationRoutingEntryPoint(authcProperties);
@@ -248,6 +276,10 @@ public class SecurityCasFilterConfiguration {
 
 		}
 
+    /**
+     * <p>Authentication failure handler.</p>
+     * @return the authentication failure handler
+     */
 		public CasAuthenticationFailureHandler authenticationFailureHandler() {
 
 			CasAuthenticationFailureHandler failureHandler = new CasAuthenticationFailureHandler(authcProperties);
@@ -260,6 +292,10 @@ public class SecurityCasFilterConfiguration {
 
 		}
 
+    /**
+     * <p>Proxy failure handler.</p>
+     * @return the proxy failure handler
+     */
 	   	public CasProxyFailureRoutingHandler proxyFailureHandler() {
 
 	    	CasProxyFailureRoutingHandler failureHandler = new CasProxyFailureRoutingHandler(authcProperties);
@@ -272,6 +308,10 @@ public class SecurityCasFilterConfiguration {
 
 	   	}
 
+    /**
+     * <p>Cas authentication filter.</p>
+     * @return the cas authentication filter
+     */
 		public CasAuthenticationRoutingFilter casAuthenticationFilter() throws Exception {
 
 			CasAuthenticationRoutingFilter authenticationFilter = new CasAuthenticationRoutingFilter(authcProperties);
@@ -300,6 +340,10 @@ public class SecurityCasFilterConfiguration {
 			return authenticationFilter;
 		}
 
+    /**
+     * <p>Saml11 authentication filter.</p>
+     * @return the saml11 authentication filter
+     */
 		public Saml11AuthenticationRoutingFilter saml11AuthenticationFilter() throws Exception {
 			Saml11AuthenticationRoutingFilter authenticationFilter = new Saml11AuthenticationRoutingFilter(authcProperties);
 			PropertyMapper map = PropertyMapper.get();
@@ -307,6 +351,10 @@ public class SecurityCasFilterConfiguration {
 			return authenticationFilter;
 		}
 
+    /**
+     * <p>Cas ticket validation filter.</p>
+     * @return the cas ticket validation filter
+     */
 		public CasTicketValidationRoutingFilter casTicketValidationFilter() throws Exception {
 
 			CasTicketValidationRoutingFilter authenticationFilter = new CasTicketValidationRoutingFilter(authcProperties,
@@ -323,6 +371,10 @@ public class SecurityCasFilterConfiguration {
 		 * @return ServletListenerRegistrationBean
 		 */
 	    @Bean
+    /**
+     * <p>Single sign out http session listener.</p>
+     * @return the single sign out http session listener
+     */
 	    public ServletListenerRegistrationBean<SingleSignOutHttpSessionCasListener> singleSignOutHttpSessionListener(){
 	        ServletListenerRegistrationBean<SingleSignOutHttpSessionCasListener> servletListenerRegistrationBean =
 	                new ServletListenerRegistrationBean<>();
@@ -362,6 +414,10 @@ public class SecurityCasFilterConfiguration {
 			return wrapperFilter;
 		}
 
+    /**
+     * <p>Request context filter.</p>
+     * @return the request context filter
+     */
 		public RequestContextFilter requestContextFilter() {
 			RequestContextFilter requestContextFilter = new RequestContextFilter();
 			requestContextFilter.setThreadContextInheritable(true);
@@ -370,6 +426,11 @@ public class SecurityCasFilterConfiguration {
 
 		@Bean
 		@Order(Ordered.HIGHEST_PRECEDENCE + 60)
+    /**
+     * <p>Cas security filter chain.</p>
+     * @param http
+     * @return the cas security filter chain
+     */
 		public SecurityFilterChain casSecurityFilterChain(HttpSecurity http) throws Exception {
 
 			http.securityMatcher(authcProperties.getPathPattern())
@@ -395,6 +456,10 @@ public class SecurityCasFilterConfiguration {
 	    }
 
 		@Override
+    /**
+     * <p>Customize.</p>
+     * @param web
+     */
 		public void customize(WebSecurity web) {
 			super.customize(web);
 		}

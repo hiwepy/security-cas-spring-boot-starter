@@ -73,6 +73,10 @@ public class SingleSignOutRoutingFilter extends AbstractConfigurationFilter {
     }
 
     @Override
+    /**
+     * <p>Initializes the init.</p>
+     * @param filterConfig
+     */
     public void init(final FilterConfig filterConfig) throws ServletException {
         super.init(filterConfig);
     }
@@ -101,14 +105,25 @@ public class SingleSignOutRoutingFilter extends AbstractConfigurationFilter {
     }
 
     @Override
+    /**
+     * <p>Destroy.</p>
+     */
     public void destroy() {
         // nothing to do
     }
 
+    /**
+     * <p>Sets the session mapping storage.</p>
+     * @param sessionMappingStorage
+     */
     public void setSessionMappingStorage(SessionMappingStorage sessionMappingStorage) {
         this.sessionMappingStorage = sessionMappingStorage;
     }
 
+    /**
+     * <p>Sets the eagerly create sessions.</p>
+     * @param eagerlyCreateSessions
+     */
     public void setEagerlyCreateSessions(boolean eagerlyCreateSessions) {
         this.eagerlyCreateSessions = eagerlyCreateSessions;
     }

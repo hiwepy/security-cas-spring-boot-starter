@@ -22,6 +22,11 @@ public class RedisBackedProxyGrantingTicketStorageImpl extends
     }
 
     @Override
+    /**
+     * <p>Save internal.</p>
+     * @param proxyGrantingTicketIou
+     * @param proxyGrantingTicket
+     */
     public void saveInternal(final String proxyGrantingTicketIou, final String proxyGrantingTicket) {
         handleSynchronousRequest(CompletableFuture.supplyAsync(() -> {
             redisTemplate.opsForValue().set(proxyGrantingTicketIou, proxyGrantingTicket, Duration.ofSeconds(120));
@@ -30,11 +35,19 @@ public class RedisBackedProxyGrantingTicketStorageImpl extends
     }
 
     @Override
+    /**
+     * <p>Retrieve internal.</p>
+     * @param proxyGrantingTicketIou
+     * @return the retrieve internal
+     */
     public String retrieveInternal(final String proxyGrantingTicketIou) {
         return (String) redisTemplate.opsForValue().get(proxyGrantingTicketIou);
     }
 
     @Override
+    /**
+     * <p>Clean up.</p>
+     */
     public void cleanUp() {
         // we actually don't have anything to do here, yay!
     }

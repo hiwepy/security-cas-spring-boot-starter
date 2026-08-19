@@ -64,6 +64,12 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
     }
 
     @Override
+    /**
+     * <p>Performs filter.</p>
+     * @param req
+     * @param res
+     * @param chain
+     */
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) req;
@@ -199,6 +205,10 @@ public class CasAuthenticationRoutingFilter extends CasAuthenticationFilter {
         return result;
     }
 
+    /**
+     * <p>Sets the proxy receptor url2.</p>
+     * @param proxyReceptorUrl
+     */
     public void setProxyReceptorUrl2(final String proxyReceptorUrl) {
         super.setProxyReceptorUrl(proxyReceptorUrl);
         this.proxyReceptorMatcher = PathPatternRequestMatcher.pathPattern("/**" + proxyReceptorUrl);

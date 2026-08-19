@@ -35,6 +35,11 @@ public class GrantedAuthorityFromAssertionAttributesUserDetailsRoutingService ex
 
     @SuppressWarnings("unchecked")
     @Override
+    /**
+     * <p>Loads the user details.</p>
+     * @param assertion
+     * @return the load user details
+     */
     protected UserDetails loadUserDetails(final Assertion assertion) {
         final List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         HttpServletRequest request = RequestContextHolderUtils.getHttpServletRequest();

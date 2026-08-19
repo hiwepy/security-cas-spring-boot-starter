@@ -64,6 +64,11 @@ public class CasAuthenticationRoutingProvider extends CasAuthenticationProvider 
 	}
 
 	@Override
+    /**
+     * <p>Authenticate.</p>
+     * @param authentication
+     * @return the authenticate
+     */
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		if (!supports(authentication.getClass())) {
 			return null;
@@ -157,6 +162,10 @@ public class CasAuthenticationRoutingProvider extends CasAuthenticationProvider 
 
 
     @Override
+    /**
+     * <p>Sets the authorities mapper.</p>
+     * @param authoritiesMapper
+     */
 	public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		super.setAuthoritiesMapper(authoritiesMapper);
 		this.authoritiesMapper = authoritiesMapper;

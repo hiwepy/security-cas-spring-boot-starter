@@ -30,6 +30,9 @@ public class CasAuthenticationRoutingEntryPoint extends CasAuthenticationEntryPo
     }
 
     @Override
+    /**
+     * <p>After properties set.</p>
+     */
     public void afterPropertiesSet() {
     }
 
@@ -63,6 +66,11 @@ public class CasAuthenticationRoutingEntryPoint extends CasAuthenticationEntryPo
      * @return the redirect url. CANNOT be NULL.
      */
     @Override
+    /**
+     * <p>Creates a new redirect url.</p>
+     * @param serviceUrl
+     * @return the create redirect url
+     */
     protected String createRedirectUrl(final String serviceUrl) {
         // 1. 根据referer获取TicketValidator
         HttpServletRequest request = RequestContextHolderUtils.getHttpServletRequest();

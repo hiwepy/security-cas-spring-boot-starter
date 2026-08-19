@@ -96,6 +96,11 @@ public class SecurityCasAuthcProperties extends SecurityAuthcProperties {
 	@NestedConfigurationProperty
 	private List<SecurityCasServerProperties> servers = new ArrayList<>();
 
+    /**
+     * <p>Returns the by request.</p>
+     * @param request
+     * @return the get by request
+     */
 	public SecurityCasServerProperties getByRequest(HttpServletRequest request) {
 		if (CollectionUtils.isEmpty(this.servers)) {
 			throw new IllegalArgumentException("servers must not be empty");

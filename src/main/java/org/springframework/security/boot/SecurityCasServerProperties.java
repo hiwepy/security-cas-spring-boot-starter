@@ -35,12 +35,6 @@ import java.util.Map;
 @Getter
 @Setter
 @ToString
-/**
- * <p>Configuration properties for SecurityCasServer.</p>
- *
- * @author <a href="https://github.com/loong10k">Loong Wan</a>
- * @since 1.0.0
- */
 public class SecurityCasServerProperties {
 
 	/**

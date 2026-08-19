@@ -27,6 +27,10 @@ public class DefaultProxyGrantingTicketStorageProvider implements ProxyGrantingT
         this.initProxyGrantingTicketStorage(authcProperties.getServers());
     }
 
+    /**
+     * <p>Initializes the proxy granting ticket storage.</p>
+     * @param servers
+     */
     protected void initProxyGrantingTicketStorage(List<SecurityCasServerProperties> servers) {
         if (Objects.isNull(servers)) {
             return;
@@ -45,6 +49,11 @@ public class DefaultProxyGrantingTicketStorageProvider implements ProxyGrantingT
         }
     }
 
+    /**
+     * <p>Builds the proxy granting ticket storage.</p>
+     * @param serverProperties
+     * @return the build proxy granting ticket storage
+     */
     protected ProxyGrantingTicketStorage buildProxyGrantingTicketStorage(SecurityCasServerProperties serverProperties) {
         if (Objects.isNull(serverProperties)) {
             return null;
@@ -53,6 +62,11 @@ public class DefaultProxyGrantingTicketStorageProvider implements ProxyGrantingT
     }
 
     @Override
+    /**
+     * <p>Returns the proxy granting ticket storage.</p>
+     * @param serverProperties
+     * @return the get proxy granting ticket storage
+     */
     public ProxyGrantingTicketStorage getProxyGrantingTicketStorage(SecurityCasServerProperties serverProperties) {
         if (Objects.isNull(serverProperties)) {
             return null;

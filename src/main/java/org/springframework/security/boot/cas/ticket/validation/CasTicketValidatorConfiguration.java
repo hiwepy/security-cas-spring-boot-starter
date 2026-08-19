@@ -98,6 +98,11 @@ public class CasTicketValidatorConfiguration {
         }
     }
 
+    /**
+     * <p>Builds the cas10 ticket validator.</p>
+     * @param serverProperties
+     * @return the build cas10 ticket validator
+     */
     protected TicketValidator buildCas10TicketValidator(final SecurityCasServerProperties serverProperties) {
         final Cas10TicketValidator cas10TicketValidator = new Cas10TicketValidator(serverProperties.getServerUrlPrefix());
         cas10TicketValidator.setEncoding(serverProperties.getEncoding());
@@ -105,6 +110,11 @@ public class CasTicketValidatorConfiguration {
         return cas10TicketValidator;
     }
 
+    /**
+     * <p>Builds the cas20 ticket validator.</p>
+     * @param serverProperties
+     * @return the build cas20 ticket validator
+     */
     protected TicketValidator buildCas20TicketValidator(final SecurityCasServerProperties serverProperties) {
         
     	final Cas20ServiceTicketValidator cas20ServiceTicketValidator = new Cas20ServiceTicketValidator(serverProperties.getServerUrlPrefix());
@@ -125,6 +135,11 @@ public class CasTicketValidatorConfiguration {
         return cas20ServiceTicketValidator;
     }
 
+    /**
+     * <p>Builds the cas20 proxy ticket validator.</p>
+     * @param serverProperties
+     * @return the build cas20 proxy ticket validator
+     */
     protected TicketValidator buildCas20ProxyTicketValidator(final SecurityCasServerProperties serverProperties) {
         final Cas20ProxyTicketValidator cas20ProxyTicketValidator = new Cas20ProxyTicketValidator(serverProperties.getServerUrlPrefix());
         cas20ProxyTicketValidator.setEncoding(serverProperties.getEncoding());
@@ -147,6 +162,11 @@ public class CasTicketValidatorConfiguration {
         return cas20ProxyTicketValidator;
     }
 
+    /**
+     * <p>Builds the cas30 ticket validator.</p>
+     * @param serverProperties
+     * @return the build cas30 ticket validator
+     */
     protected TicketValidator buildCas30TicketValidator(final SecurityCasServerProperties serverProperties) {
 
         Cas30ServiceTicketValidator cas30ServiceTicketValidator = null;
@@ -173,6 +193,11 @@ public class CasTicketValidatorConfiguration {
         return cas30ServiceTicketValidator;
     }
 
+    /**
+     * <p>Builds the cas30 proxy ticket validator.</p>
+     * @param serverProperties
+     * @return the build cas30 proxy ticket validator
+     */
     protected TicketValidator buildCas30ProxyTicketValidator(final SecurityCasServerProperties serverProperties) {
         final Cas30ProxyTicketValidator cas30ProxyTicketValidator = new Cas30ProxyTicketValidator(serverProperties.getServerUrlPrefix());
         cas30ProxyTicketValidator.setEncoding(serverProperties.getEncoding());
@@ -194,6 +219,11 @@ public class CasTicketValidatorConfiguration {
         return cas30ProxyTicketValidator;
     }
     
+    /**
+     * <p>Builds the s a m l ticket validator.</p>
+     * @param serverProperties
+     * @return the build s a m l ticket validator
+     */
     protected TicketValidator buildSAMLTicketValidator(final SecurityCasServerProperties serverProperties) {
         final Saml11TicketValidator saml11TicketValidator = new Saml11TicketValidator(serverProperties.getServerUrlPrefix());
         saml11TicketValidator.setTolerance(serverProperties.getTolerance());
@@ -232,38 +262,74 @@ public class CasTicketValidatorConfiguration {
 		return properties;
 	}
 
+    /**
+     * <p>Sets the hostname verifier.</p>
+     * @param hostnameVerifier
+     */
     public void setHostnameVerifier(HostnameVerifier hostnameVerifier) {
         this.hostnameVerifier = hostnameVerifier;
     }
 
+    /**
+     * <p>Returns the proxy retriever.</p>
+     * @return the get proxy retriever
+     */
     public ProxyRetriever getProxyRetriever() {
         return proxyRetriever;
     }
 
+    /**
+     * <p>Sets the proxy retriever.</p>
+     * @param proxyRetriever
+     */
     public void setProxyRetriever(ProxyRetriever proxyRetriever) {
         this.proxyRetriever = proxyRetriever;
     }
 
+    /**
+     * <p>Checks if accept any proxy.</p>
+     * @return the is accept any proxy
+     */
     public boolean isAcceptAnyProxy() {
         return acceptAnyProxy;
     }
 
+    /**
+     * <p>Sets the accept any proxy.</p>
+     * @param acceptAnyProxy
+     */
     public void setAcceptAnyProxy(boolean acceptAnyProxy) {
         this.acceptAnyProxy = acceptAnyProxy;
     }
 
+    /**
+     * <p>Returns the proxy receptor url.</p>
+     * @return the get proxy receptor url
+     */
     public String getProxyReceptorUrl() {
         return proxyReceptorUrl;
     }
 
+    /**
+     * <p>Sets the proxy receptor url.</p>
+     * @param proxyReceptorUrl
+     */
     public void setProxyReceptorUrl(String proxyReceptorUrl) {
         this.proxyReceptorUrl = proxyReceptorUrl;
     }
 
+    /**
+     * <p>Returns the proxy callback url.</p>
+     * @return the get proxy callback url
+     */
     public String getProxyCallbackUrl() {
         return proxyCallbackUrl;
     }
 
+    /**
+     * <p>Sets the proxy callback url.</p>
+     * @param proxyCallbackUrl
+     */
     public void setProxyCallbackUrl(String proxyCallbackUrl) {
         this.proxyCallbackUrl = proxyCallbackUrl;
     }

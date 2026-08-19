@@ -26,6 +26,10 @@ public class Saml11AuthenticationRoutingFilter extends AbstractCasFilter {
     }
 
     @Override
+    /**
+     * <p>Initializes the internal.</p>
+     * @param filterConfig
+     */
     protected void initInternal(final FilterConfig filterConfig) throws ServletException {
 
     }
@@ -79,6 +83,11 @@ public class Saml11AuthenticationRoutingFilter extends AbstractCasFilter {
         this.authenticationRedirectStrategy.redirect(request, response, urlToRedirectTo);*/
     }
 
+    /**
+     * <p>Checks if request url excluded.</p>
+     * @param request
+     * @return the is request url excluded
+     */
     protected boolean isRequestUrlExcluded(final HttpServletRequest request) {
         final StringBuffer urlBuffer = request.getRequestURL();
         if (request.getQueryString() != null) {
